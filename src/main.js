@@ -1,5 +1,5 @@
-var canvas = document.getElementById("c");
-var ctx = canvas.getContext("2d");
+// var canvas = document.getElementById("c");
+// var ctx = canvas.getContext("2d");
 // var gl = canvas.getContext("experimental-webgl");
 
 /* Step2: Define the geometry and store it in buffer objects */
@@ -94,3 +94,5 @@ var ctx = canvas.getContext("2d");
 
 // // Draw the triangle
 // gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+startGame();
