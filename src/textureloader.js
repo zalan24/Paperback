@@ -21,23 +21,24 @@ function getImageData(img, atlasObj) {
   atlasObj.imageData = textureCtx.getImageData(0, 0, img.width, img.height);
 }
 
-function extractTexture(imageData, rect, atlasWidth) {
-  var smallData = new ImageData(rect.w, rect.h);
-  const perPixelData = 4;
-  for (var i = 0; i < rect.w * perPixelData; ++i) {
-    for (var j = 0; j < rect.h; ++j) {
-      smallData.data[i + j * rect.w * perPixelData] =
-        imageData.data[
-          i + rect.x * perPixelData + (j + rect.y) * atlasWidth * perPixelData
-        ];
-    }
-  }
-  // TODO we don't need image, only image data here
+function extractTexture(imageData, rect) {
+  let smallData = new ImageData(rect.w, rect.h);
+  transformImage(
+    imageData,
+    rect.x,
+    rect.y,
+    smallData,
+    0,
+    0,
+    rect.w,
+    rect.h,
+    p => p
+  );
   textureCanvas.width = rect.w;
   textureCanvas.height = rect.h;
   textureCtx.putImageData(smallData, 0, 0);
 
-  var image = new Image();
+  let image = new Image();
   image.src = textureCanvas.toDataURL();
   return { img: image, data: smallData };
 }
@@ -45,16 +46,18 @@ function extractTexture(imageData, rect, atlasWidth) {
 function loadAtlas(atlas) {
   atlas.img.onload = () => {
     getImageData(atlas.img, atlas);
-    var keys = Object.keys(atlas.textures);
-    for (var i = 0; i < keys.length; ++i) {
-      var tex = atlas.textures[keys[i]];
-      tex.texture = extractTexture(atlas.imageData, tex.rect, atlas.img.width);
+    let keys = Object.keys(atlas.textures);
+    for (let i = 0; i < keys.length; ++i) {
+      let tex = atlas.textures[keys[i]];
+      tex.texture = extractTexture(atlas.imageData, tex.rect);
       if (tex.onload) tex.onload();
     }
   };
 }
 
-var atlasKeys = Object.keys(atlases);
-for (var i = 0; i < atlasKeys.length; ++i) {
-  loadAtlas(atlases[atlasKeys[i]]);
+{
+  let atlasKeys = Object.keys(atlases);
+  for (let i = 0; i < atlasKeys.length; ++i) {
+    loadAtlas(atlases[atlasKeys[i]]);
+  }
 }

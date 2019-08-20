@@ -1,21 +1,23 @@
 console.log("time: " + new Date().toLocaleString());
 
-var debugImage = atlases.test_atlas.textures.sword;
+let paperTexture = resources.textures.sword.paperTexture;
+paperTexture.onload = function() {
+  console.log("aoeu");
+  //   var testImage = document.getElementById("testImage");
+  //   testImage.src = resources.textures.character.paperTexture.texture.img.src;
 
-debugImage.onload = function() {
+  var debugTexture = resources.textures.character.paperTexture.texture.img;
+
   ctx.fillStyle = "#FF0000";
   ctx.fillRect(0, 0, 512, 512);
 
-  debugImage.texture.img.onload = function() {
+  debugTexture.onload = function() {
     console.log(
-      "debugImage size: " +
-        debugImage.texture.img.width +
-        "x" +
-        debugImage.texture.img.height
+      "debugTexture size: " + debugTexture.width + "x" + debugTexture.height
     );
-    ctx.drawImage(debugImage.texture.img, 0, 0);
+    ctx.drawImage(debugTexture, 0, 0);
   };
 
   var testImage = document.getElementById("testImage");
-  testImage.src = debugImage.texture.img.src;
+  testImage.src = debugTexture.src;
 };

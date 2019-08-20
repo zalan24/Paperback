@@ -4,10 +4,12 @@ mkdir -p build/res
 cp res/test_atlas.png build/res/test_atlas.png
 
 cat \
+	src/image.js \
+	src/papertexture.js \
 	src/textureloader.js \
 	src/resources.js \
 	src/main.js \
-# 	src/debug.js \
+ 	src/debug.js \
 	> build/paper.js
 
 

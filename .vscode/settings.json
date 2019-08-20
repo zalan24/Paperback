@@ -1,4 +1,8 @@
 {
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.ignoreWords": [
+    "papertexture",
+    "textureloader"
+  ]
   // "prettier.eslintIntegration": true
 }
