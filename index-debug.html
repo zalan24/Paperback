@@ -1,49 +1,57 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Paper</title>
-    <style>
-        div:last-child {
-            color: #e90;
-        }
+    <!-- <style>
+      div:last-child {
+        color: #e90;
+      }
 
-        b {
-            animation: r 1s infinite;
-        }
+      b {
+        animation: r 1s infinite;
+      }
 
-        @keyframes r {
-            50% {
-                opacity: 0;
-            }
+      @keyframes r {
+        50% {
+          opacity: 0;
         }
+      }
 
-        #c {
-            width: 100%;
-            image-rendering: optimizeSpeed;
-            image-rendering: pixelated;
-            cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAZQTFRFAAAA////pdmf3QAAAAF0Uk5TAEDm2GYAAAATSURBVAjXYxBgEGBgYDgGxEAWAAc4AQebSvKuAAAAAElFTkSuQmCC), auto;
-        }
+      #c {
+        width: 100%;
+        image-rendering: optimizeSpeed;
+        image-rendering: pixelated;
+        cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAZQTFRFAAAA////pdmf3QAAAAF0Uk5TAEDm2GYAAAATSURBVAjXYxBgEGBgYDgGxEAWAAc4AQebSvKuAAAAAElFTkSuQmCC),
+          auto;
+      }
 
-        #a {
-            font-weight: bold;
-            color: #c80;
-            position: absolute;
-            top: 4vw;
-            left: 2vw;
-            font-size: 1.6vw;
-            overflow: hidden;
-            white-space: nowrap;
-            width: 94%;
-            text-shadow: 0 0 7px #f70;
-            transition: opacity 1s;
-        }
-    </style>
-</head>
+      #a {
+        font-weight: bold;
+        color: #c80;
+        position: absolute;
+        top: 4vw;
+        left: 2vw;
+        font-size: 1.6vw;
+        overflow: hidden;
+        white-space: nowrap;
+        width: 94%;
+        text-shadow: 0 0 7px #f70;
+        transition: opacity 1s;
+      }
+    </style> -->
+  </head>
 
-<body style="margin:0;background:#000"><canvas id="c" width=320 height=180></canvas><code id="a"></code>
+  <body style="margin:0;background:rgb(255, 255, 255)">
+    <canvas id="c" width="800" height="600"></canvas>
+    <canvas id="t"></canvas>
+    <img height="64" width="64" id="testImage" />
+
+    <script type="text/javascript" src="src/textureloader.js"></script>
+    <script type="text/javascript" src="src/resources.js"></script>
+
     <script type="text/javascript" src="src/main.js"></script>
-</body>
 
+    <script type="text/javascript" src="src/debug.js"></script>
+  </body>
 </html>

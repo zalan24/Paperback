@@ -1,7 +1,13 @@
 mkdir -p build
+mkdir -p build/res
+
+cp res/test_atlas.png build/res/test_atlas.png
 
 cat \
+	src/textureloader.js \
+	src/resources.js \
 	src/main.js \
+# 	src/debug.js \
 	> build/paper.js
 
 
@@ -21,4 +27,4 @@ cp build/paper.js build/paper.compact.js
 rm -f build/paper.zip
 
 sed -e '/GAME_SOURCE/{r build/paper.min.js' -e 'd}' src/html-template.html > build/index.html
-powershell Compress-Archive build/index.html build/paper.zip
+powershell Compress-Archive -Path build/index.html, build/res/ -CompressionLevel Optimal -DestinationPath build/paper.zip
