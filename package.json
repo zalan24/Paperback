@@ -1,0 +1,19 @@
+{
+  "name": "paper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.2.0",
+    "acorn-jsx": "5.0.1",
+    "uglify-es": "^3.3.9"
+  }
+}
