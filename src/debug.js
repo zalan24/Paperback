@@ -23,3 +23,4 @@ paperTexture.onload = function() {
 };
 
 let cube = createCube();
+addEntity(new DummyEntity(cube));

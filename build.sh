@@ -11,6 +11,7 @@ cat \
 	src/textureloader.js \
 	src/resources.js \
 	src/renderer.js \
+	src/entity.js \
 	src/game.js \
 	src/main.js \
  	src/debug.js \

@@ -1,6 +1,7 @@
 {
   "editor.formatOnSave": true,
   "cSpell.ignoreWords": [
+    "dummyentity",
     "linalg",
     "papertexture",
     "textureloader"
