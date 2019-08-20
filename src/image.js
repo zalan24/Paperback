@@ -34,6 +34,19 @@ function transformImage(fromImage, fromX, fromY, toImage, toX, toY, w, h, f) {
   );
 }
 
+function lerp(a, b, f) {
+  return (b - a) * f + a;
+}
+
+function lerpColor(c1, c2, f) {
+  return {
+    r: lerp(c1.r, c2.r, f),
+    g: lerp(c1.g, c2.g, f),
+    b: lerp(c1.b, c2.b, f),
+    a: lerp(c1.a, c2.a, f)
+  };
+}
+
 function filterImage(
   fromImage,
   fromX,
@@ -44,22 +57,27 @@ function filterImage(
   w,
   h,
   kernel,
-  f
+  f,
+  stencil = (x, y) => true
 ) {
   foreachPixel(toImage, toX, toY, w, h, (x, y) => {
-    let sum = { a: 0, r: 0, g: 0, b: 0 };
-    for (let i = -kernel; i <= kernel; ++i) {
-      for (let j = -kernel; j <= kernel; ++j) {
-        let r = getPixel(fromImage, x + fromX + i, y + fromY + j);
-        let weight = f(i, j);
-        sum.r += r.r * weight;
-        sum.g += r.g * weight;
-        sum.b += r.b * weight;
-        sum.a += r.a * weight;
-        // sum.forEach((s, i) => s + r[i] * weight);
+    if (stencil(x, y)) {
+      let sum = { a: 0, r: 0, g: 0, b: 0 };
+      for (let i = -kernel; i <= kernel; ++i) {
+        for (let j = -kernel; j <= kernel; ++j) {
+          let r = getPixel(fromImage, x + fromX + i, y + fromY + j);
+          let weight = f(i, j);
+          sum.r += r.r * weight;
+          sum.g += r.g * weight;
+          sum.b += r.b * weight;
+          sum.a += r.a * weight;
+          // sum.forEach((s, i) => s + r[i] * weight);
+        }
       }
+      return sum;
+    } else {
+      return getPixel(fromImage, x + fromX, y + fromY);
     }
-    return sum;
   });
 }
 
@@ -67,4 +85,14 @@ function getGaussFilter(standardDeviation) {
   return (x, y) =>
     Math.exp(-(x * x + y * y) / (2 * standardDeviation * standardDeviation)) /
     (2 * Math.PI * standardDeviation);
+}
+
+function clamp(value, min, max) {
+  if (value < min) return min;
+  if (max < value) return max;
+  return value;
+}
+
+function softStep(value, min, max) {
+  return clamp((value - min) / (max - min), 0, 1);
 }
