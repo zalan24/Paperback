@@ -34,6 +34,18 @@ function cross(a, b) {
   );
 }
 
+function lengthVecSq(a) {
+  return dot(a, a);
+}
+
+function lengthVec(a) {
+  return Math.sqrt(lengthVecSq(a));
+}
+
+function normalize(a) {
+  return mulVecScalar(a, 1 / lengthVec(a));
+}
+
 class mat3x4 {
   constructor(
     col0 = new vec3(1, 0, 0),
@@ -45,6 +57,46 @@ class mat3x4 {
     this.col1 = col1;
     this.col2 = col2;
     this.col3 = col3;
+  }
+  getFloats() {
+    let ret = [];
+    // ret.push(this.col0.x);
+    // ret.push(this.col1.x);
+    // ret.push(this.col2.x);
+    // ret.push(this.col3.x);
+
+    // ret.push(this.col0.y);
+    // ret.push(this.col1.y);
+    // ret.push(this.col2.y);
+    // ret.push(this.col3.y);
+
+    // ret.push(this.col0.z);
+    // ret.push(this.col1.z);
+    // ret.push(this.col2.z);
+    // ret.push(this.col3.z);
+
+    // ret.push(0);
+    // ret.push(0);
+    // ret.push(0);
+    // ret.push(1);
+    // TODO shorten this
+    ret.push(this.col0.x);
+    ret.push(this.col0.y);
+    ret.push(this.col0.z);
+    ret.push(0);
+    ret.push(this.col1.x);
+    ret.push(this.col1.y);
+    ret.push(this.col1.z);
+    ret.push(0);
+    ret.push(this.col2.x);
+    ret.push(this.col2.y);
+    ret.push(this.col2.z);
+    ret.push(0);
+    ret.push(this.col3.x);
+    ret.push(this.col3.y);
+    ret.push(this.col3.z);
+    ret.push(1);
+    return ret;
   }
 }
 
@@ -69,4 +121,57 @@ function transformMatMat(a, b) {
     transformMatDirection(a, b.col2),
     transformMatPosition(a, b.col3)
   );
+}
+
+function lookAt(eyePos, target, up) {
+  let dir = normalize(subVec(target, eyePos));
+  let side = normalize(cross(up, dir));
+  let up2 = cross(dir, side);
+  let mat = new mat3x4(side, up2, dir);
+  let t_inv = new mat3x4();
+  // ret = inv(t * mat) = inv(mat) * inv(t)
+  t_inv.col3 = mulVecScalar(eyePos, -1);
+  // console.log(mat);
+  let row0 = cross(mat.col1, mat.col2);
+  let row1 = cross(mat.col2, mat.col0);
+  let row2 = cross(mat.col0, mat.col1);
+  let r12det = cross(row1, row2);
+  let det = dot(mulVec(new vec3(1, -1, 1), row0), r12det);
+  // console.log(det);
+  row0 = mulVecScalar(row0, 1 / det);
+  row1 = mulVecScalar(row1, 1 / det);
+  row2 = mulVecScalar(row2, 1 / det);
+  let inv = new mat3x4(
+    new vec3(row0.x, row1.x, row2.x),
+    new vec3(row0.y, row1.y, row2.y),
+    new vec3(row0.z, row1.z, row2.z)
+  );
+
+  let ret = transformMatMat(inv, t_inv);
+  // console.log(ret);
+  // console.log(transformMatMat(ret, new mat3x4(side, up2, dir, eyePos)));
+  return ret;
+}
+
+function get_projection(angle, a, zMin, zMax) {
+  // https://www.tutorialspoint.com/webgl/webgl_interactive_cube.htm
+  var ang = Math.tan((angle * 0.5 * Math.PI) / 180); //angle*.5
+  return [
+    0.5 / ang,
+    0,
+    0,
+    0,
+    0,
+    (0.5 * a) / ang,
+    0,
+    0,
+    0,
+    0,
+    (zMax + zMin) / (zMax - zMin),
+    1,
+    0,
+    0,
+    (-2 * zMax * zMin) / (zMax - zMin),
+    0
+  ];
 }
