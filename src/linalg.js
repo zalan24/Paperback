@@ -157,3 +157,39 @@ function getProjection(angle, a, zMin, zMax) {
     0
   ];
 }
+
+function getTranslation(t) {
+  let ret = new mat3x4();
+  ret.col3 = t;
+  return ret;
+}
+
+function getScaling(s) {
+  let ret = new mat3x4();
+  ret.col0.x = s.x;
+  ret.col1.y = s.y;
+  ret.col2.z = s.z;
+  return ret;
+}
+
+function getRotation(axis, angle) {
+  let c = Math.cos(angle);
+  let s = Math.sin(angle);
+  return new mat3x4(
+    new vec3(
+      c + axis.x * axis.x * (1 - c),
+      axis.x * axis.y * (1 - c) + axis.z * s,
+      axis.x * axis.z * (1 - c) - axis.y * s
+    ),
+    new vec3(
+      axis.x * axis.y * (1 - c) - axis.z * s,
+      axis.y * axis.y * (1 - c) + c,
+      axis.y * axis.z * (1 - c) + axis.x * s
+    ),
+    new vec3(
+      axis.x * axis.z * (1 - c) + axis.y * s,
+      axis.y * axis.z * (1 - c) - axis.x * s,
+      axis.z * axis.z * (1 - c) + c
+    )
+  );
+}

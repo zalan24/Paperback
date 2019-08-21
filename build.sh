@@ -14,7 +14,8 @@ cat \
 	src/entity.js \
 	src/game.js \
 	src/main.js \
- 	src/debug.js \
+	src/dummyentity.js \
+	src/debug.js \
 	> build/paper.js
 
 

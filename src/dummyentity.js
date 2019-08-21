@@ -4,17 +4,29 @@ class DummyEntity extends Entity {
     this.vertex_buffer = gl.createBuffer();
     this.index_buffer = gl.createBuffer();
     this.mesh = mesh;
+
+    this.time = 0;
   }
   render(renderData) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
     renderDummy(renderData, {
       count: this.mesh.indices.length * 3,
-      model: this.transform
+      model: this.getTransform()
     });
   }
 
   update(updateData) {
+    this.time += updateData.dt;
+    let scale = (Math.sin(this.time * 4 * Math.PI) + 2) / 2;
+    let angle = (this.time * 2 * Math.PI) / 3;
+    // this.transform = transformMatMat(
+    //   getTranslation(new vec3(0, Math.sin(this.time * 2 * Math.PI), 0)),
+    //   transformMatMat(
+    //     getScaling(new vec3(scale, scale, scale)),
+    //     getRotation(normalize(new vec3(1, 1, 0)), angle)
+    //   )
+    // );
     this.updateVertexData();
   }
 
@@ -41,7 +53,6 @@ class DummyEntity extends Entity {
       vertices.push(v.position.y);
       vertices.push(v.position.z);
     });
-    // let vertices = [-0.5, 0.5, 0, -0.5, -0.5, 0, 0.0, -0.5, 0, 0.0, 0.5, 0];
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);

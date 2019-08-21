@@ -2,7 +2,7 @@ console.log("time: " + new Date().toLocaleString());
 
 let paperTexture = resources.textures.sword.paperTexture;
 paperTexture.onload = function() {
-  console.log("aoeu");
+  // console.log("aoeu");
   //   var testImage = document.getElementById("testImage");
   //   testImage.src = resources.textures.character.paperTexture.texture.img.src;
 
@@ -23,4 +23,11 @@ paperTexture.onload = function() {
 };
 
 let cube = createCube();
-addEntity(new DummyEntity(cube));
+let cubeEntity = new DummyEntity(cube);
+let child = new DummyEntity(cube);
+child.transform = transformMatMat(
+  getTranslation(new vec3(1, 1, 1)),
+  getScaling(new vec3(0.1, 0.1, 0.1))
+);
+cubeEntity.addChild(child);
+addEntity(cubeEntity);

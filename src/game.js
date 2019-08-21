@@ -8,12 +8,12 @@ function renderEntity(e, renderData) {
   e.render(renderData);
 }
 
-// var camera = lookAt(new vec3(0, 0, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
-var camera = lookAt(new vec3(0, 0, -1), new vec3(0, 0, 0), new vec3(0, 1, 0));
+var camera = lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+// var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
 var t = 0;
 
 function update() {
-  let size = Math.sin((t * 2 * Math.PI) / 10) * 10;
+  let size = 5; // Math.sin((t * 2 * Math.PI) / 10) * 10;
   camera = lookAt(
     new vec3(
       size * Math.sin(t * 2 * Math.PI),
@@ -23,11 +23,13 @@ function update() {
     new vec3(0, 0, 0),
     new vec3(0, 1, 0)
   );
-  t += 0.005;
+  // TODO
+  let dt = 0.005;
+  t += dt;
 
   startRender();
 
-  let updateData = {};
+  let updateData = { dt: dt, time: t };
   entities.forEach(r => traverseEntities(r, e => updateEntity(e, updateData)));
 
   let renderData = { view: camera };
