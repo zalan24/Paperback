@@ -59,43 +59,24 @@ class mat3x4 {
     this.col3 = col3;
   }
   getFloats() {
-    let ret = [];
-    // ret.push(this.col0.x);
-    // ret.push(this.col1.x);
-    // ret.push(this.col2.x);
-    // ret.push(this.col3.x);
-
-    // ret.push(this.col0.y);
-    // ret.push(this.col1.y);
-    // ret.push(this.col2.y);
-    // ret.push(this.col3.y);
-
-    // ret.push(this.col0.z);
-    // ret.push(this.col1.z);
-    // ret.push(this.col2.z);
-    // ret.push(this.col3.z);
-
-    // ret.push(0);
-    // ret.push(0);
-    // ret.push(0);
-    // ret.push(1);
-    // TODO shorten this
-    ret.push(this.col0.x);
-    ret.push(this.col0.y);
-    ret.push(this.col0.z);
-    ret.push(0);
-    ret.push(this.col1.x);
-    ret.push(this.col1.y);
-    ret.push(this.col1.z);
-    ret.push(0);
-    ret.push(this.col2.x);
-    ret.push(this.col2.y);
-    ret.push(this.col2.z);
-    ret.push(0);
-    ret.push(this.col3.x);
-    ret.push(this.col3.y);
-    ret.push(this.col3.z);
-    ret.push(1);
+    let ret = [
+      this.col0.x,
+      this.col0.y,
+      this.col0.z,
+      0,
+      this.col1.x,
+      this.col1.y,
+      this.col1.z,
+      0,
+      this.col2.x,
+      this.col2.y,
+      this.col2.z,
+      0,
+      this.col3.x,
+      this.col3.y,
+      this.col3.z,
+      1
+    ];
     return ret;
   }
 }
@@ -124,6 +105,7 @@ function transformMatMat(a, b) {
 }
 
 function lookAt(eyePos, target, up) {
+  // TODO this might not work if the determinant is not one
   let dir = normalize(subVec(target, eyePos));
   let side = normalize(cross(up, dir));
   let up2 = cross(dir, side);
@@ -153,7 +135,7 @@ function lookAt(eyePos, target, up) {
   return ret;
 }
 
-function get_projection(angle, a, zMin, zMax) {
+function getProjection(angle, a, zMin, zMax) {
   // https://www.tutorialspoint.com/webgl/webgl_interactive_cube.htm
   var ang = Math.tan((angle * 0.5 * Math.PI) / 180); //angle*.5
   return [

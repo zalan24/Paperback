@@ -50,11 +50,6 @@ shaderPrograms.dummyProgram.vars = {
 
 var projection = null;
 
-var mo_matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-var view_matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-
-view_matrix[14] = view_matrix[14] - 6;
-
 function startRender() {
   gl.clearColor(0.5, 0.5, 0.5, 0.9);
   gl.clearDepth(1.0);
@@ -64,7 +59,7 @@ function startRender() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, glCanvas.width, glCanvas.height);
 
-  projection = get_projection(40, glCanvas.width / glCanvas.height, 0.01, 100);
+  projection = getProjection(40, glCanvas.width / glCanvas.height, 0.01, 100);
 }
 
 function endRender() {}
@@ -81,17 +76,15 @@ function renderDummy(renderData, dummyData) {
   );
   gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.position);
   gl.uniformMatrix4fv(shaderPrograms.dummyProgram.vars.proj, false, projection);
-  // console.log(renderData.view.getFloats());
-  // console.log(view_matrix);
   gl.uniformMatrix4fv(
     shaderPrograms.dummyProgram.vars.view,
     false,
     new Float32Array(renderData.view.getFloats())
-    // view_matrix
   );
-  gl.uniformMatrix4fv(shaderPrograms.dummyProgram.vars.model, false, mo_matrix);
+  gl.uniformMatrix4fv(
+    shaderPrograms.dummyProgram.vars.model,
+    false,
+    dummyData.model.getFloats()
+  );
   gl.drawElements(gl.TRIANGLES, dummyData.count, gl.UNSIGNED_SHORT, 0);
-  // gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
-  // gl.drawArrays(gl.TRIANGLES, 0, 3);
-  // gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 }

@@ -16,7 +16,7 @@ function update() {
   let size = Math.sin((t * 2 * Math.PI) / 10) * 10;
   camera = lookAt(
     new vec3(
-      size * Math.cos(t * 2 * Math.PI),
+      size * Math.sin(t * 2 * Math.PI),
       3,
       -size * Math.cos(t * 2 * Math.PI)
     ),
