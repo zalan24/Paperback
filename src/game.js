@@ -41,7 +41,7 @@ function startGame() {
   setInterval(update, timeout);
 }
 
-function addEntity(e) {
-  e.start();
-  entities.push(e);
+function addEntity(r) {
+  traverseEntities(r, e => e.start());
+  entities.push(r);
 }
