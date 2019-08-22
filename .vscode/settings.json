@@ -4,6 +4,7 @@
     "dummyentity",
     "linalg",
     "papertexture",
+    "texc",
     "textureloader"
   ]
   // "prettier.eslintIntegration": true

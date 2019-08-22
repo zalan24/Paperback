@@ -21,17 +21,22 @@ function createProgram(vertCode, fragCode) {
 
 let dummyVertCode =
   "attribute vec3 position;" +
+  "attribute vec2 texcoord;" +
   "uniform mat4 proj;" +
   "uniform mat4 view;" +
   "uniform mat4 model;" +
+  "varying highp vec2 texc;" +
   "void main(void) {" +
   " vec4 pos = vec4(position, 1);" +
   " gl_Position = proj * view * model * pos;" +
+  " texc = texcoord;" +
   "}";
 var dummyFragCode =
   "precision mediump float;" +
+  "varying highp vec2 texc;" +
+  "uniform sampler2D texture;" +
   "void main(void) {" +
-  "gl_FragColor = vec4(0.0, 1.0, 0.0, 0.1);" +
+  "  gl_FragColor = texture2D(texture, texc);" +
   "}";
 shaderPrograms.dummyProgram = {};
 shaderPrograms.dummyProgram.shader = createProgram(
@@ -43,6 +48,11 @@ shaderPrograms.dummyProgram.vars = {
     shaderPrograms.dummyProgram.shader,
     "position"
   ),
+  texcoord: gl.getAttribLocation(
+    shaderPrograms.dummyProgram.shader,
+    "texcoord"
+  ),
+  texture: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "texture"),
   proj: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "proj"),
   view: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "view"),
   model: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "model")
@@ -55,7 +65,6 @@ function startRender() {
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
   gl.disable(gl.CULL_FACE);
-  // gl.clear(gl.COLOR_BUFFER_BIT);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, glCanvas.width, glCanvas.height);
 
@@ -66,13 +75,22 @@ function endRender() {}
 
 function renderDummy(renderData, dummyData) {
   gl.useProgram(shaderPrograms.dummyProgram.shader);
+  let stride = 5 * 4;
   gl.vertexAttribPointer(
     shaderPrograms.dummyProgram.vars.position,
     3,
     gl.FLOAT,
     false,
-    0,
+    stride,
     0
+  );
+  gl.vertexAttribPointer(
+    shaderPrograms.dummyProgram.vars.texcoord,
+    2,
+    gl.FLOAT,
+    false,
+    stride,
+    3 * 4
   );
   gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.position);
   gl.uniformMatrix4fv(shaderPrograms.dummyProgram.vars.proj, false, projection);
@@ -86,15 +104,21 @@ function renderDummy(renderData, dummyData) {
     false,
     dummyData.model.getFloats()
   );
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, dummyData.texture);
+  gl.uniform1i(shaderPrograms.dummyProgram.vars.texture, 0);
   gl.drawElements(gl.TRIANGLES, dummyData.count, gl.UNSIGNED_SHORT, 0);
 }
 
 function updateVertexData(mesh, vertex_buffer, index_buffer) {
   let vertices = [];
+  // TODO use concat
   mesh.vertices.forEach(v => {
     vertices.push(v.position.x);
     vertices.push(v.position.y);
     vertices.push(v.position.z);
+    vertices.push(v.texcoord.x);
+    vertices.push(v.texcoord.y);
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
