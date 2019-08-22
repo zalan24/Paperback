@@ -1,12 +1,12 @@
 function createPaperCard(texture) {
   texture.paperTexture = { ready: false, loaders: [] };
   texture.onload = function() {
-    let scalingFactor = 8;
-    let paperColor = { r: 221 / 255, g: 217 / 255, b: 195 / 255, a: 1 };
-    let filterSize = 2;
-    let stepRadius = 0.05;
-    let stepLimit = 0.5;
-    let vertexSize = 4; // in terms of smallData pixels
+    let scalingFactor = texture.paper.scalingFactor;
+    let paperColor = texture.paper.paperColor;
+    let filterSize = texture.paper.filterSize;
+    let stepRadius = texture.paper.stepRadius;
+    let stepLimit = texture.paper.stepLimit;
+    let vertexSize = texture.paper.vertexSize;
     let imageData = new ImageData(
       texture.texture.data.width * scalingFactor,
       texture.texture.data.width * scalingFactor

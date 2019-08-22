@@ -8,6 +8,7 @@ cat \
 	src/mesh.js \
 	src/image.js \
 	src/papertexture.js \
+	src/cards.js \
 	src/textureloader.js \
 	src/resources.js \
 	src/renderer.js \
@@ -15,7 +16,6 @@ cat \
 	src/cardentity.js \
 	src/game.js \
 	src/main.js \
-	src/dummyentity.js \
 	src/debug.js \
 	> build/paper.js
 

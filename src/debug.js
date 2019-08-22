@@ -22,12 +22,20 @@ usePaperTexture(paperTexture, function() {
   testImage.src = debugTexture.src;
 });
 
-let cube = createCube();
-let cubeEntity = new DummyEntity(cube);
+// let cube = createCube();
+// let cubeEntity = new DummyEntity(cube);
 let child = new CardEntity(paperTexture);
-child.transform = transformMatMat(
-  getTranslation(new vec3(1, 1, 1)),
-  getScaling(new vec3(2, 2, 2))
+child.transform =
+  // transformMatMat(
+  //   getTranslation(new vec3(1, 1, 1)),
+  getScaling(new vec3(2, 2, 2));
+// );
+// cubeEntity.addChild(child);
+// addEntity(cubeEntity);
+addEntity(child);
+addEntity(
+  new CardEntity(
+    resources.textures.character.paperTexture,
+    getTranslation(new vec3(-3, 0, 0))
+  )
 );
-cubeEntity.addChild(child);
-addEntity(cubeEntity);

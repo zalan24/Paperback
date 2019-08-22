@@ -4,15 +4,25 @@ var textureCtx = textureCanvas.getContext("2d");
 var atlases = { test_atlas: { img: new Image(), textures: {} } };
 atlases.test_atlas.img.src = "res/test_atlas.png";
 
-function registerTexture(atlas, imageName, x, y, w, h) {
+function registerTexture(atlas, imageName, rect, paper) {
   atlas.textures[imageName] = {
     onload: null,
-    rect: { x: x, y: y, w: w, h: h }
+    rect: rect,
+    paper: paper
   };
 }
 
-registerTexture(atlases.test_atlas, "character", 0, 0, 64, 64);
-registerTexture(atlases.test_atlas, "sword", 64, 0, 64, 64);
+{
+  let texKeys = Object.keys(textureProps);
+  for (let i = 0; i < texKeys.length; ++i) {
+    let atlas = textureProps[texKeys[i]];
+    let texKeys2 = Object.keys(atlas);
+    for (let j = 0; j < texKeys2.length; ++j) {
+      let tex = atlas[texKeys2[j]];
+      registerTexture(atlases[texKeys[i]], texKeys2[j], tex.rect, tex.paper);
+    }
+  }
+}
 
 function getImageData(img, atlasObj) {
   textureCanvas.height = img.height;
