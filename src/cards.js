@@ -9,23 +9,26 @@ var defaultPaperData = {
 
 var textureProps = {
   test_atlas: {
-    character: {
-      rect: {
-        x: 0,
-        y: 0,
-        w: 64,
-        h: 64
+    resource: "res/test_atlas.png",
+    textures: {
+      character: {
+        rect: {
+          x: 0,
+          y: 0,
+          w: 64,
+          h: 64
+        },
+        paper: defaultPaperData
       },
-      paper: defaultPaperData
-    },
-    sword: {
-      rect: {
-        x: 64,
-        y: 0,
-        w: 64,
-        h: 64
-      },
-      paper: defaultPaperData
+      sword: {
+        rect: {
+          x: 64,
+          y: 0,
+          w: 64,
+          h: 64
+        },
+        paper: defaultPaperData
+      }
     }
   }
 };

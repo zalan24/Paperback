@@ -1,8 +1,7 @@
 var textureCanvas = document.getElementById("t");
 var textureCtx = textureCanvas.getContext("2d");
 
-var atlases = { test_atlas: { img: new Image(), textures: {} } };
-atlases.test_atlas.img.src = "res/test_atlas.png";
+var atlases = {};
 
 function registerTexture(atlas, imageName, rect, paper) {
   atlas.textures[imageName] = {
@@ -16,9 +15,12 @@ function registerTexture(atlas, imageName, rect, paper) {
   let texKeys = Object.keys(textureProps);
   for (let i = 0; i < texKeys.length; ++i) {
     let atlas = textureProps[texKeys[i]];
-    let texKeys2 = Object.keys(atlas);
+    let img = new Image();
+    img.src = atlas.resource;
+    atlases[texKeys[i]] = { img: img, textures: {} };
+    let texKeys2 = Object.keys(atlas.textures);
     for (let j = 0; j < texKeys2.length; ++j) {
-      let tex = atlas[texKeys2[j]];
+      let tex = atlas.textures[texKeys2[j]];
       registerTexture(atlases[texKeys[i]], texKeys2[j], tex.rect, tex.paper);
     }
   }

@@ -21,6 +21,7 @@ class CardEntity extends Entity {
   }
 
   update(updateData) {
+    if (this.mesh == null) return;
     updateVertexData(this.mesh, this.vertex_buffer, this.index_buffer);
   }
 
