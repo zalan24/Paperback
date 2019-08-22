@@ -5,9 +5,20 @@ class CardEntity extends Entity {
     this.index_buffer = gl.createBuffer();
     this.paperTexture = paperTexture;
     this.mesh = null;
+    // this.texture = null;
     let t = this;
     usePaperTexture(paperTexture, function() {
       t.mesh = paperTexture.mesh;
+      t.texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, t.texture);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        paperTexture.texture.img
+      );
     });
   }
   render(renderData) {

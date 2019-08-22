@@ -126,7 +126,10 @@ function createPaperCard(texture) {
       w: retData.width,
       h: retData.height
     });
-    texture.paperTexture.loaders.forEach(loader => loader());
+    texture.paperTexture.texture.img.onload = function() {
+      texture.paperTexture.ready = true;
+      texture.paperTexture.loaders.forEach(loader => loader());
+    };
   };
 }
 
