@@ -1,4 +1,4 @@
-function createPaperTexture(texture) {
+function createPaperCard(texture) {
   texture.paperTexture = { onload: null };
   texture.onload = function() {
     let scalingFactor = 8;
@@ -6,6 +6,7 @@ function createPaperTexture(texture) {
     let filterSize = 2;
     let stepRadius = 0.05;
     let stepLimit = 0.5;
+    let vertexSize = 4; // in terms of smallData pixels
     let imageData = new ImageData(
       texture.texture.data.width * scalingFactor,
       texture.texture.data.width * scalingFactor
@@ -71,7 +72,44 @@ function createPaperTexture(texture) {
       p.a = softStep(a, stepLimit - stepRadius, stepLimit + stepRadius);
       return p;
     });
+    let vertices = [];
+    let faces = [];
+    let maxSize = Math.max(smallData.width, smallData.height);
+    for (let i = 0; i <= smallData.width; i += vertexSize) {
+      for (let j = 0; j <= smallData.height; j += vertexSize) {
+        let ind3 = vertices.length;
+        let ind1 = ind3 - smallData.width / vertexSize;
+        vertices.push(
+          new Vertex(
+            new vec3(
+              (i - smallData.width / 2) / maxSize,
+              (j - smallData.height / 2) / maxSize
+            ),
+            new vec3(i / smallData.width, j / smallData.height)
+          )
+        );
+        if (i > 0 && j > 0) {
+          let enabled = false;
+          for (let subI = 0; subI < vertexSize; ++subI)
+            for (let subJ = 0; subJ < vertexSize; ++subJ)
+              if (getPixel(smallData, i + subI, j + subJ).a > 0) {
+                vertices[ind3].enabled = true;
+                vertices[ind3 - 1].enabled = true;
+                vertices[ind1].enabled = true;
+                vertices[ind1 - 1].enabled = true;
+                enabled = true;
+                // CAN_BE_REMOVED
+                break;
+              }
+          if (enabled) {
+            faces.push(new Face(ind1 - 1, ind1, ind3 - 1));
+            faces.push(new Face(ind3, ind1, ind3 - 1));
+          }
+        }
+      }
+    }
 
+    this.mesh = new Mesh(vertices, faces);
     let retData = imageData;
     // let retData = smallData;
     texture.paperTexture.texture = extractTexture(retData, {

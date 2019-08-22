@@ -2,13 +2,14 @@ class Vertex {
   constructor(position, texcoord) {
     this.position = position;
     this.texcoord = texcoord;
+    this.enabled = false;
   }
 }
 
 class Mesh {
-  constructor(vertices = [], indices = []) {
+  constructor(vertices = [], faces = []) {
     this.vertices = vertices;
-    this.indices = indices;
+    this.faces = faces;
   }
 }
 

@@ -9,7 +9,7 @@ var resources = { textures: {} };
     for (let j = 0; j < keys.length; ++j) {
       let tex = atlas.textures[keys[j]];
       let texName = keys[j];
-      createPaperTexture(tex);
+      createPaperCard(tex);
       texturePack[texName] = tex;
     }
   }
