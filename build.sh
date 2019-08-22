@@ -12,6 +12,7 @@ cat \
 	src/resources.js \
 	src/renderer.js \
 	src/entity.js \
+	src/cardentity.js \
 	src/game.js \
 	src/main.js \
 	src/dummyentity.js \

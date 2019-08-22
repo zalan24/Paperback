@@ -117,7 +117,7 @@ function createPaperCard(texture) {
     //   }
     // }
 
-    this.mesh = new Mesh(vertices, faces);
+    texture.paperTexture.mesh = new Mesh(vertices, faces);
     let retData = imageData;
     // let retData = smallData;
     texture.paperTexture.texture = extractTexture(retData, {

@@ -24,10 +24,10 @@ usePaperTexture(paperTexture, function() {
 
 let cube = createCube();
 let cubeEntity = new DummyEntity(cube);
-let child = new DummyEntity(cube);
+let child = new CardEntity(paperTexture);
 child.transform = transformMatMat(
   getTranslation(new vec3(1, 1, 1)),
-  getScaling(new vec3(0.1, 0.1, 0.1))
+  getScaling(new vec3(2, 2, 2))
 );
 cubeEntity.addChild(child);
 addEntity(cubeEntity);

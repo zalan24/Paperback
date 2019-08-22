@@ -27,36 +27,10 @@ class DummyEntity extends Entity {
     //     getRotation(normalize(new vec3(1, 1, 0)), angle)
     //   )
     // );
-    this.updateVertexData();
+    updateVertexData(this.mesh, this.vertex_buffer, this.index_buffer);
   }
 
-  start() {
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
-    let indices = [];
-    this.mesh.faces.forEach(f => {
-      indices.push(f.a);
-      indices.push(f.b);
-      indices.push(f.c);
-    });
-    gl.bufferData(
-      gl.ELEMENT_ARRAY_BUFFER,
-      new Uint16Array(indices),
-      gl.STATIC_DRAW
-    );
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-  }
-
-  updateVertexData() {
-    let vertices = [];
-    this.mesh.vertices.forEach(v => {
-      vertices.push(v.position.x);
-      vertices.push(v.position.y);
-      vertices.push(v.position.z);
-    });
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-  }
+  start() {}
 }
 
 function createCube() {
