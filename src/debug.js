@@ -1,7 +1,7 @@
 console.log("time: " + new Date().toLocaleString());
 
 let paperTexture = resources.textures.sword.paperTexture;
-paperTexture.onload = function() {
+usePaperTexture(paperTexture, function() {
   // console.log("aoeu");
   //   var testImage = document.getElementById("testImage");
   //   testImage.src = resources.textures.character.paperTexture.texture.img.src;
@@ -20,7 +20,7 @@ paperTexture.onload = function() {
 
   var testImage = document.getElementById("testImage");
   testImage.src = debugTexture.src;
-};
+});
 
 let cube = createCube();
 let cubeEntity = new DummyEntity(cube);

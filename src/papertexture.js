@@ -1,5 +1,5 @@
 function createPaperCard(texture) {
-  texture.paperTexture = { onload: null };
+  texture.paperTexture = { ready: false, loaders: [] };
   texture.onload = function() {
     let scalingFactor = 8;
     let paperColor = { r: 221 / 255, g: 217 / 255, b: 195 / 255, a: 1 };
@@ -89,7 +89,6 @@ function createPaperCard(texture) {
           )
         );
         if (i > 0 && j > 0) {
-          let enabled = false;
           for (let subI = 0; subI < vertexSize; ++subI)
             for (let subJ = 0; subJ < vertexSize; ++subJ)
               if (getPixel(smallData, i + subI, j + subJ).a > 0) {
@@ -101,13 +100,22 @@ function createPaperCard(texture) {
                 // CAN_BE_REMOVED
                 break;
               }
-          if (enabled) {
+          if (vertices[ind1 - 1].enabled) {
+            // approximation
             faces.push(new Face(ind1 - 1, ind1, ind3 - 1));
             faces.push(new Face(ind3, ind1, ind3 - 1));
           }
         }
       }
     }
+    // let sw = smallData.width / vertexSize;
+    // let sh = smallData.height / vertexSize;
+    // for (let i = 0; i < sw; i++) {
+    //   for (let j = 0; j < sh; j++) {
+    //     let ind0 = i + (j * smallData.width) / vertexSize;
+    //     let ind2 = ind0 + sw;
+    //   }
+    // }
 
     this.mesh = new Mesh(vertices, faces);
     let retData = imageData;
@@ -118,6 +126,11 @@ function createPaperCard(texture) {
       w: retData.width,
       h: retData.height
     });
-    if (texture.paperTexture.onload) texture.paperTexture.onload();
+    texture.paperTexture.loaders.forEach(loader => loader());
   };
+}
+
+function usePaperTexture(paperTex, loader) {
+  if (paperTex.ready) loader();
+  else paperTex.loaders.push(loader);
 }
