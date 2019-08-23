@@ -36,7 +36,7 @@ class CardEntity extends Entity {
     if (this.mesh == null) return;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertex_buffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
-    renderDummy(renderData, {
+    renderCard(renderData, {
       count: this.mesh.faces.length * 3,
       model: this.getTransform(),
       texture: this.texture

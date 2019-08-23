@@ -1,5 +1,5 @@
 var glCanvas = document.getElementById("c");
-var gl = glCanvas.getContext("experimental-webgl");
+var gl = glCanvas.getContext("experimental-webgl", { antialias: true });
 
 var shaderPrograms = {};
 
@@ -17,9 +17,7 @@ function createProgram(vertCode, fragCode) {
   return shaderProgram;
 }
 
-// TODO remove dummy stuff
-
-let dummyVertCode =
+let cardVertCode =
   "attribute vec3 position;" +
   "attribute vec2 texcoord;" +
   "uniform mat4 proj;" +
@@ -31,7 +29,7 @@ let dummyVertCode =
   " gl_Position = proj * view * model * pos;" +
   " texc = texcoord;" +
   "}";
-var dummyFragCode =
+var cardFragCode =
   "precision mediump float;" +
   "varying highp vec2 texc;" +
   "uniform sampler2D texture;" +
@@ -40,24 +38,15 @@ var dummyFragCode =
   "  if (albedo.a == 0.0) discard;" +
   "  gl_FragColor = albedo;" +
   "}";
-shaderPrograms.dummyProgram = {};
-shaderPrograms.dummyProgram.shader = createProgram(
-  dummyVertCode,
-  dummyFragCode
-);
-shaderPrograms.dummyProgram.vars = {
-  position: gl.getAttribLocation(
-    shaderPrograms.dummyProgram.shader,
-    "position"
-  ),
-  texcoord: gl.getAttribLocation(
-    shaderPrograms.dummyProgram.shader,
-    "texcoord"
-  ),
-  texture: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "texture"),
-  proj: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "proj"),
-  view: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "view"),
-  model: gl.getUniformLocation(shaderPrograms.dummyProgram.shader, "model")
+shaderPrograms.cardProgram = {};
+shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
+shaderPrograms.cardProgram.vars = {
+  position: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "position"),
+  texcoord: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "texcoord"),
+  texture: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "texture"),
+  proj: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "proj"),
+  view: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "view"),
+  model: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "model")
 };
 
 var projection = null;
@@ -75,53 +64,54 @@ function startRender() {
 
 function endRender() {}
 
-function renderDummy(renderData, dummyData) {
-  gl.useProgram(shaderPrograms.dummyProgram.shader);
+function renderCard(renderData, cardData) {
+  gl.useProgram(shaderPrograms.cardProgram.shader);
   let stride = 5 * 4;
-  gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.position);
+  gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.position);
   gl.vertexAttribPointer(
-    shaderPrograms.dummyProgram.vars.position,
+    shaderPrograms.cardProgram.vars.position,
     3,
     gl.FLOAT,
     false,
     stride,
     0
   );
-  gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.texcoord);
+  gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.texcoord);
   gl.vertexAttribPointer(
-    shaderPrograms.dummyProgram.vars.texcoord,
+    shaderPrograms.cardProgram.vars.texcoord,
     2,
     gl.FLOAT,
     false,
     stride,
     3 * 4
   );
-  gl.uniformMatrix4fv(shaderPrograms.dummyProgram.vars.proj, false, projection);
+  gl.uniformMatrix4fv(shaderPrograms.cardProgram.vars.proj, false, projection);
   gl.uniformMatrix4fv(
-    shaderPrograms.dummyProgram.vars.view,
+    shaderPrograms.cardProgram.vars.view,
     false,
     new Float32Array(renderData.view.getFloats())
   );
   gl.uniformMatrix4fv(
-    shaderPrograms.dummyProgram.vars.model,
+    shaderPrograms.cardProgram.vars.model,
     false,
-    dummyData.model.getFloats()
+    cardData.model.getFloats()
   );
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, dummyData.texture);
-  gl.uniform1i(shaderPrograms.dummyProgram.vars.texture, 0);
-  gl.drawElements(gl.TRIANGLES, dummyData.count, gl.UNSIGNED_SHORT, 0);
+  gl.bindTexture(gl.TEXTURE_2D, cardData.texture);
+  gl.uniform1i(shaderPrograms.cardProgram.vars.texture, 0);
+  gl.drawElements(gl.TRIANGLES, cardData.count, gl.UNSIGNED_SHORT, 0);
 }
 
 function updateVertexData(mesh, vertex_buffer, index_buffer) {
   let vertices = [];
-  // TODO use concat
   mesh.vertices.forEach(v => {
-    vertices.push(v.position.x);
-    vertices.push(v.position.y);
-    vertices.push(v.position.z);
-    vertices.push(v.texcoord.x);
-    vertices.push(v.texcoord.y);
+    vertices = vertices.concat([
+      v.position.x,
+      v.position.y,
+      v.position.z,
+      v.texcoord.x,
+      v.texcoord.y
+    ]);
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
