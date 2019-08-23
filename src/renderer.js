@@ -1,5 +1,5 @@
 var glCanvas = document.getElementById("c");
-var gl = glCanvas.getContext("experimental-webgl", { antialias: true });
+var gl = glCanvas.getContext("webgl2", { antialias: false });
 
 var shaderPrograms = {};
 
@@ -51,7 +51,48 @@ shaderPrograms.cardProgram.vars = {
 
 var projection = null;
 
+var frameBuffers = {
+  render: gl.createFramebuffer()
+  // color: gl.createFramebuffer()
+};
+var colorRenderbuffer = gl.createRenderbuffer();
+var frameSize = {};
+
+function resize() {
+  frameSize.w = glCanvas.width;
+  frameSize.h = glCanvas.height;
+  gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
+  // console.log(gl.getParameter(gl.MAX_SAMPLES));
+  gl.renderbufferStorageMultisample(
+    gl.RENDERBUFFER,
+    gl.getParameter(gl.MAX_SAMPLES),
+    gl.RGBA8,
+    glCanvas.width,
+    glCanvas.height
+  );
+  // gl.renderbufferStorage(
+  //   gl.RENDERBUFFER,
+  //   gl.RGBA8,
+  //   glCanvas.width,
+  //   glCanvas.height
+  // );
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.render);
+  gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.RENDERBUFFER,
+    colorRenderbuffer
+  );
+  // gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.color);
+  // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+//TODO
+resize();
+
 function startRender() {
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.render);
   gl.clearColor(0.5, 0.5, 0.5, 0.9);
   gl.clearDepth(1.0);
   gl.enable(gl.DEPTH_TEST);
@@ -62,7 +103,23 @@ function startRender() {
   projection = getProjection(40, glCanvas.width / glCanvas.height, 0.01, 100);
 }
 
-function endRender() {}
+function endRender() {
+  gl.bindFramebuffer(gl.READ_FRAMEBUFFER, frameBuffers.render);
+  gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+  gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+  gl.blitFramebuffer(
+    0,
+    0,
+    frameSize.w,
+    frameSize.h,
+    0,
+    0,
+    glCanvas.width,
+    glCanvas.height,
+    gl.COLOR_BUFFER_BIT,
+    gl.LINEAR
+  );
+}
 
 function renderCard(renderData, cardData) {
   gl.useProgram(shaderPrograms.cardProgram.shader);

@@ -1,6 +1,9 @@
 {
   "editor.formatOnSave": true,
   "cSpell.ignoreWords": [
+    "blit",
+    "bufferfv",
+    "clear",
     "dummyentity",
     "linalg",
     "papertexture",
