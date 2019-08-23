@@ -13,14 +13,14 @@ var camera = lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
 var t = 0;
 
 function update() {
-  let size = 5; // Math.sin((t * 2 * Math.PI) / 10) * 10;
+  let size = 3; // Math.sin((t * 2 * Math.PI) / 10) * 10;
   camera = lookAt(
     new vec3(
-      size * Math.sin(t * 2 * Math.PI),
-      3,
-      -size * Math.cos(t * 2 * Math.PI)
+      size * Math.sin((t * 2 * Math.PI) / 10),
+      1,
+      -size * Math.cos((t * 2 * Math.PI) / 10)
     ),
-    new vec3(0, 0, 0),
+    new vec3(1, 0, 0),
     new vec3(0, 1, 0)
   );
   // TODO

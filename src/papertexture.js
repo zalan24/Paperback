@@ -83,7 +83,7 @@ function createPaperCard(texture) {
           new Vertex(
             new vec3(
               (i - smallData.width / 2) / maxSize,
-              (j - smallData.height / 2) / maxSize
+              (smallData.height / 2 - j) / maxSize
             ),
             new vec3(i / smallData.width, j / smallData.height)
           )

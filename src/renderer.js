@@ -36,7 +36,9 @@ var dummyFragCode =
   "varying highp vec2 texc;" +
   "uniform sampler2D texture;" +
   "void main(void) {" +
-  "  gl_FragColor = texture2D(texture, texc);" +
+  "  vec4 albedo = texture2D(texture, texc);" +
+  "  if (albedo.a == 0.0) discard;" +
+  "  gl_FragColor = albedo;" +
   "}";
 shaderPrograms.dummyProgram = {};
 shaderPrograms.dummyProgram.shader = createProgram(
@@ -76,6 +78,7 @@ function endRender() {}
 function renderDummy(renderData, dummyData) {
   gl.useProgram(shaderPrograms.dummyProgram.shader);
   let stride = 5 * 4;
+  gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.position);
   gl.vertexAttribPointer(
     shaderPrograms.dummyProgram.vars.position,
     3,
@@ -84,6 +87,7 @@ function renderDummy(renderData, dummyData) {
     stride,
     0
   );
+  gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.texcoord);
   gl.vertexAttribPointer(
     shaderPrograms.dummyProgram.vars.texcoord,
     2,
@@ -92,7 +96,6 @@ function renderDummy(renderData, dummyData) {
     stride,
     3 * 4
   );
-  gl.enableVertexAttribArray(shaderPrograms.dummyProgram.vars.position);
   gl.uniformMatrix4fv(shaderPrograms.dummyProgram.vars.proj, false, projection);
   gl.uniformMatrix4fv(
     shaderPrograms.dummyProgram.vars.view,

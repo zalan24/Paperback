@@ -36,6 +36,6 @@ addEntity(child);
 addEntity(
   new CardEntity(
     resources.textures.character.paperTexture,
-    getTranslation(new vec3(-3, 0, 0))
+    getTranslation(new vec3(0, 0, 1))
   )
 );
