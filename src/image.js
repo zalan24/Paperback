@@ -93,6 +93,6 @@ function clamp(value, min, max) {
   return value;
 }
 
-function softStep(value, min, max) {
-  return clamp((value - min) / (max - min), 0, 1);
-}
+// function softStep(value, min, max) {
+//   return clamp((value - min) / (max - min), 0, 1);
+// }

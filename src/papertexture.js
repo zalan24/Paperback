@@ -4,7 +4,7 @@ function createPaperCard(texture) {
     let scalingFactor = texture.paper.scalingFactor;
     let paperColor = texture.paper.paperColor;
     let filterSize = texture.paper.filterSize;
-    let stepRadius = texture.paper.stepRadius;
+    // let stepRadius = texture.paper.stepRadius;
     let stepLimit = texture.paper.stepLimit;
     let vertexSize = texture.paper.vertexSize;
     let imageData = new ImageData(
@@ -69,7 +69,9 @@ function createPaperCard(texture) {
       );
       p = lerpColor(paperColor, p, p.a);
       let a = getPixel(imageData2, x, y).a;
-      p.a = softStep(a, stepLimit - stepRadius, stepLimit + stepRadius);
+      // p.a = softStep(a, stepLimit - stepRadius, stepLimit + stepRadius);
+      p.a = 0;
+      if (a > stepLimit) p.a = 1;
       return p;
     });
     let vertices = [];
