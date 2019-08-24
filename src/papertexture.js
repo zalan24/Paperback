@@ -78,7 +78,6 @@ function createPaperCard(texture) {
     let faces = [];
     let maxSize = Math.max(smallData.width, smallData.height);
     let middle = texture.middle;
-    console.log(middle);
     for (let i = 0; i <= smallData.width; i += vertexSize) {
       for (let j = 0; j <= smallData.height; j += vertexSize) {
         let ind3 = vertices.length;

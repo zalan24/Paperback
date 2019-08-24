@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <title>Paper</title>
-    <!-- <style>
-		div:last-child {
+    <style>
+      /* div:last-child {
 			color: #e90;
 		}
 
@@ -16,16 +16,24 @@
 			50% {
 				opacity: 0;
 			}
-		}
+		} */
 
-		#c {
-			width: 100%;
-			image-rendering: optimizeSpeed;
-			image-rendering: pixelated;
-			cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAZQTFRFAAAA////pdmf3QAAAAF0Uk5TAEDm2GYAAAATSURBVAjXYxBgEGBgYDgGxEAWAAc4AQebSvKuAAAAAElFTkSuQmCC), auto;
-		}
+      #c {
+        width: 100%;
+        /* image-rendering: optimizeSpeed;
+        image-rendering: pixelated;
+        cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAZQTFRFAAAA////pdmf3QAAAAF0Uk5TAEDm2GYAAAATSURBVAjXYxBgEGBgYDgGxEAWAAc4AQebSvKuAAAAAElFTkSuQmCC),
+          auto; */
+      }
 
-		#a {
+      #f {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+      }
+
+      /* #a {
 			font-weight: bold;
 			color: #c80;
 			position: absolute;
@@ -37,13 +45,14 @@
 			width: 94%;
 			text-shadow: 0 0 7px #f70;
 			transition: opacity 1s;
-		}
-	</style> -->
+		} */
+    </style>
   </head>
 
   <body style="margin:0;background:rgb(255, 255, 255)">
-    <canvas id="c" width="800" height="600"></canvas><code id="a"></code>
+    <canvas id="c"></canvas>
     <canvas id="t" hidden></canvas>
+    <label id="f"></label>
     <script>
       GAME_SOURCE;
     </script>

@@ -20,10 +20,18 @@
 
       #c {
         width: 100%;
+        z-index: 0;
         /* image-rendering: optimizeSpeed; */
         /* image-rendering: pixelated; */
         /* cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAZQTFRFAAAA////pdmf3QAAAAF0Uk5TAEDm2GYAAAATSURBVAjXYxBgEGBgYDgGxEAWAAc4AQebSvKuAAAAAElFTkSuQmCC),
           auto; */
+      }
+
+      #f {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
       }
 
       /* #a {
@@ -44,8 +52,9 @@
 
   <body style="margin:0;background:rgb(255, 255, 255)">
     <!-- <canvas id="c" width="300" height="240"></canvas> -->
-    <canvas id="c" width="1920" height="1080"></canvas>
+    <canvas id="c"></canvas>
     <canvas id="t" hidden></canvas>
+    <label id="f"></label>
 
     <script type="text/javascript" src="src/linalg.js"></script>
     <script type="text/javascript" src="src/mesh.js"></script>
