@@ -9,6 +9,7 @@ class CardEntity extends Entity {
       let t = this;
       usePaperTexture(paperTexture, function() {
         t.mesh = paperTexture.mesh;
+        t.uploadIndices();
         t.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, t.texture);
         gl.texImage2D(
@@ -40,7 +41,22 @@ class CardEntity extends Entity {
 
   update(updateData) {
     if (this.mesh == null) return;
-    updateVertexData(this.mesh, this.vertex_buffer, this.index_buffer);
+    updateVertexData(this.mesh, this.vertex_buffer);
+  }
+
+  uploadIndices() {
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.index_buffer);
+    let indices = [];
+    this.mesh.faces.forEach(f => {
+      indices.push(f.a);
+      indices.push(f.b);
+      indices.push(f.c);
+    });
+    gl.bufferData(
+      gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(indices),
+      gl.STATIC_DRAW
+    );
   }
 
   start() {}
@@ -59,13 +75,14 @@ function hackWallCardEntity(
   wall.mesh = createFromPlane(width, height, (x, y) => {
     return addVec(addVec(mulVecScalar(xDir, x), mulVecScalar(yDir, y)), o);
   });
+  wall.uploadIndices();
   return wall;
 }
 
 function hackStickCardEntity(width, color, o, radius, height) {
-  let wall = new CardEntity(null);
-  wall.texture = createTextureFromColor(color);
-  wall.mesh = createFromPlane(width, 3, (x, y) => {
+  let stick = new CardEntity(null);
+  stick.texture = createTextureFromColor(color);
+  stick.mesh = createFromPlane(width, 3, (x, y) => {
     return addVec(
       new vec3(
         -Math.sin(x * 2 * Math.PI) * radius,
@@ -75,7 +92,8 @@ function hackStickCardEntity(width, color, o, radius, height) {
       o
     );
   });
-  return wall;
+  stick.uploadIndices();
+  return stick;
 }
 
 function createCardWithStick(
@@ -85,6 +103,7 @@ function createCardWithStick(
   radius = 0.005
 ) {
   let stick = hackStickCardEntity(5, color, new vec3(), radius, height);
+  stick.uploadIndices();
   entity.transform = transformMatMat(
     getTranslation(new vec3(0, height, -radius * 1.01)),
     entity.transform

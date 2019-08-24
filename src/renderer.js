@@ -193,7 +193,7 @@ function renderCard(renderData, cardData) {
   gl.drawElements(gl.TRIANGLES, cardData.count, gl.UNSIGNED_SHORT, 0);
 }
 
-function updateVertexData(mesh, vertex_buffer, index_buffer) {
+function updateVertexData(mesh, vertex_buffer) {
   let vertices = [];
   mesh.vertices.forEach(v => {
     vertices = vertices.concat([
@@ -206,20 +206,6 @@ function updateVertexData(mesh, vertex_buffer, index_buffer) {
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-  gl.bindBuffer(gl.ARRAY_BUFFER, null);
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
-  let indices = [];
-  mesh.faces.forEach(f => {
-    indices.push(f.a);
-    indices.push(f.b);
-    indices.push(f.c);
-  });
-  gl.bufferData(
-    gl.ELEMENT_ARRAY_BUFFER,
-    new Uint16Array(indices),
-    gl.STATIC_DRAW
-  );
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 }
 
 function createTextureFromColor(color) {
