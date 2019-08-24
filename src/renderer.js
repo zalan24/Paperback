@@ -63,6 +63,10 @@ var depthRenderbuffer = gl.createRenderbuffer();
 var frameSize = {};
 
 function resize() {
+  let canvasSizeScale = 1;
+  glCanvas.width = Math.floor(window.innerWidth * canvasSizeScale);
+  glCanvas.height = Math.floor(window.innerHeight * canvasSizeScale);
+
   // mulitsampling
   // frameSize.w = glCanvas.width;
   // frameSize.h = glCanvas.height;
@@ -113,8 +117,13 @@ function resize() {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
-//TODO
 resize();
+
+// CAN_BE_REMOVED
+function onWindowResize(evt) {
+  resize();
+}
+window.addEventListener("resize", onWindowResize);
 
 function startRender() {
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.render);
