@@ -2,6 +2,7 @@ class Vertex {
   constructor(position, texcoord) {
     this.position = position;
     this.texcoord = texcoord;
+    this.ao = new vec3(1, 1); // {light; ambient occlusion; -}
     this.enabled = false;
   }
 }

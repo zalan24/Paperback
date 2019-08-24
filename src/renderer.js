@@ -17,35 +17,44 @@ function createProgram(vertCode, fragCode) {
   return shaderProgram;
 }
 
+const lightColor = "vec3(1, 1, 1)";
+
 let cardVertCode =
   "attribute vec3 position;" +
   "attribute vec2 texcoord;" +
+  "attribute vec2 light;" +
   "uniform mat4 proj;" +
   "uniform mat4 view;" +
   "uniform mat4 model;" +
   "varying highp vec2 texc;" +
+  "varying highp vec2 l;" +
   "void main(void) {" +
   " vec4 pos = vec4(position, 1);" +
   " gl_Position = proj * view * model * pos;" +
   " texc = texcoord;" +
+  " l = light;" +
+  // " l = vec2(1, 1);" +
   "}";
-// TODO remove white border
 var cardFragCode =
   "precision mediump float;" +
   "varying highp vec2 texc;" +
+  "varying highp vec2 l;" +
   "uniform sampler2D texture;" +
   "void main(void) {" +
   "  vec4 albedo = texture2D(texture, texc);" +
-  "  if (albedo.a == 0.0) discard;" +
-  // "  albedo.rgb *= albedo.a;" +
-  // "  albedo.a = 1.0;" +
-  "  gl_FragColor = albedo;" +
+  "  if (albedo.a < 1.0) discard;" +
+  "  albedo.a = 1.0;" +
+  "  vec3 diffuse = " +
+  lightColor +
+  " * l.x*l.y;" +
+  "  gl_FragColor = albedo * vec4(diffuse, 1);" +
   "}";
 shaderPrograms.cardProgram = {};
 shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
 shaderPrograms.cardProgram.vars = {
   position: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "position"),
   texcoord: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "texcoord"),
+  light: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "light"),
   texture: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "texture"),
   proj: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "proj"),
   view: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "view"),
@@ -157,7 +166,7 @@ function endRender() {
 
 function renderCard(renderData, cardData) {
   gl.useProgram(shaderPrograms.cardProgram.shader);
-  let stride = 5 * 4;
+  const stride = 7 * 4;
   gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.position);
   gl.vertexAttribPointer(
     shaderPrograms.cardProgram.vars.position,
@@ -175,6 +184,15 @@ function renderCard(renderData, cardData) {
     false,
     stride,
     3 * 4
+  );
+  gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.light);
+  gl.vertexAttribPointer(
+    shaderPrograms.cardProgram.vars.light,
+    2,
+    gl.FLOAT,
+    false,
+    stride,
+    5 * 4
   );
   gl.uniformMatrix4fv(shaderPrograms.cardProgram.vars.proj, false, projection);
   gl.uniformMatrix4fv(
@@ -201,7 +219,9 @@ function updateVertexData(mesh, vertex_buffer) {
       v.position.y,
       v.position.z,
       v.texcoord.x,
-      v.texcoord.y
+      v.texcoord.y,
+      v.ao.x,
+      v.ao.y
     ]);
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
