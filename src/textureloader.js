@@ -33,7 +33,7 @@ function getImageData(img, atlasObj) {
   atlasObj.imageData = textureCtx.getImageData(0, 0, img.width, img.height);
 }
 
-function extractTexture(imageData, rect) {
+function extractTexture(imageData, rect, onload = null) {
   let smallData = new ImageData(rect.w, rect.h);
   transformImage(
     imageData,
@@ -51,6 +51,7 @@ function extractTexture(imageData, rect) {
   textureCtx.putImageData(smallData, 0, 0);
 
   let image = new Image();
+  image.onload = onload;
   image.src = textureCanvas.toDataURL();
   return { img: image, data: smallData };
 }

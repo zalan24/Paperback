@@ -122,16 +122,19 @@ function createPaperCard(texture) {
     texture.paperTexture.mesh = new Mesh(vertices, faces);
     let retData = imageData;
     // let retData = smallData;
-    texture.paperTexture.texture = extractTexture(retData, {
-      x: 0,
-      y: 0,
-      w: retData.width,
-      h: retData.height
-    });
-    texture.paperTexture.texture.img.onload = function() {
-      texture.paperTexture.ready = true;
-      texture.paperTexture.loaders.forEach(loader => loader());
-    };
+    texture.paperTexture.texture = extractTexture(
+      retData,
+      {
+        x: 0,
+        y: 0,
+        w: retData.width,
+        h: retData.height
+      },
+      function() {
+        texture.paperTexture.ready = true;
+        texture.paperTexture.loaders.forEach(loader => loader());
+      }
+    );
   };
 }
 
