@@ -29,13 +29,16 @@ let cardVertCode =
   " gl_Position = proj * view * model * pos;" +
   " texc = texcoord;" +
   "}";
+// TODO remove white border
 var cardFragCode =
   "precision mediump float;" +
   "varying highp vec2 texc;" +
   "uniform sampler2D texture;" +
   "void main(void) {" +
   "  vec4 albedo = texture2D(texture, texc);" +
-  "  if (albedo.a < 1.0) discard;" +
+  "  if (albedo.a == 0.0) discard;" +
+  // "  albedo.rgb *= albedo.a;" +
+  // "  albedo.a = 1.0;" +
   "  gl_FragColor = albedo;" +
   "}";
 shaderPrograms.cardProgram = {};
@@ -60,30 +63,40 @@ var depthRenderbuffer = gl.createRenderbuffer();
 var frameSize = {};
 
 function resize() {
-  frameSize.w = glCanvas.width;
-  frameSize.h = glCanvas.height;
-  gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
-  gl.renderbufferStorageMultisample(
-    gl.RENDERBUFFER,
-    gl.getParameter(gl.MAX_SAMPLES),
-    gl.RGBA8,
-    glCanvas.width,
-    glCanvas.height
-  );
-  gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
-  gl.renderbufferStorageMultisample(
-    gl.RENDERBUFFER,
-    gl.getParameter(gl.MAX_SAMPLES),
-    gl.DEPTH_COMPONENT16,
-    glCanvas.width,
-    glCanvas.height
-  );
-  // gl.renderbufferStorage(
+  // mulitsampling
+  // frameSize.w = glCanvas.width;
+  // frameSize.h = glCanvas.height;
+  // gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
+  // gl.renderbufferStorageMultisample(
   //   gl.RENDERBUFFER,
+  //   gl.getParameter(gl.MAX_SAMPLES),
   //   gl.RGBA8,
-  //   glCanvas.width,
-  //   glCanvas.height
+  //   frameSize.w,
+  //   frameSize.h
   // );
+  // gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
+  // gl.renderbufferStorageMultisample(
+  //   gl.RENDERBUFFER,
+  //   gl.getParameter(gl.MAX_SAMPLES),
+  //   gl.DEPTH_COMPONENT16,
+  //   frameSize.w,
+  //   frameSize.h
+  // );
+
+  // rendering in higher resolution for anti-aliasing
+  const antiAliasQuality = 2;
+  frameSize.w = glCanvas.width * antiAliasQuality;
+  frameSize.h = glCanvas.height * antiAliasQuality;
+  gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA8, frameSize.w, frameSize.h);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
+  gl.renderbufferStorage(
+    gl.RENDERBUFFER,
+    gl.DEPTH_COMPONENT16,
+    frameSize.w,
+    frameSize.h
+  );
+
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.render);
   gl.framebufferRenderbuffer(
     gl.FRAMEBUFFER,
@@ -97,8 +110,6 @@ function resize() {
     gl.RENDERBUFFER,
     depthRenderbuffer
   );
-  // gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.color);
-  // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
@@ -112,15 +123,15 @@ function startRender() {
   gl.enable(gl.DEPTH_TEST);
   gl.disable(gl.CULL_FACE);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+  gl.viewport(0, 0, frameSize.w, frameSize.h);
 
-  projection = getProjection(40, glCanvas.width / glCanvas.height, 0.01, 100);
+  projection = getProjection(40, frameSize.w / frameSize.h, 0.01, 100);
 }
 
 function endRender() {
   gl.bindFramebuffer(gl.READ_FRAMEBUFFER, frameBuffers.render);
   gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-  gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+  // gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
   gl.blitFramebuffer(
     0,
     0,
