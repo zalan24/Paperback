@@ -17,6 +17,7 @@ function createProgram(vertCode, fragCode) {
   gl.attachShader(shaderProgram, vertShader);
   gl.attachShader(shaderProgram, fragShader);
   gl.linkProgram(shaderProgram);
+  // TODO remove error checking
   if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS))
     console.log("Error in fragment shader: " + gl.getShaderInfoLog(fragShader));
   if (!gl.getShaderParameter(vertShader, gl.COMPILE_STATUS))
@@ -25,6 +26,45 @@ function createProgram(vertCode, fragCode) {
 }
 
 const lightColor = "vec3(1, 1, 1)";
+
+// TODO compress shader codes better
+
+let cartesianToSphericalShaderCode =
+  "vec2 cartesianToSpherical(vec3 dir) {" +
+  "  dir = normalize(dir);" +
+  "  return vec2(atan(dir.z, dir.x), acos(dir.y));" +
+  "}";
+
+let ambientLightCode =
+  "(-1.0/2.0*(ny*phi0 - ny*phi1)*cos(theta0)*cos(theta0) + " +
+  "1.0/2.0*(ny*phi0 - ny*phi1)*cos(theta1)*cos(theta1) + " +
+  "1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*cos(theta0)*sin(theta0) - 1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*cos(theta1)*sin(theta1) - 1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*theta0 + 1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*theta1)";
+
+let ambientLightShaderCode =
+  "float getAmbientLight(vec3 pos, vec3 normal) {" +
+  "  float pi = 3.1415926535897932384626433832795;" +
+  "  float windowRad = " +
+  windowRad +
+  ";" +
+  "  float windowZ = " +
+  windowZ +
+  ".0;" +
+  "  vec2 x00 = cartesianToSpherical(vec3(-windowRad, windowRad, windowZ) - pos);" +
+  "  vec2 x11 = cartesianToSpherical(vec3(windowRad, -windowRad, windowZ) - pos);" +
+  "  float nx = normal.x;" +
+  "  float ny = normal.y;" +
+  "  float nz = normal.z;" +
+  "  float phi0 = x00.x;" +
+  "  float phi1 = x11.x;" +
+  "  if (phi0 > phi1) phi1 += pi * 2.0;" +
+  "  float theta0 = x00.y;" +
+  "  float theta1 = x11.y;" +
+  // "  if (phi1 < 0.0) phi1 += pi*2.0;" +
+  // "  return phi1/(pi*2.0);" +
+  "  return " +
+  ambientLightCode +
+  ";" +
+  "}";
 
 let cardVertCode =
   "attribute vec3 position;" +
@@ -54,12 +94,14 @@ var cardFragCode =
   "varying highp vec2 texc;" +
   "varying highp vec2 l;" +
   "uniform sampler2D texture;" +
+  cartesianToSphericalShaderCode +
+  ambientLightShaderCode +
   "void main(void) {" +
   "  vec4 albedo = texture2D(texture, texc);" +
   "  if (albedo.a < 1.0) discard;" +
   "  albedo.a = 1.0;" +
   "  vec3 normal = normalize(norm);" +
-  "  float ambientLight = dot(normalize(vec3(0, 0, -1) - fragPos), normal);" +
+  "  float ambientLight = getAmbientLight(fragPos, normal);" +
   "  vec3 diffuse = " +
   lightColor +
   " * ambientLight;" +
