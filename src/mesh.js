@@ -1,8 +1,10 @@
 class Vertex {
-  constructor(position, texcoord) {
+  constructor(position, normal, texcoord) {
     this.position = position;
+    this.normal = normal;
     this.texcoord = texcoord;
-    this.ao = new vec3(1, 1); // {light; ambient occlusion; -}
+    // TODO remove default values
+    this.ao = new vec3(1); // {ambient occlusion; -; -}
     this.enabled = false;
   }
 }
@@ -27,11 +29,9 @@ function createFromPlane(width, height, transform) {
   let faces = [];
   for (let j = 0; j <= height; ++j) {
     for (let i = 0; i <= width; ++i) {
+      let res = transform(i / width, j / height);
       vertices.push(
-        new Vertex(
-          transform(i / width, j / height),
-          new vec3(i / width, j / height)
-        )
+        new Vertex(res.position, res.normal, new vec3(i / width, j / height))
       );
       if (i > 0 && j > 0) {
         let ind3 = i + j * (width + 1);
@@ -44,4 +44,8 @@ function createFromPlane(width, height, transform) {
     }
   }
   return new Mesh(vertices, faces);
+}
+
+function traverseVertices(mesh, f) {
+  mesh.vertices.forEach(e => f(e));
 }

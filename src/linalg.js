@@ -197,3 +197,8 @@ function getRotation(axis, angle) {
 // function lerpVec(a, b, f) {
 //   return addVec(mulVecScalar(subVec(b, a), f), a);
 // }
+
+function cartesianToSpherical(pos) {
+  pos = normalize(pos);
+  return new vec3(Math.atan2(pos.z, pos.x), Math.acos(pos.y));
+}

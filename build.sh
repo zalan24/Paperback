@@ -14,6 +14,7 @@ cat \
 	src/renderer.js \
 	src/entity.js \
 	src/cardentity.js \
+	src/ambientocclusion.js \
 	src/game.js \
 	src/main.js \
 	src/debug.js \

@@ -4,6 +4,7 @@ var entities = [];
 
 function updateEntity(e, updateData) {
   e.update(updateData);
+  if (e.mesh != null) traverseVertices(e.mesh, v => calculateIncomingLight(v));
 }
 
 function renderEntity(e, renderData) {
@@ -33,8 +34,8 @@ function update() {
   let size = 3; // Math.sin((t * 2 * Math.PI) / 10) * 10;
   camera = lookAt(
     new vec3(
-      size * Math.sin((t * 2 * Math.PI) / 2),
-      size * Math.cos((t * 2 * Math.PI) / 2),
+      size * Math.sin((t * 2 * Math.PI) / 5),
+      size * Math.cos((t * 2 * Math.PI) / 5),
       -4
     ),
     new vec3(0, 0, 0),
@@ -72,10 +73,10 @@ function startGame() {
     hackWallCardEntity(new vec3(-1, -1, -1), new vec3(0, 2), new vec3(0, 0, 2))
   );
   addEntity(
-    hackWallCardEntity(new vec3(1, -1, -1), new vec3(0, 2), new vec3(0, 0, 2))
+    hackWallCardEntity(new vec3(1, -1, -1), new vec3(0, 0, 2), new vec3(0, 2))
   );
   addEntity(
-    hackWallCardEntity(new vec3(-1, -1, 1), new vec3(2), new vec3(0, 2))
+    hackWallCardEntity(new vec3(-1, -1, 1), new vec3(0, 2), new vec3(2))
   );
   setTimeout(update, 10);
 }

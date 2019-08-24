@@ -1,11 +1,15 @@
 {
   "editor.formatOnSave": true,
   "cSpell.ignoreWords": [
+    "ambientocclusion",
     "blit",
     "bufferfv",
     "cardentity",
     "clear",
+    "coord",
     "dummyentity",
+    "frag",
+    "gl",
     "linalg",
     "mulitsampling",
     "multisample",

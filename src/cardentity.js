@@ -41,7 +41,11 @@ class CardEntity extends Entity {
 
   update(updateData) {
     if (this.mesh == null) return;
-    updateVertexData(this.mesh, this.vertex_buffer);
+    if (this.ready == null) {
+      // TODO
+      updateVertexData(this.mesh, this.vertex_buffer);
+      this.ready = true;
+    }
   }
 
   uploadIndices() {
@@ -73,8 +77,12 @@ function hackWallCardEntity(
   let wall = new CardEntity(null);
   wall.texture = createTextureFromColor(color);
   wall.mesh = createFromPlane(width, height, (x, y) => {
-    return addVec(addVec(mulVecScalar(xDir, x), mulVecScalar(yDir, y)), o);
+    return {
+      position: addVec(addVec(mulVecScalar(xDir, x), mulVecScalar(yDir, y)), o),
+      normal: normalize(cross(xDir, yDir))
+    };
   });
+  // console.log(normalize(cross(xDir, yDir)));
   wall.uploadIndices();
   return wall;
 }
@@ -83,14 +91,21 @@ function hackStickCardEntity(width, color, o, radius, height) {
   let stick = new CardEntity(null);
   stick.texture = createTextureFromColor(color);
   stick.mesh = createFromPlane(width, 3, (x, y) => {
-    return addVec(
-      new vec3(
-        -Math.sin(x * 2 * Math.PI) * radius,
-        y * height,
-        Math.cos(x * 2 * Math.PI) * radius
+    return {
+      position: addVec(
+        new vec3(
+          -Math.sin(x * 2 * Math.PI) * radius,
+          y * height,
+          Math.cos(x * 2 * Math.PI) * radius
+        ),
+        o
       ),
-      o
-    );
+      normal: new vec3(
+        -Math.sin(x * 2 * Math.PI) * radius,
+        0,
+        Math.cos(x * 2 * Math.PI) * radius
+      )
+    };
   });
   stick.uploadIndices();
   return stick;
@@ -100,7 +115,8 @@ function createCardWithStick(
   entity,
   color = defaultPaperData.paperColor,
   height = 0.5,
-  radius = 0.005
+  // radius = 0.005
+  radius = 0.05
 ) {
   let stick = hackStickCardEntity(5, color, new vec3(), radius, height);
   stick.uploadIndices();

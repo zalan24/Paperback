@@ -1,6 +1,9 @@
 var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 
+const windowRad = 0.7;
+const windowZ = -1;
+
 var shaderPrograms = {};
 
 function createProgram(vertCode, fragCode) {
@@ -14,6 +17,10 @@ function createProgram(vertCode, fragCode) {
   gl.attachShader(shaderProgram, vertShader);
   gl.attachShader(shaderProgram, fragShader);
   gl.linkProgram(shaderProgram);
+  if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS))
+    console.log("Error in fragment shader: " + gl.getShaderInfoLog(fragShader));
+  if (!gl.getShaderParameter(vertShader, gl.COMPILE_STATUS))
+    console.log("Error in vertex shader: " + gl.getShaderInfoLog(vertShader));
   return shaderProgram;
 }
 
@@ -21,22 +28,29 @@ const lightColor = "vec3(1, 1, 1)";
 
 let cardVertCode =
   "attribute vec3 position;" +
+  "attribute vec3 normal;" +
   "attribute vec2 texcoord;" +
   "attribute vec2 light;" +
   "uniform mat4 proj;" +
   "uniform mat4 view;" +
   "uniform mat4 model;" +
+  "varying highp vec3 fragPos;" +
+  "varying highp vec3 norm;" +
   "varying highp vec2 texc;" +
   "varying highp vec2 l;" +
   "void main(void) {" +
   " vec4 pos = vec4(position, 1);" +
   " gl_Position = proj * view * model * pos;" +
+  " fragPos = (model * pos).xyz;" +
+  " norm = (model * vec4(normal, 0)).xyz;" +
   " texc = texcoord;" +
   " l = light;" +
   // " l = vec2(1, 1);" +
   "}";
 var cardFragCode =
   "precision mediump float;" +
+  "varying highp vec3 fragPos;" +
+  "varying highp vec3 norm;" +
   "varying highp vec2 texc;" +
   "varying highp vec2 l;" +
   "uniform sampler2D texture;" +
@@ -44,15 +58,18 @@ var cardFragCode =
   "  vec4 albedo = texture2D(texture, texc);" +
   "  if (albedo.a < 1.0) discard;" +
   "  albedo.a = 1.0;" +
+  "  vec3 normal = normalize(norm);" +
+  "  float ambientLight = dot(normalize(vec3(0, 0, -1) - fragPos), normal);" +
   "  vec3 diffuse = " +
   lightColor +
-  " * l.x*l.y;" +
+  " * ambientLight;" +
   "  gl_FragColor = albedo * vec4(diffuse, 1);" +
   "}";
 shaderPrograms.cardProgram = {};
 shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
 shaderPrograms.cardProgram.vars = {
   position: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "position"),
+  normal: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "normal"),
   texcoord: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "texcoord"),
   light: gl.getAttribLocation(shaderPrograms.cardProgram.shader, "light"),
   texture: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "texture"),
@@ -166,7 +183,7 @@ function endRender() {
 
 function renderCard(renderData, cardData) {
   gl.useProgram(shaderPrograms.cardProgram.shader);
-  const stride = 7 * 4;
+  const stride = 9 * 4;
   gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.position);
   gl.vertexAttribPointer(
     shaderPrograms.cardProgram.vars.position,
@@ -176,6 +193,15 @@ function renderCard(renderData, cardData) {
     stride,
     0
   );
+  gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.normal);
+  gl.vertexAttribPointer(
+    shaderPrograms.cardProgram.vars.normal,
+    3,
+    gl.FLOAT,
+    false,
+    stride,
+    3 * 4
+  );
   gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.texcoord);
   gl.vertexAttribPointer(
     shaderPrograms.cardProgram.vars.texcoord,
@@ -183,7 +209,7 @@ function renderCard(renderData, cardData) {
     gl.FLOAT,
     false,
     stride,
-    3 * 4
+    6 * 4
   );
   gl.enableVertexAttribArray(shaderPrograms.cardProgram.vars.light);
   gl.vertexAttribPointer(
@@ -192,7 +218,7 @@ function renderCard(renderData, cardData) {
     gl.FLOAT,
     false,
     stride,
-    5 * 4
+    8 * 4
   );
   gl.uniformMatrix4fv(shaderPrograms.cardProgram.vars.proj, false, projection);
   gl.uniformMatrix4fv(
@@ -213,15 +239,17 @@ function renderCard(renderData, cardData) {
 
 function updateVertexData(mesh, vertex_buffer) {
   let vertices = [];
-  mesh.vertices.forEach(v => {
+  traverseVertices(mesh, v => {
     vertices = vertices.concat([
       v.position.x,
       v.position.y,
       v.position.z,
+      v.normal.x,
+      v.normal.y,
+      v.normal.z,
       v.texcoord.x,
       v.texcoord.y,
-      v.ao.x,
-      v.ao.y
+      v.ao.x
     ]);
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
