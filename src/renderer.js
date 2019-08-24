@@ -221,3 +221,21 @@ function updateVertexData(mesh, vertex_buffer, index_buffer) {
   );
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 }
+
+function createTextureFromColor(color) {
+  let texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    1,
+    1,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    new Uint8Array([color.r * 255, color.g * 255, color.b * 255, color.a * 255])
+  );
+
+  return texture;
+}

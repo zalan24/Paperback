@@ -8,10 +8,14 @@ child.transform =
 // );
 // cubeEntity.addChild(child);
 // addEntity(cubeEntity);
+let characterScale = 0.2;
 addEntity(child);
-addEntity(
+let character = createCardWithStick(
   new CardEntity(
     resources.textures.character.paperTexture,
-    getTranslation(new vec3(0, 0, 1))
-  )
+    getScaling(new vec3(characterScale, characterScale, characterScale))
+  ),
+  { r: 1, g: 0, b: 0, a: 1 }
 );
+character.transform = getTranslation(new vec3(0, 0, -0.5));
+addEntity(character);

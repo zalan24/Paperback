@@ -18,6 +18,7 @@ var textureProps = {
           w: 64,
           h: 64
         },
+        middle: { x: 25 / 64, y: 32 / 64 },
         paper: defaultPaperData
       },
       sword: {

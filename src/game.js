@@ -16,11 +16,11 @@ function update() {
   let size = 3; // Math.sin((t * 2 * Math.PI) / 10) * 10;
   camera = lookAt(
     new vec3(
-      size * Math.sin((t * 2 * Math.PI) / 10),
-      1,
-      -size * Math.cos((t * 2 * Math.PI) / 10)
+      size * Math.sin((t * 2 * Math.PI) / 2),
+      size * Math.cos((t * 2 * Math.PI) / 2),
+      -4
     ),
-    new vec3(1, 0, 0),
+    new vec3(0, 0, 0),
     new vec3(0, 1, 0)
   );
   // TODO
@@ -41,6 +41,20 @@ function update() {
 function startGame() {
   let timeout = 50;
   setInterval(update, timeout);
+  // entities = [];
+
+  addEntity(
+    hackWallCardEntity(new vec3(-1, 1, -1), new vec3(2), new vec3(0, 0, 2))
+  );
+  addEntity(
+    hackWallCardEntity(new vec3(-1, -1, -1), new vec3(0, 2), new vec3(0, 0, 2))
+  );
+  addEntity(
+    hackWallCardEntity(new vec3(1, -1, -1), new vec3(0, 2), new vec3(0, 0, 2))
+  );
+  addEntity(
+    hackWallCardEntity(new vec3(-1, -1, 1), new vec3(2), new vec3(0, 2))
+  );
 }
 
 function addEntity(r) {

@@ -193,3 +193,7 @@ function getRotation(axis, angle) {
     )
   );
 }
+
+// function lerpVec(a, b, f) {
+//   return addVec(mulVecScalar(subVec(b, a), f), a);
+// }
