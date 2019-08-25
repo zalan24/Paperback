@@ -25,43 +25,32 @@ function createProgram(vertCode, fragCode) {
   return shaderProgram;
 }
 
-const lightColor = "vec3(1, 1, 1)";
+// const lightColor = "vec3(10, 10, 10)";
+const lightColor = "vec3(1, 1, 1)*0.1";
 
 // TODO compress shader codes better
 
-let cartesianToSphericalShaderCode =
-  "vec2 cartesianToSpherical(vec3 dir) {" +
-  "  dir = normalize(dir);" +
-  "  return vec2(atan(dir.z, dir.x), acos(dir.y));" +
-  "}";
+// let cartesianToSphericalShaderCode =
+//   "vec2 cartesianToSpherical(vec3 dir) {" +
+//   "  dir = normalize(dir);" +
+//   "  return vec2(atan(dir.z, dir.x), acos(dir.y));" +
+//   "}";
+
+// (23.52*nx*wx*wx*wx + 23.52*nz*wz*wz*wz + 23.52*nz*wx*wx + (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz + 35.0448*nx*wx + (23.52*ny*wx*wx + 27.3616*ny)*wy + (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz + 27.3616*nz)/48.0/(pi + pi*wz)
 
 let ambientLightCode =
-  "(-1.0/2.0*(ny*phi0 - ny*phi1)*cos(theta0)*cos(theta0) + " +
-  "1.0/2.0*(ny*phi0 - ny*phi1)*cos(theta1)*cos(theta1) + " +
-  "1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*cos(theta0)*sin(theta0) - 1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*cos(theta1)*sin(theta1) - 1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*theta0 + 1.0/2.0*(nz*cos(phi0) - nz*cos(phi1) - nx*sin(phi0) + nx*sin(phi1))*theta1)";
+  "((23.52*nx*wx*wx*wx + 23.52*nz*wz*wz*wz + 23.52*nz*wx*wx + (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz + 35.0448*nx*wx + (23.52*ny*wx*wx + 27.3616*ny)*wy + (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz + 27.3616*nz)/48.0/(pi + pi*wz))";
 
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
   "  float pi = 3.1415926535897932384626433832795;" +
-  "  float windowRad = " +
-  windowRad +
-  ";" +
-  "  float windowZ = " +
-  windowZ +
-  ".0;" +
-  "  vec2 x00 = cartesianToSpherical(vec3(-windowRad, windowRad, windowZ) - pos);" +
-  "  vec2 x11 = cartesianToSpherical(vec3(windowRad, -windowRad, windowZ) - pos);" +
   "  float nx = normal.x;" +
   "  float ny = normal.y;" +
   "  float nz = normal.z;" +
-  "  float phi0 = x00.x;" +
-  "  float phi1 = x11.x;" +
-  "  if (phi0 > phi1) phi1 += pi * 2.0;" +
-  "  float theta0 = x00.y;" +
-  "  float theta1 = x11.y;" +
-  // "  if (phi1 < 0.0) phi1 += pi*2.0;" +
-  // "  return phi1/(pi*2.0);" +
-  "  return " +
+  "  float wx = pos.x;" +
+  "  float wy = pos.y;" +
+  "  float wz = pos.z;" +
+  "  return -1.0/" +
   ambientLightCode +
   ";" +
   "}";
@@ -94,7 +83,6 @@ var cardFragCode =
   "varying highp vec2 texc;" +
   "varying highp vec2 l;" +
   "uniform sampler2D texture;" +
-  cartesianToSphericalShaderCode +
   ambientLightShaderCode +
   "void main(void) {" +
   "  vec4 albedo = texture2D(texture, texc);" +
