@@ -38,8 +38,10 @@ const lightColor = "vec3(1, 1, 1)*0.1";
 
 // (23.52*nx*wx*wx*wx + 23.52*nz*wz*wz*wz + 23.52*nz*wx*wx + (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz + 35.0448*nx*wx + (23.52*ny*wx*wx + 27.3616*ny)*wy + (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz + 27.3616*nz)/48.0/(pi + pi*wz)
 
+// 1.0/48.0*(-23.52*nx*wx*wx*wx - 23.52*nz*wz*wz*wz - 23.52*nz*wx*wx - (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz - 35.0448*nx*wx - (23.52*ny*wx*wx + 27.3616*ny)*wy - (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz - 27.3616*nz)/(pi + pi*wz)
+
 let ambientLightCode =
-  "((23.52*nx*wx*wx*wx + 23.52*nz*wz*wz*wz + 23.52*nz*wx*wx + (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz + 35.0448*nx*wx + (23.52*ny*wx*wx + 27.3616*ny)*wy + (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz + 27.3616*nz)/48.0/(pi + pi*wz))";
+  "(1.0/48.0*(-23.52*nx*wx*wx*wx - 23.52*nz*wz*wz*wz - 23.52*nz*wx*wx - (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz - 35.0448*nx*wx - (23.52*ny*wx*wx + 27.3616*ny)*wy - (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz - 27.3616*nz)/(pi + pi*wz))";
 
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
@@ -50,7 +52,7 @@ let ambientLightShaderCode =
   "  float wx = pos.x;" +
   "  float wy = pos.y;" +
   "  float wz = pos.z;" +
-  "  return -1.0/" +
+  "  return 1.0/" +
   ambientLightCode +
   ";" +
   "}";
