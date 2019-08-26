@@ -16,16 +16,59 @@
 *abs(-wy*wz + (wz + 1)*y - wy)
 /(
     (pi + pi*wx^2 + pi*wy^2 + pi*wz^2 - 2*pi*wx*x + pi*x^2 - 2*pi*wy*y + pi*y^2 + 2*pi*wz)
-    *(wy-y)
+    *abs(wy-y)
     *abs(wx^4 + wz^4 - 4*wx*x^3 + x^4 + (wx^2 + 1)*wy^2 + (2*wx^2 + wy^2 + 6)*wz^2 + 4*wz^3 + (6*wx^2 + wy^2 + 2*wz^2 + 4*wz + 2)*x^2 + (wx^2 + wz^2 - 2*wx*x + x^2 + 2*wz + 1)*y^2 + 2*wx^2 + 2*(2*wx^2 + wy^2 + 2)*wz - 2*(2*wx^3 + wx*wy^2 + 2*wx*wz^2 + 4*wx*wz + 2*wx)*x - 2*(wy*wz^2 - 2*wx*wy*x + wy*x^2 + (wx^2 + 1)*wy + 2*wy*wz)*y + 1)
 )
 
 
 -1/4
 *(nx*wx^3 + nz*wz^3 - nx*x^3 + nz*wx^2 + (nx*wx + ny*wy + 3*nz)*wz^2 + (3*nx*wx + ny*wy + nz*wz + nz)*x^2 + nx*wx + (ny*wx^2 + ny)*wy + (nz*wx^2 + 2*nx*wx + 2*ny*wy + 3*nz)*wz - (3*nx*wx^2 + 2*ny*wx*wy + nx*wz^2 + 2*nz*wx + 2*(nz*wx + nx)*wz + nx)*x - (ny*wx^2 + ny*wz^2 - 2*ny*wx*x + ny*x^2 + 2*ny*wz + ny)*y + nz)
-*abs(-wy*wz + (wz + 1)*y - wy)
+*abs(-(wz + 1)*wy + (wz + 1)*y)
 /(
     (pi + pi*wx^2 + pi*wy^2 + pi*wz^2 - 2*pi*wx*x + pi*x^2 - 2*pi*wy*y + pi*y^2 + 2*pi*wz)
-    *(wy-y)
+    *abs(wy-y)
     *abs(wx^4 + wz^4 - 4*wx*x^3 + x^4 + (wx^2 + 1)*wy^2 + (2*wx^2 + wy^2 + 6)*wz^2 + 4*wz^3 + (6*wx^2 + wy^2 + 2*wz^2 + 4*wz + 2)*x^2 + (wx^2 + wz^2 - 2*wx*x + x^2 + 2*wz + 1)*y^2 + 2*wx^2 + 2*(2*wx^2 + wy^2 + 2)*wz - 2*(2*wx^3 + wx*wy^2 + 2*wx*wz^2 + 4*wx*wz + 2*wx)*x - 2*(wy*wz^2 - 2*wx*wy*x + wy*x^2 + (wx^2 + 1)*wy + 2*wy*wz)*y + 1)
+)
+
+-1/4
+*(nx*wx^3 + nz*wz^3 - nx*x^3 + nz*wx^2 + (nx*wx + ny*wy + 3*nz)*wz^2 + (3*nx*wx + ny*wy + nz*wz + nz)*x^2 + nx*wx + (ny*wx^2 + ny)*wy + (nz*wx^2 + 2*nx*wx + 2*ny*wy + 3*nz)*wz - (3*nx*wx^2 + 2*ny*wx*wy + nx*wz^2 + 2*nz*wx + 2*(nz*wx + nx)*wz + nx)*x - (ny*wx^2 + ny*wz^2 - 2*ny*wx*x + ny*x^2 + 2*ny*wz + ny)*y + nz)
+*abs((wz + 1)*(y-wy))
+/(
+    (pi + pi*wx^2 + pi*wy^2 + pi*wz^2 - 2*pi*wx*x + pi*x^2 - 2*pi*wy*y + pi*y^2 + 2*pi*wz)
+    *abs(wy-y)
+    *abs(wx^4 + wz^4 - 4*wx*x^3 + x^4 + (wx^2 + 1)*wy^2 + (2*wx^2 + wy^2 + 6)*wz^2 + 4*wz^3 + (6*wx^2 + wy^2 + 2*wz^2 + 4*wz + 2)*x^2 + (wx^2 + wz^2 - 2*wx*x + x^2 + 2*wz + 1)*y^2 + 2*wx^2 + 2*(2*wx^2 + wy^2 + 2)*wz - 2*(2*wx^3 + wx*wy^2 + 2*wx*wz^2 + 4*wx*wz + 2*wx)*x - 2*(wy*wz^2 - 2*wx*wy*x + wy*x^2 + (wx^2 + 1)*wy + 2*wy*wz)*y + 1)
+)
+
+-1/4
+*(nx*wx^3 + nz*wz^3 - nx*x^3 + nz*wx^2 + (nx*wx + ny*wy + 3*nz)*wz^2 + (3*nx*wx + ny*wy + nz*wz + nz)*x^2 + nx*wx + (ny*wx^2 + ny)*wy + (nz*wx^2 + 2*nx*wx + 2*ny*wy + 3*nz)*wz - (3*nx*wx^2 + 2*ny*wx*wy + nx*wz^2 + 2*nz*wx + 2*(nz*wx + nx)*wz + nx)*x - (ny*wx^2 + ny*wz^2 - 2*ny*wx*x + ny*x^2 + 2*ny*wz + ny)*y + nz)
+*abs(wz + 1)
+*abs(y-wy)
+/(
+    (pi + pi*wx^2 + pi*wy^2 + pi*wz^2 - 2*pi*wx*x + pi*x^2 - 2*pi*wy*y + pi*y^2 + 2*pi*wz)
+    *abs(wy-y)
+    *abs(wx^4 + wz^4 - 4*wx*x^3 + x^4 + (wx^2 + 1)*wy^2 + (2*wx^2 + wy^2 + 6)*wz^2 + 4*wz^3 + (6*wx^2 + wy^2 + 2*wz^2 + 4*wz + 2)*x^2 + (wx^2 + wz^2 - 2*wx*x + x^2 + 2*wz + 1)*y^2 + 2*wx^2 + 2*(2*wx^2 + wy^2 + 2)*wz - 2*(2*wx^3 + wx*wy^2 + 2*wx*wz^2 + 4*wx*wz + 2*wx)*x - 2*(wy*wz^2 - 2*wx*wy*x + wy*x^2 + (wx^2 + 1)*wy + 2*wy*wz)*y + 1)
+)
+
+-1/4
+*(nx*wx^3 + nz*wz^3 - nx*x^3 + nz*wx^2 + (nx*wx + ny*wy + 3*nz)*wz^2 + (3*nx*wx + ny*wy + nz*wz + nz)*x^2 + nx*wx + (ny*wx^2 + ny)*wy + (nz*wx^2 + 2*nx*wx + 2*ny*wy + 3*nz)*wz - (3*nx*wx^2 + 2*ny*wx*wy + nx*wz^2 + 2*nz*wx + 2*(nz*wx + nx)*wz + nx)*x - (ny*wx^2 + ny*wz^2 - 2*ny*wx*x + ny*x^2 + 2*ny*wz + ny)*y + nz)
+*abs(wz + 1)
+/(
+    (pi + pi*wx^2 + pi*wy^2 + pi*wz^2 - 2*pi*wx*x + pi*x^2 - 2*pi*wy*y + pi*y^2 + 2*pi*wz)
+    *abs(wx^4 + wz^4 - 4*wx*x^3 + x^4 + (wx^2 + 1)*wy^2 + (2*wx^2 + wy^2 + 6)*wz^2 + 4*wz^3 + (6*wx^2 + wy^2 + 2*wz^2 + 4*wz + 2)*x^2 + (wx^2 + wz^2 - 2*wx*x + x^2 + 2*wz + 1)*y^2 + 2*wx^2 + 2*(2*wx^2 + wy^2 + 2)*wz - 2*(2*wx^3 + wx*wy^2 + 2*wx*wz^2 + 4*wx*wz + 2*wx)*x - 2*(wy*wz^2 - 2*wx*wy*x + wy*x^2 + (wx^2 + 1)*wy + 2*wy*wz)*y + 1)
+)
+
+
+
+
+
+
+
+
+
+-1.0/4.0
+*(nx*wx*wx*wx + nz*wz*wz*wz - nx*x*x*x + nz*wx*wx + (nx*wx + ny*wy + 3.0*nz)*wz*wz + (3.0*nx*wx + ny*wy + nz*wz + nz)*x*x + nx*wx + (ny*wx*wx + ny)*wy + (nz*wx*wx + 2*nx*wx + 2.0*ny*wy + 3.0*nz)*wz - (3.0*nx*wx*wx + 2.0*ny*wx*wy + nx*wz*wz + 2.0*nz*wx + 2.0*(nz*wx + nx)*wz + nx)*x - (ny*wx*wx + ny*wz*wz - 2.0*ny*wx*x + ny*x*x + 2.0*ny*wz + ny)*y + nz)
+*(wz + 1.0)
+/(
+    (pi + pi*wx*wx + pi*wy*wy + pi*wz*wz - 2.0*pi*wx*x + pi*x*x - 2.0*pi*wy*y + pi*y*y + 2.0*pi*wz)
+    *abs(wx*wx*wx*wx + wz*wz*wz*wz - 4.0*wx*x*x*x + x*x*x*x + (wx*wx + 1.0)*wy*wy + (2.0*wx*wx + wy*wy + 6.0)*wz*wz + 4.0*wz*wz*wz + (6.0*wx*wx + wy*wy + 2.0*wz*wz + 4.0*wz + 2.0)*x*x + (wx*wx + wz*wz - 2.0*wx*x + x*x + 2.0*wz + 1.0)*y*y + 2.0*wx*wx + 2.0*(2.0*wx*wx + wy*wy + 2.0)*wz - 2.0*(2.0*wx*wx*wx + wx*wy*wy + 2.0*wx*wz*wz + 4.0*wx*wz + 2.0*wx)*x - 2.0*(wy*wz*wz - 2.0*wx*wy*x + wy*x*x + (wx*wx + 1.0)*wy + 2.0*wy*wz)*y + 1.0)
 )
