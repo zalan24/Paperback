@@ -25,70 +25,49 @@ function createProgram(vertCode, fragCode) {
   return shaderProgram;
 }
 
-// const lightColor = "vec3(10, 10, 10)";
 const lightColor = "vec3(1, 1, 1)*20.0";
 
 // TODO compress shader codes better
 
-// let cartesianToSphericalShaderCode =
-//   "vec2 cartesianToSpherical(vec3 dir) {" +
-//   "  dir = normalize(dir);" +
-//   "  return vec2(atan(dir.z, dir.x), acos(dir.y));" +
-//   "}";
-
-// (23.52*nx*wx*wx*wx + 23.52*nz*wz*wz*wz + 23.52*nz*wx*wx + (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz + 35.0448*nx*wx + (23.52*ny*wx*wx + 27.3616*ny)*wy + (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz + 27.3616*nz)/48.0/(pi + pi*wz)
-
-// 1.0/48.0*(-23.52*nx*wx*wx*wx - 23.52*nz*wz*wz*wz - 23.52*nz*wx*wx - (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz - 35.0448*nx*wx - (23.52*ny*wx*wx + 27.3616*ny)*wy - (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz - 27.3616*nz)/(pi + pi*wz)
-
 let ambientLightIntegrand =
-  "-1.0/4.0*(nx*wx*wx*wx + nz*wz*wz*wz - nx*x*x*x + nz*wx*wx + (nx*wx + ny*wy + 3.0*nz)*wz*wz + (3.0*nx*wx + ny*wy + nz*wz + nz)*x*x + nx*wx + (ny*wx*wx + ny)*wy + (nz*wx*wx + 2.0*nx*wx + 2.0*ny*wy + 3.0*nz)*wz - (3.0*nx*wx*wx + 2.0*ny*wx*wy + nx*wz*wz + 2.0*nz*wx + 2.0*(nz*wx + nx)*wz + nx)*x - (ny*wx*wx + ny*wz*wz - 2.0*ny*wx*x + ny*x*x + 2.0*ny*wz + ny)*y + nz)*(wz + 1.0)/((pi + pi*wx*wx + pi*wy*wy + pi*wz*wz - 2.0*pi*wx*x + pi*x*x - 2.0*pi*wy*y + pi*y*y + 2.0*pi*wz)*abs(wx*wx*wx*wx + wz*wz*wz*wz - 4.0*wx*x*x*x + x*x*x*x + (wx*wx + 1.0)*wy*wy + (2.0*wx*wx + wy*wy + 6.0)*wz*wz + 4.0*wz*wz*wz + (6.0*wx*wx + wy*wy + 2.0*wz*wz + 4.0*wz + 2.0)*x*x + (wx*wx + wz*wz - 2.0*wx*x + x*x + 2.0*wz + 1.0)*y*y + 2.0*wx*wx + 2.0*(2.0*wx*wx + wy*wy + 2.0)*wz - 2.0*(2.0*wx*wx*wx + wx*wy*wy + 2.0*wx*wz*wz + 4.0*wx*wz + 2.0*wx)*x - 2.0*(wy*wz*wz - 2.0*wx*wy*x + wy*x*x + (wx*wx + 1.0)*wy + 2.0*wy*wz)*y + 1.0))";
+  "-(nx*wx3+nz*wz3-nx*x3+nz*wx2+(nx*wx+ny*wy+3.0*nz)*wz2+(3.0*nx*wx+ny*wy+nz*wz+nz)*x2+nx*wx+(ny*wx2+ny)*wy+(nz*wx2+2.0*nx*wx+2.0*ny*wy+3.0*nz)*wz-(3.0*nx*wx2+2.0*ny*wx*wy+nx*wz2+2.0*nz*wx+2.0*(nz*wx+nx)*wz+nx)*x-(ny*wx2+ny*wz2-2.0*ny*wx*x+ny*x2+2.0*ny*wz+ny)*y+nz)*(wz+1.0)/((pi+pi*wx2+pi*wy2+pi*wz2-2.0*pi*wx*x+pi*x2-2.0*pi*wy*y+pi*y2+2.0*pi*wz)*abs(wx4+wz4-4.0*wx*x3+x4+(wx2+1.0)*wy2+(2.0*wx2+wy2+6.0)*wz2+4.0*wz3+(6.0*wx2+wy2+2.0*wz2+4.0*wz+2.0)*x2+(wx2+wz2-2.0*wx*x+x2+2.0*wz+1.0)*y2+2.0*wx2+2.0*(2.0*wx2+wy2+2.0)*wz-2.0*(2.0*wx3+wx*wy2+2.0*wx*wz2+4.0*wx*wz+2.0*wx)*x-2.0*(wy*wz2-2.0*wx*wy*x+wy*x2+(wx2+1.0)*wy+2.0*wy*wz)*y+1.0))/4.0";
+
+function makePow(v, val, count = 4, type = "float") {
+  let ret = type + " " + v + "=" + val + ";";
+  for (let i = 2; i <= count; ++i)
+    ret += type + " " + v + i + "=" + v + "*" + v + (i > 2 ? i - 1 : "") + ";";
+  return ret;
+}
+
+function makeVecPow(vec, name, count = 4, type = "float") {
+  return (
+    makePow(name + "x", vec + ".x", count, type) +
+    makePow(name + "y", vec + ".y", count, type) +
+    makePow(name + "z", vec + ".z", count, type)
+  );
+}
 
 let ambientIntegral =
   "  float sum = 0.0;" +
   "  const int Width = 2;" +
   "  const int Height = 2;" +
   "  for (int i = 0; i < Width; ++i) for (int j = 0; j < Height; ++j) {" +
-  "    float x = mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width));" +
-  "    float y = mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height));" +
-  "    float x2 = x*x;" +
-  "    float y2 = y*y;" +
-  "    float x3 = x2*x;" +
-  "    float y3 = y2*y;" +
-  "    float x4 = x2*x2;" +
-  "    float y4 = y2*y2;" +
+  makePow("x", "mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width))") +
+  makePow("y", "mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))") +
   "    sum += max(" +
   ambientLightIntegrand +
   ", 0.0);" +
   "  }" +
   "  sum /= float(Width*Height);";
 
-let ambientLightCode =
-  "(1.0/48.0*(-23.52*nx*wx*wx*wx - 23.52*nz*wz*wz*wz - 23.52*nz*wx*wx - (23.52*nx*wx + 23.52*ny*wy + 70.55999999999997*nz)*wz*wz - 35.0448*nx*wx - (23.52*ny*wx*wx + 27.3616*ny)*wy - (23.52*nz*wx*wx + 47.04*nx*wx + 47.04*ny*wy + 74.40159999999997*nz)*wz - 27.3616*nz)/(pi + pi*wz))";
-
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
   "  float pi = 3.1415926535897932384626433832795;" +
-  "  float nx = normal.x;" +
-  "  float ny = normal.y;" +
-  "  float nz = normal.z;" +
-  "  float wx = pos.x;" +
-  "  float wy = pos.y;" +
-  "  float wz = pos.z;" +
-  "  float wx2 = wx*wx;" +
-  "  float wy2 = wy*wy;" +
-  "  float wz2 = wz*wz;" +
-  "  float wx3 = wx2*wx;" +
-  "  float wy3 = wy2*wy;" +
-  "  float wz3 = wz2*wz;" +
-  "  float wx4 = wx2*wx2;" +
-  "  float wy4 = wy2*wy2;" +
-  "  float wz4 = wz2*wz2;" +
+  makeVecPow("normal", "n") +
+  makeVecPow("pos", "w") +
   "  float windowRad = " +
   windowRad +
   ";" +
-  // "  return 1.0/" +
-  // ambientLightCode +
-  // ";" +
   ambientIntegral +
   "  return sum;" +
   "}";
