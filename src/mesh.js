@@ -3,8 +3,6 @@ class Vertex {
     this.position = position;
     this.normal = normal;
     this.texcoord = texcoord;
-    // TODO remove default values
-    this.ao = new vec3(1); // {ambient occlusion; -; -}
     this.enabled = false;
   }
 }
