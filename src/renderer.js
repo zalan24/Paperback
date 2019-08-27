@@ -1,6 +1,13 @@
 var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 
+var occlusionBuffer = gl.createBuffer();
+
+function setOccluders(data) {
+  gl.bindBuffer(gl.UNIFORM_BUFFER, occlusionBuffer);
+  gl.bufferData(gl.UNIFORM_BUFFER, new Float32Array(data), gl.DYNAMIC_DRAW);
+}
+
 const windowRad = 0.7;
 const windowZ = -1;
 
@@ -79,6 +86,7 @@ let cardVertCode =
   "uniform mat4 proj;" +
   "uniform mat4 view;" +
   "uniform mat4 model;" +
+  // "uniform float occlusion[];" +
   "varying highp vec3 fragPos;" +
   "varying highp vec3 norm;" +
   "varying highp vec2 texc;" +

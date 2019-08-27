@@ -18,5 +18,5 @@ function uploadOccluders(entities) {
       }
     })
   );
-  // TODO upload
+  setOccluders(occluders);
 }
