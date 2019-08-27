@@ -1,11 +1,14 @@
 var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 
+const maxOccluderCount = 128;
+const occluderSize = 4;
 var occlusionBuffer = gl.createBuffer();
-
+var numOccluders = 0;
 function setOccluders(data) {
   gl.bindBuffer(gl.UNIFORM_BUFFER, occlusionBuffer);
   gl.bufferData(gl.UNIFORM_BUFFER, new Float32Array(data), gl.DYNAMIC_DRAW);
+  numOccluders = data.length() / occluderSize;
 }
 
 const windowRad = 0.7;
@@ -79,6 +82,18 @@ let ambientLightShaderCode =
   "  return sum;" +
   "}";
 
+let ambientOcclusionCode =
+  "float ambientOcclusion(vec3 pos, vec3 normal) {" +
+  " uint occluderSize =" +
+  occluderSize +
+  ";" +
+  " float sum = 0;" +
+  " for (int i = 0; i < occluderCount; ++i) {" +
+  "  sum += occlusion[i*occluderSize+3];" + // TODO
+  " }" +
+  " return sum;" +
+  "}";
+
 let cardVertCode =
   "attribute vec3 position;" +
   "attribute vec3 normal;" +
@@ -86,18 +101,22 @@ let cardVertCode =
   "uniform mat4 proj;" +
   "uniform mat4 view;" +
   "uniform mat4 model;" +
-  // "uniform float occlusion[];" +
+  "uniform uint occluderCount;" +
+  "uniform float occlusion[" +
+  maxOccluderCount * occluderSize +
+  "];" +
   "varying highp vec3 fragPos;" +
   "varying highp vec3 norm;" +
   "varying highp vec2 texc;" +
   "varying highp float o;" +
+  ambientOcclusionCode +
   "void main(void) {" +
   " vec4 pos = vec4(position, 1);" +
   " gl_Position = proj * view * model * pos;" +
   " fragPos = (model * pos).xyz;" +
   " norm = (model * vec4(normal, 0)).xyz;" +
   " texc = texcoord;" +
-  " o = 1.0;" +
+  " o = ambientOcclusion(fragPos, norm);" +
   // " l = vec2(1, 1);" +
   "}";
 var cardFragCode =
@@ -128,7 +147,15 @@ shaderPrograms.cardProgram.vars = {
   texture: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "texture"),
   proj: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "proj"),
   view: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "view"),
-  model: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "model")
+  model: gl.getUniformLocation(shaderPrograms.cardProgram.shader, "model"),
+  occlusion: gl.getUniformLocation(
+    shaderPrograms.cardProgram.shader,
+    "occlusion"
+  ),
+  occluderCount: gl.getUniformLocation(
+    shaderPrograms.cardProgram.shader,
+    "occluderCount"
+  )
 };
 
 var projection = null;
@@ -279,6 +306,8 @@ function renderCard(renderData, cardData) {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, cardData.texture);
   gl.uniform1i(shaderPrograms.cardProgram.vars.texture, 0);
+  gl.uniform1i(shaderPrograms.cardProgram.vars.numOccluders, numOccluders);
+  gl.uniform1v(shaderPrograms.cardProgram.vars.occlusion, occlusionBuffer);
   gl.drawElements(gl.TRIANGLES, cardData.count, gl.UNSIGNED_SHORT, 0);
 }
 
