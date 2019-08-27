@@ -5,6 +5,7 @@ class CardEntity extends Entity {
     this.index_buffer = gl.createBuffer();
     this.paperTexture = paperTexture;
     this.mesh = null;
+    this.occluder = true;
     if (paperTexture != null) {
       let t = this;
       usePaperTexture(paperTexture, function() {

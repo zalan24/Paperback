@@ -14,7 +14,8 @@ function uploadOccluders(entities) {
             count++;
           }
         });
-        if (count > 0) occluders.concat([pos.x, pos.y, pos.z, radius / count]);
+        // if (count > 0) occluders.concat([pos.x, pos.y, pos.z, radius / count]);
+        occluders = occluders.concat([pos.x, pos.y, pos.z, 1]);
       }
     })
   );

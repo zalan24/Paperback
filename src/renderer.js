@@ -5,10 +5,13 @@ const maxOccluderCount = 128;
 const occluderSize = 4;
 var occlusionBuffer = gl.createBuffer();
 var numOccluders = 0;
+var occlusionData = null;
 function setOccluders(data) {
   gl.bindBuffer(gl.UNIFORM_BUFFER, occlusionBuffer);
-  gl.bufferData(gl.UNIFORM_BUFFER, new Float32Array(data), gl.DYNAMIC_DRAW);
-  numOccluders = data.length() / occluderSize;
+  occlusionData = new Float32Array(data);
+  gl.bufferData(gl.UNIFORM_BUFFER, occlusionData, gl.DYNAMIC_DRAW);
+  numOccluders = data.length / occluderSize;
+  // console.log(data);
 }
 
 const windowRad = 0.7;
@@ -84,14 +87,22 @@ let ambientLightShaderCode =
 
 let ambientOcclusionCode =
   "float ambientOcclusion(vec3 pos, vec3 normal) {" +
-  " uint occluderSize =" +
+  " int occluderSize =" +
   occluderSize +
   ";" +
-  " float sum = 0;" +
-  " for (int i = 0; i < occluderCount; ++i) {" +
+  " float sum = 0.0;" +
+  " for (int i = 0; i < " +
+  maxOccluderCount +
+  "; ++i) {" +
+  "  if(i >= occluderCount) {break;}" + // uggghhhh
   "  sum += occlusion[i*occluderSize+3];" + // TODO
   " }" +
   " return sum;" +
+  "}";
+
+let occlusionSubtraction =
+  "float getLight(float light, float occlusion) {" +
+  " return light - occlusion;" +
   "}";
 
 let cardVertCode =
@@ -101,7 +112,7 @@ let cardVertCode =
   "uniform mat4 proj;" +
   "uniform mat4 view;" +
   "uniform mat4 model;" +
-  "uniform uint occluderCount;" +
+  "uniform int occluderCount;" +
   "uniform float occlusion[" +
   maxOccluderCount * occluderSize +
   "];" +
@@ -127,6 +138,8 @@ var cardFragCode =
   "varying highp float o;" +
   "uniform sampler2D texture;" +
   ambientLightShaderCode +
+  " " +
+  occlusionSubtraction +
   "void main(void) {" +
   "  vec4 albedo = texture2D(texture, texc);" +
   "  if (albedo.a < 1.0) discard;" +
@@ -135,9 +148,11 @@ var cardFragCode =
   "  float ambientLight = getAmbientLight(fragPos, normal);" +
   "  vec3 diffuse = " +
   lightColor +
-  " * ambientLight*o;" +
+  " * getLight(ambientLight, o);" +
   "  gl_FragColor = albedo * vec4(diffuse, 1);" +
   "}";
+
+// console.log(cardVertCode);
 shaderPrograms.cardProgram = {};
 shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
 shaderPrograms.cardProgram.vars = {
@@ -306,8 +321,11 @@ function renderCard(renderData, cardData) {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, cardData.texture);
   gl.uniform1i(shaderPrograms.cardProgram.vars.texture, 0);
-  gl.uniform1i(shaderPrograms.cardProgram.vars.numOccluders, numOccluders);
-  gl.uniform1v(shaderPrograms.cardProgram.vars.occlusion, occlusionBuffer);
+  // console.log(numOccluders);
+  gl.uniform1i(shaderPrograms.cardProgram.vars.occluderCount, numOccluders);
+  // TODO do this in startRender
+  if (numOccluders > 0)
+    gl.uniform1fv(shaderPrograms.cardProgram.vars.occlusion, occlusionData);
   gl.drawElements(gl.TRIANGLES, cardData.count, gl.UNSIGNED_SHORT, 0);
 }
 
