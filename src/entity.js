@@ -3,6 +3,7 @@ class Entity {
     this.transform = transform;
     this.entities = [];
     this.parent = null;
+    this.occluder = true;
   }
 
   addChild(c) {

@@ -4,7 +4,6 @@ var entities = [];
 
 function updateEntity(e, updateData) {
   e.update(updateData);
-  if (e.mesh != null) traverseVertices(e.mesh, v => calculateIncomingLight(v));
 }
 
 function renderEntity(e, renderData) {
@@ -49,6 +48,8 @@ function update() {
 
   let updateData = { dt: dt, time: t };
   entities.forEach(r => traverseEntities(r, e => updateEntity(e, updateData)));
+
+  uploadOccluders(entities);
 
   let renderData = { view: camera };
   entities.forEach(r => traverseEntities(r, e => renderEntity(e, renderData)));

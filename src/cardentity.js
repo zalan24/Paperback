@@ -84,6 +84,7 @@ function hackWallCardEntity(
   });
   // console.log(normalize(cross(xDir, yDir)));
   wall.uploadIndices();
+  wall.occluder = false;
   return wall;
 }
 
@@ -108,6 +109,7 @@ function hackStickCardEntity(width, color, o, radius, height) {
     };
   });
   stick.uploadIndices();
+  stick.occluder = false;
   return stick;
 }
 
