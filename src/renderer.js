@@ -2,7 +2,7 @@ var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 
 const maxOccluderCount = 128;
-const occluderSize = 4;
+const occluderSize = 9;
 var occlusionBuffer = gl.createBuffer();
 var numOccluders = 0;
 var occlusionData = null;
@@ -73,9 +73,11 @@ let ambientIntegral =
   "  }" +
   "  sum /= float(Width*Height);";
 
+let shaderPi = "float pi=3.1415926535897932384626433832795;";
+
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
-  "  float pi = 3.1415926535897932384626433832795;" +
+  shaderPi +
   makeVecPow("normal", "n") +
   makeVecPow("pos", "w") +
   "  float windowRad = " +
@@ -85,8 +87,20 @@ let ambientLightShaderCode =
   "  return sum;" +
   "}";
 
+function readOcclusionVec(index, offset, name) {
+  offset = index + "*occluderSize+" + offset;
+  return (
+    "vec3 " + name + "=vec3(" + offset + "," + offset + "+1", offset + "+2);"
+  );
+}
+
+function circleArea(rad) {
+  return "(pi*(rad)*(rad))";
+}
+
 let ambientOcclusionCode =
-  "float ambientOcclusion(vec3 pos, vec3 normal) {" +
+  "float ambientOcclusion(vec3 wpos, vec3 normal) {" +
+  shaderPi +
   " int occluderSize =" +
   occluderSize +
   ";" +
@@ -94,8 +108,20 @@ let ambientOcclusionCode =
   " for (int i = 0; i < " +
   maxOccluderCount +
   "; ++i) {" +
-  "  if(i >= occluderCount) {break;}" + // uggghhhh
-  "  sum += occlusion[i*occluderSize+3];" + // TODO
+  "  if(i>=occluderCount)break;" + // uggghhhh
+  readOcclusionVec("i", "0", "pos") +
+  readOcclusionVec("i", "3", "radius") +
+  readOcclusionVec("i", "6", "norm") +
+  "  float xyr = length(radius.xy, 0);" +
+  "  vec3 d =  pos - wpos;" +
+  "  float dist = length(d);" +
+  "  vec3 dn = d/dist;" +
+  "  float area = " +
+  circleArea("xyr*dn.x") +
+  "+" +
+  circleArea("radius.z*dn.z;") +
+  ";" +
+  "  float projA = " + // TODO
   " }" +
   " return sum;" +
   "}";
