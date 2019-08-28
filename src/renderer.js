@@ -45,6 +45,8 @@ const lightColor = "vec3(1, 1, 1)*20.0";
 let ambientLightIntegrand =
   "-(nx*wx3+nz*wz3-nx*x3+nz*wx2+(nx*wx+ny*wy+3.0*nz)*wz2+(3.0*nx*wx+ny*wy+nz*wz+nz)*x2+nx*wx+(ny*wx2+ny)*wy+(nz*wx2+2.0*nx*wx+2.0*ny*wy+3.0*nz)*wz-(3.0*nx*wx2+2.0*ny*wx*wy+nx*wz2+2.0*nz*wx+2.0*(nz*wx+nx)*wz+nx)*x-(ny*wx2+ny*wz2-2.0*ny*wx*x+ny*x2+2.0*ny*wz+ny)*y+nz)*(wz+1.0)/((pi+pi*wx2+pi*wy2+pi*wz2-2.0*pi*wx*x+pi*x2-2.0*pi*wy*y+pi*y2+2.0*pi*wz)*abs(wx4+wz4-4.0*wx*x3+x4+(wx2+1.0)*wy2+(2.0*wx2+wy2+6.0)*wz2+4.0*wz3+(6.0*wx2+wy2+2.0*wz2+4.0*wz+2.0)*x2+(wx2+wz2-2.0*wx*x+x2+2.0*wz+1.0)*y2+2.0*wx2+2.0*(2.0*wx2+wy2+2.0)*wz-2.0*(2.0*wx3+wx*wy2+2.0*wx*wz2+4.0*wx*wz+2.0*wx)*x-2.0*(wy*wz2-2.0*wx*wy*x+wy*x2+(wx2+1.0)*wy+2.0*wy*wz)*y+1.0))/4.0";
 
+function getAmbientLightIntegrandAt(x, y, wp, norm) {}
+
 function makePow(v, val, count = 4, type = "float") {
   let ret = type + " " + v + "=" + val + ";";
   for (let i = 2; i <= count; ++i)
@@ -90,12 +92,12 @@ let ambientLightShaderCode =
 function readOcclusionVec(index, offset, name) {
   offset = index + "*occluderSize+" + offset;
   return (
-    "vec3 " + name + "=vec3(" + offset + "," + offset + "+1", offset + "+2);"
+    "vec3 " + name + "=vec3(" + offset + "," + offset + "+1," + offset + "+2);"
   );
 }
 
 function circleArea(rad) {
-  return "(pi*(rad)*(rad))";
+  return "(pi*(" + rad + ")*(" + rad + "))";
 }
 
 let ambientOcclusionCode =
@@ -112,16 +114,27 @@ let ambientOcclusionCode =
   readOcclusionVec("i", "0", "pos") +
   readOcclusionVec("i", "3", "radius") +
   readOcclusionVec("i", "6", "norm") +
-  "  float xyr = length(radius.xy, 0);" +
+  "  float xyr = length(vec3(radius.xy, 0));" +
   "  vec3 d =  pos - wpos;" +
   "  float dist = length(d);" +
   "  vec3 dn = d/dist;" +
-  "  float area = " +
-  circleArea("xyr*dn.x") +
-  "+" +
-  circleArea("radius.z*dn.z;") +
+  "  float dt = dot(dn, norm);" +
+  "  float r = length(vec2((1.0-dt)*xyr,dt*radius.z));" +
+  "  float scale = d.z/wpos.z;" +
+  "  vec2 xy = vec2(clamp(wpos.x+d.x*scale, -" +
+  windowRad +
+  "," +
+  windowRad +
+  "), clamp(wpos.y+d.y*scale, -" +
+  windowRad +
+  "," +
+  windowRad +
+  "));" +
   ";" +
-  "  float projA = " + // TODO
+  "  float projA = " +
+  circleArea("r") +
+  "*scale;" +
+  // "  sum += "+
   " }" +
   " return sum;" +
   "}";
@@ -178,7 +191,7 @@ var cardFragCode =
   "  gl_FragColor = albedo * vec4(diffuse, 1);" +
   "}";
 
-// console.log(cardVertCode);
+console.log(cardVertCode);
 shaderPrograms.cardProgram = {};
 shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
 shaderPrograms.cardProgram.vars = {

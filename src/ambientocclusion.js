@@ -11,9 +11,9 @@ function uploadOccluders(entities) {
           if (v.enabled) {
             let vpos = transformMatPosition(e.getTransform(), v.position);
             let dist = new vec3(
-              abs(pos.x - vpos.x),
-              abs(pos.y - vpos.y),
-              abs(pos.z - vpos.z)
+              Math.abs(pos.x - vpos.x),
+              Math.abs(pos.y - vpos.y),
+              Math.abs(pos.z - vpos.z)
             );
             radius = addVec(radius, dist);
             count++;
