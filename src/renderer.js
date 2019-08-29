@@ -38,7 +38,7 @@ function createProgram(vertCode, fragCode) {
   return shaderProgram;
 }
 
-const lightColor = "vec3(1, 1, 1)*20.0";
+const lightColor = "vec3(1, 1, 1)*10.0";
 
 // TODO compress shader codes better
 
@@ -81,7 +81,7 @@ let ambientIntegral =
   "  for (int i = 0; i < Width; ++i) for (int j = 0; j < Height; ++j) {" +
   "    sum += getAmbientLightIntegrand(vec2(mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width)), mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))), pos, normal);" +
   "  }" +
-  "  sum /= float(Width*Height);";
+  "  sum *= 4.0*windowRad*windowRad/float(Width*Height);"; // (2*windowRadZ)^2
 
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
@@ -125,20 +125,21 @@ let ambientOcclusionCode =
   "  float dt = dot(dn, norm);" +
   "  float r = length(vec2((1.0-dt)*xyr,dt*radius.z));" +
   "  float scale = d.z/wpos.z;" +
-  "  vec2 xy = vec2(clamp(wpos.x+d.x*scale, -" +
+  "  vec2 xyproj = vec2(wpos.x+d.x*scale, wpos.y+d.y*scale);" +
+  "  vec2 xyclamp = vec2(clamp(xyproj.x, -" +
   windowRad +
   "," +
   windowRad +
-  "), clamp(wpos.y+d.y*scale, -" +
+  "), clamp(xyproj.y, -" +
   windowRad +
   "," +
   windowRad +
   "));" +
-  ";" +
+  "  float sample = getAmbientLightIntegrand(xyclamp, pos, norm);" +
   "  float projA = " +
   circleArea("r") +
-  "*scale;" +
-  // "  sum += "+
+  "*scale;" + // TODO
+  // "  sum += projA*sample"+
   " }" +
   " return sum;" +
   "}";
