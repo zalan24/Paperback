@@ -1,1 +1,3 @@
 startGame();
+
+loadScene(scenes.testScene);

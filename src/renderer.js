@@ -207,8 +207,8 @@ var cardFragCode =
   "  gl_FragColor = albedo * vec4(diffuse, 1);" +
   "}";
 
-console.log(cardFragCode);
-console.log(cardVertCode);
+// console.log(cardFragCode);
+// console.log(cardVertCode);
 shaderPrograms.cardProgram = {};
 shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
 shaderPrograms.cardProgram.vars = {
@@ -420,3 +420,6 @@ function createTextureFromColor(color) {
 
   return texture;
 }
+
+// TODO set smaller resolution
+// TODO depth testing should be changed to depth test first, then render

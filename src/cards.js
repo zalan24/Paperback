@@ -1,5 +1,5 @@
 var defaultPaperData = {
-  scalingFactor: 8,
+  scalingFactor: 4,
   paperColor: { r: 221 / 255, g: 217 / 255, b: 195 / 255, a: 1 },
   filterSize: 2,
   // stepRadius: 0.05,
@@ -24,6 +24,24 @@ var textureProps = {
       sword: {
         rect: {
           x: 64,
+          y: 0,
+          w: 64,
+          h: 64
+        },
+        paper: defaultPaperData
+      },
+      platform: {
+        rect: {
+          x: 128,
+          y: 0,
+          w: 64,
+          h: 64
+        },
+        paper: defaultPaperData
+      },
+      mountain: {
+        rect: {
+          x: 192,
           y: 0,
           w: 64,
           h: 64

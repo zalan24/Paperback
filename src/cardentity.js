@@ -117,9 +117,9 @@ function hackStickCardEntity(width, color, o, radius, height) {
 function createCardWithStick(
   entity,
   color = defaultPaperData.paperColor,
-  height = 0.5,
-  // radius = 0.005
-  radius = 0.05
+  height = 2,
+  radius = 0.005
+  // radius = 0.05
 ) {
   let stick = hackStickCardEntity(5, color, new vec3(), radius, height);
   stick.uploadIndices();

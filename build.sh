@@ -16,6 +16,8 @@ cat \
 	src/cardentity.js \
 	src/ambientocclusion.js \
 	src/game.js \
+	src/sceneloader.js \
+	src/scenes.js \
 	src/main.js \
 	src/debug.js \
 	> build/paper.js

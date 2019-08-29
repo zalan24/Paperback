@@ -15,7 +15,7 @@ var camera = lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
 var startTime;
 var t = 0;
 
-const writeFpsCount = 10;
+const writeFpsCount = 60;
 var writeFps = 0;
 var fpsTime = 0;
 const targetFps = 300;
@@ -30,12 +30,12 @@ function update() {
     writeFps = 0;
     fpsTime = 0;
   }
-  let size = 3; // Math.sin((t * 2 * Math.PI) / 10) * 10;
+  let size = 1;
   camera = lookAt(
     new vec3(
-      size * Math.sin((t * 2 * Math.PI) / 5),
-      size * Math.cos((t * 2 * Math.PI) / 5),
-      -4
+      size * Math.sin((t * 2 * Math.PI) / 10),
+      size * Math.cos((t * 2 * Math.PI) / 10),
+      -2
     ),
     new vec3(0, 0, 0),
     new vec3(0, 1, 0)
@@ -64,8 +64,8 @@ function update() {
 
 function startGame() {
   startTime = new Date();
-  // entities = [];
-  // t = 0;
+  entities = [];
+  t = 0;
 
   addEntity(
     hackWallCardEntity(new vec3(-1, 1, -1), new vec3(2), new vec3(0, 0, 2))
@@ -85,4 +85,8 @@ function startGame() {
 function addEntity(r) {
   traverseEntities(r, e => e.start());
   entities.push(r);
+}
+
+function clearScene() {
+  startGame();
 }
