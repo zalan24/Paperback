@@ -1,7 +1,7 @@
 var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 
-const maxOccluderCount = 128;
+const maxOccluderCount = 32;
 const occluderSize = 9;
 var occlusionBuffer = gl.createBuffer();
 var numOccluders = 0;
@@ -266,8 +266,8 @@ function resize() {
 
   // rendering in higher resolution for anti-aliasing
   const antiAliasQuality = 2;
-  frameSize.w = glCanvas.width * antiAliasQuality;
-  frameSize.h = glCanvas.height * antiAliasQuality;
+  frameSize.w = Math.floor(glCanvas.width * antiAliasQuality);
+  frameSize.h = Math.floor(glCanvas.height * antiAliasQuality);
   gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
   gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA8, frameSize.w, frameSize.h);
   gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
@@ -302,12 +302,15 @@ function onWindowResize(evt) {
 }
 window.addEventListener("resize", onWindowResize);
 
+gl.clearColor(0.5, 0.5, 0.5, 0.9);
+gl.clearDepth(1.0);
+gl.enable(gl.DEPTH_TEST);
+gl.disable(gl.CULL_FACE);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
 function startRender() {
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.render);
-  gl.clearColor(0.5, 0.5, 0.5, 0.9);
-  gl.clearDepth(1.0);
-  gl.enable(gl.DEPTH_TEST);
-  gl.disable(gl.CULL_FACE);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, frameSize.w, frameSize.h);
 
@@ -330,6 +333,7 @@ function endRender() {
     gl.COLOR_BUFFER_BIT,
     gl.LINEAR
   );
+  gl.finish();
 }
 
 function renderCard(renderData, cardData) {
@@ -421,5 +425,4 @@ function createTextureFromColor(color) {
   return texture;
 }
 
-// TODO set smaller resolution
 // TODO depth testing should be changed to depth test first, then render
