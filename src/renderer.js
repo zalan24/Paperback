@@ -121,10 +121,12 @@ let ambientOcclusionCode =
   "  float xyr = length(vec3(radius.xy, 0));" +
   "  vec3 d =  pos - wpos;" +
   "  float dist = length(d);" +
+  "  if (dist < 0.01) continue;" + // TODO smooth fadeout
   "  vec3 dn = d/dist;" +
+  "  if (-dn.z < 0.01) continue;" + // TODO smooth fadeout; = dot(dn, vec3(0, 0, -1))
   "  float dt = dot(dn, norm);" +
   "  float r = length(vec2((1.0-dt)*xyr,dt*radius.z));" +
-  "  float scale = d.z/wpos.z;" +
+  "  float scale = -d.z/(wpos.z+1.0);" +
   "  vec2 xyproj = vec2(wpos.x+d.x*scale, wpos.y+d.y*scale);" +
   "  vec2 xyclamp = vec2(clamp(xyproj.x, -" +
   windowRad +
@@ -138,7 +140,8 @@ let ambientOcclusionCode =
   "  float sample = getAmbientLightIntegrand(xyclamp, pos, norm);" +
   "  float projA = " +
   circleArea("r") +
-  "*scale;" + // TODO
+  "*scale/(-dn.z);" +
+  // only use intersection af the projected circle with the window rect
   // "  sum += projA*sample"+
   " }" +
   " return sum;" +
