@@ -18,7 +18,7 @@ var t = 0;
 const writeFpsCount = 10;
 var writeFps = 0;
 var fpsTime = 0;
-const targetFps = 60;
+const targetFps = 300;
 
 function update() {
   let elapsed = new Date() - startTime;

@@ -74,22 +74,28 @@ let getAmbientLightIntegrandAt =
   ", 0.0);" +
   "}";
 
-let ambientIntegral =
-  "  float sum = 0.0;" +
-  "  const int Width = 2;" +
-  "  const int Height = 2;" +
-  "  for (int i = 0; i < Width; ++i) for (int j = 0; j < Height; ++j) {" +
-  "    sum += getAmbientLightIntegrand(vec2(mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width)), mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))), pos, normal);" +
-  "  }" +
-  "  sum *= 4.0*windowRad*windowRad/float(Width*Height);"; // (2*windowRadZ)^2
+function getAmbientIntegral(w = 2, h = 2) {
+  return (
+    "  float windowRad = " +
+    windowRad +
+    ";" +
+    "  float sum = 0.0;" +
+    "  const int Width = " +
+    w +
+    ";" +
+    "  const int Height = " +
+    h +
+    ";" +
+    "  for (int i = 0; i < Width; ++i) for (int j = 0; j < Height; ++j)" +
+    "    sum += getAmbientLightIntegrand(vec2(mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width)), mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))), pos, normal);" +
+    "  sum *= 4.0*windowRad*windowRad/float(Width*Height);"
+  ); // (2*windowRadZ)^2
+}
 
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
-  shaderPi +
-  "  float windowRad = " +
-  windowRad +
-  ";" +
-  ambientIntegral +
+  // shaderPi +
+  getAmbientIntegral() +
   "  return sum;" +
   "}";
 
@@ -128,19 +134,19 @@ let ambientOcclusionCode =
   "  float r = length(vec2((1.0-dt)*xyr,dt*radius.z));" +
   "  float scale = -d.z/(wpos.z+1.0);" +
   "  vec2 xyproj = vec2(wpos.x+d.x*scale, wpos.y+d.y*scale);" +
-  "  vec2 xyclamp = vec2(clamp(xyproj.x, -" +
+  "  vec2 rectb = vec2(" +
   windowRad +
-  "," +
-  windowRad +
-  "), clamp(xyproj.y, -" +
-  windowRad +
-  "," +
-  windowRad +
-  "));" +
+  ");" +
+  "  vec2 recta = -rectb;" +
+  "  vec2 xyclamp = vec2(clamp(xyproj.x, recta.x, rectb.x), clamp(xyproj.y, recta.y, rectb.y));" +
   "  float sample = getAmbientLightIntegrand(xyclamp, pos, norm);" +
-  "  float projA = " +
-  circleArea("r") +
-  "*scale/(-dn.z);" +
+  // "  vec2 scale2d = vec2(length(cross(vec3(-1, 0, 0), dn)), length(cross(vec3(0, 1, 0), dn)));" +
+  // "  recta -= xyproj; recta /= scale2d;" +
+  // "  rectb -= xyproj; rectb /= scale2d;" +
+  // "  float intersectionR = r*scale;" +
+  // "  float projA = " +
+  // circleArea("r") +
+  // "*scale/(-dn.z);" + // TODO scale inside ^2??? what about -dn.z
   // only use intersection af the projected circle with the window rect
   // "  sum += projA*sample"+
   " }" +
