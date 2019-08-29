@@ -45,8 +45,6 @@ const lightColor = "vec3(1, 1, 1)*20.0";
 let ambientLightIntegrand =
   "-(nx*wx3+nz*wz3-nx*x3+nz*wx2+(nx*wx+ny*wy+3.0*nz)*wz2+(3.0*nx*wx+ny*wy+nz*wz+nz)*x2+nx*wx+(ny*wx2+ny)*wy+(nz*wx2+2.0*nx*wx+2.0*ny*wy+3.0*nz)*wz-(3.0*nx*wx2+2.0*ny*wx*wy+nx*wz2+2.0*nz*wx+2.0*(nz*wx+nx)*wz+nx)*x-(ny*wx2+ny*wz2-2.0*ny*wx*x+ny*x2+2.0*ny*wz+ny)*y+nz)*(wz+1.0)/((pi+pi*wx2+pi*wy2+pi*wz2-2.0*pi*wx*x+pi*x2-2.0*pi*wy*y+pi*y2+2.0*pi*wz)*abs(wx4+wz4-4.0*wx*x3+x4+(wx2+1.0)*wy2+(2.0*wx2+wy2+6.0)*wz2+4.0*wz3+(6.0*wx2+wy2+2.0*wz2+4.0*wz+2.0)*x2+(wx2+wz2-2.0*wx*x+x2+2.0*wz+1.0)*y2+2.0*wx2+2.0*(2.0*wx2+wy2+2.0)*wz-2.0*(2.0*wx3+wx*wy2+2.0*wx*wz2+4.0*wx*wz+2.0*wx)*x-2.0*(wy*wz2-2.0*wx*wy*x+wy*x2+(wx2+1.0)*wy+2.0*wy*wz)*y+1.0))/4.0";
 
-function getAmbientLightIntegrandAt(x, y, wp, norm) {}
-
 function makePow(v, val, count = 4, type = "float") {
   let ret = type + " " + v + "=" + val + ";";
   for (let i = 2; i <= count; ++i)
@@ -62,26 +60,32 @@ function makeVecPow(vec, name, count = 4, type = "float") {
   );
 }
 
+let shaderPi = "float pi=3.1415926535897932384626433832795;";
+
+let getAmbientLightIntegrandAt =
+  "float getAmbientLightIntegrand(vec2 xy, vec3 wpos, vec3 norm) {" +
+  shaderPi +
+  makeVecPow("norm", "n") +
+  makeVecPow("wpos", "w") +
+  makePow("x", "xy.x") +
+  makePow("y", "xy.y") +
+  "  return max(" +
+  ambientLightIntegrand +
+  ", 0.0);" +
+  "}";
+
 let ambientIntegral =
   "  float sum = 0.0;" +
   "  const int Width = 2;" +
   "  const int Height = 2;" +
   "  for (int i = 0; i < Width; ++i) for (int j = 0; j < Height; ++j) {" +
-  makePow("x", "mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width))") +
-  makePow("y", "mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))") +
-  "    sum += max(" +
-  ambientLightIntegrand +
-  ", 0.0);" +
+  "    sum += getAmbientLightIntegrand(vec2(mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width)), mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))), pos, normal);" +
   "  }" +
   "  sum /= float(Width*Height);";
-
-let shaderPi = "float pi=3.1415926535897932384626433832795;";
 
 let ambientLightShaderCode =
   "float getAmbientLight(vec3 pos, vec3 normal) {" +
   shaderPi +
-  makeVecPow("normal", "n") +
-  makeVecPow("pos", "w") +
   "  float windowRad = " +
   windowRad +
   ";" +
@@ -159,6 +163,7 @@ let cardVertCode =
   "varying highp vec3 norm;" +
   "varying highp vec2 texc;" +
   "varying highp float o;" +
+  getAmbientLightIntegrandAt +
   ambientOcclusionCode +
   "void main(void) {" +
   " vec4 pos = vec4(position, 1);" +
@@ -176,6 +181,7 @@ var cardFragCode =
   "varying highp vec2 texc;" +
   "varying highp float o;" +
   "uniform sampler2D texture;" +
+  getAmbientLightIntegrandAt +
   ambientLightShaderCode +
   " " +
   occlusionSubtraction +
@@ -191,6 +197,7 @@ var cardFragCode =
   "  gl_FragColor = albedo * vec4(diffuse, 1);" +
   "}";
 
+console.log(cardFragCode);
 console.log(cardVertCode);
 shaderPrograms.cardProgram = {};
 shaderPrograms.cardProgram.shader = createProgram(cardVertCode, cardFragCode);
