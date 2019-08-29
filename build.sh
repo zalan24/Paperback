@@ -23,8 +23,8 @@ cat \
 	> build/paper.js
 
 
-cp build/paper.js build/paper.compact.js
-# node shrinkit.js build/paper.js > build/paper.compact.js
+# cp build/paper.js build/paper.compact.js
+node shrinkit.js build/paper.js > build/paper.compact.js
 
 
  ./node_modules/uglify-es/bin/uglifyjs build/paper.compact.js \
