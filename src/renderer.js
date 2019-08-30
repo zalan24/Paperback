@@ -110,6 +110,20 @@ function circleArea(rad) {
   return "(pi*(" + rad + ")*(" + rad + "))";
 }
 
+function getCircleAreaUnder(name, x, r) {
+  return (
+    "float " +
+    name +
+    "=0;" +
+    "if (x >= r) " +
+    name +
+    " = pi*(r)*(r);" +
+    "else if (x > -r) " +
+    name +
+    " = ;"
+  );
+}
+
 let ambientOcclusionCode =
   "float ambientOcclusion(vec3 wpos, vec3 normal) {" +
   shaderPi +
@@ -140,10 +154,11 @@ let ambientOcclusionCode =
   "  vec2 recta = -rectb;" +
   "  vec2 xyclamp = vec2(clamp(xyproj.x, recta.x, rectb.x), clamp(xyproj.y, recta.y, rectb.y));" +
   "  float sample = getAmbientLightIntegrand(xyclamp, pos, norm);" +
-  // "  vec2 scale2d = vec2(length(cross(vec3(-1, 0, 0), dn)), length(cross(vec3(0, 1, 0), dn)));" +
-  // "  recta -= xyproj; recta /= scale2d;" +
-  // "  rectb -= xyproj; rectb /= scale2d;" +
-  // "  float intersectionR = r*scale;" +
+  // fails on math finals, but is easy and simple
+  "  vec2 scale2d = vec2(length(cross(vec3(-1, 0, 0), dn)), length(cross(vec3(0, 1, 0), dn)));" +
+  "  recta -= xyproj; recta /= scale2d;" +
+  "  rectb -= xyproj; rectb /= scale2d;" +
+  "  float intersectionR = r*scale;" +
   // "  float projA = " +
   // circleArea("r") +
   // "*scale/(-dn.z);" + // TODO scale inside ^2??? what about -dn.z
