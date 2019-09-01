@@ -38,7 +38,7 @@ function createProgram(vertCode, fragCode) {
   return shaderProgram;
 }
 
-const lightColor = "vec3(1, 1, 1)*10.0";
+const lightColor = "vec3(1, 1, 1)*5.0";
 
 // TODO compress shader codes better
 
@@ -179,7 +179,7 @@ let ambientOcclusionCode =
   // circleArea("r") +
   // "*scale/(-dn.z);" + // TODO scale inside ^2??? what about -dn.z
   // only use intersection af the projected circle with the window rect
-  "  sum += projA*sample;" +
+  "  sum += max(projA*sample, 0.0);" +
   // "  sum += 10000.0;" +
   // "  sum += projA*0.01;" +
   // "  sum += 1.0/length(scale2d)*0.01;" +
@@ -207,7 +207,7 @@ let occlusionSubtraction =
   "float getLight(float light, float occlusion) {" +
   // " return light;" +
   " return softmax(light - occlusion, light*0.05);" +
-  // " return occlusion;" +
+  // " return occlusion*10.0;" +
   "}";
 
 let cardVertCode =
@@ -233,7 +233,7 @@ let cardVertCode =
   " fragPos = (model * pos).xyz;" +
   " norm = (model * vec4(normal, 0)).xyz;" +
   " texc = texcoord;" +
-  " o = max(ambientOcclusion(fragPos, norm), 0.0);" +
+  " o = ambientOcclusion(fragPos, norm);" +
   // " l = vec2(1, 1);" +
   "}";
 var cardFragCode =
@@ -256,7 +256,7 @@ var cardFragCode =
   "  vec3 diffuse = " +
   lightColor +
   " * getLight(ambientLight, o);" +
-  "  gl_FragColor = albedo * vec4(diffuse, 1);" +
+  "  gl_FragColor = albedo * vec4(pow(diffuse, vec3(1.0/2.2)), 1);" +
   "}";
 
 // console.log(cardFragCode);
