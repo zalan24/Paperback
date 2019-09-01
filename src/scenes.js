@@ -11,7 +11,8 @@ var scenes = {
           translation: [1, 0.5, 0]
         }
       ],
-      transform: getTranslation(new vec3(0, 0, -0.5))
+      transform: getTranslation(new vec3(0, 0, -0.5)),
+      action: getPlayerController()
     },
     {
       id: "testPlatform",
