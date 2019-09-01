@@ -47,6 +47,8 @@ class CardEntity extends Entity {
       updateVertexData(this.mesh, this.vertex_buffer);
       this.ready = true;
     }
+    if (this.action != null && this.action.update != null)
+      this.action.update(this, updateData);
   }
 
   uploadIndices() {
@@ -64,15 +66,18 @@ class CardEntity extends Entity {
     );
   }
 
-  start() {}
+  start() {
+    if (this.action != null && this.action.start != null)
+      this.action.start(this);
+  }
 }
 
 function hackWallCardEntity(
   o,
   xDir,
   yDir,
-  width = 10,
-  height = 10,
+  width = 30,
+  height = 30,
   color = defaultPaperData.paperColor
 ) {
   let wall = new CardEntity(null);

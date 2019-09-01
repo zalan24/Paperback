@@ -17,6 +17,7 @@ cat \
 	src/ambientocclusion.js \
 	src/game.js \
 	src/sceneloader.js \
+	src/actions.js \
 	src/scenes.js \
 	src/main.js \
 	src/debug.js \

@@ -27,6 +27,7 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
       )
     );
   }
+  if (obj.action != null) entity.action = obj.action;
   return entity;
 }
 

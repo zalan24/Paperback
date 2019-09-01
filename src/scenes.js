@@ -35,7 +35,9 @@ var scenes = {
     {
       id: "testBackground",
       card: "mountain",
-      transform: getTranslation(new vec3(0, 0, 0.5))
+      transform: getTranslation(new vec3(0, 0, 0.5)),
+      scale: 0.3,
+      action: getRotationAction(0.5)
     }
     // {
     //   id: "testBackground",
