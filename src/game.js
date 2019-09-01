@@ -35,7 +35,7 @@ function update() {
     new vec3(
       size * Math.sin((t * 2 * Math.PI) / 10),
       size * Math.cos((t * 2 * Math.PI) / 10),
-      -2
+      -3
     ),
     new vec3(0, 0, 0),
     new vec3(0, 1, 0)

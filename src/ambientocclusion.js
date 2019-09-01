@@ -21,7 +21,7 @@ function uploadOccluders(entities) {
         });
         if (count > 0) {
           radius = mulVecScalar(radius, 1 / count);
-          occluders.concat([
+          occluders = occluders.concat([
             pos.x,
             pos.y,
             pos.z,

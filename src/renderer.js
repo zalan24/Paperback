@@ -102,7 +102,15 @@ let ambientLightShaderCode =
 function readOcclusionVec(index, offset, name) {
   offset = index + "*occluderSize+" + offset;
   return (
-    "vec3 " + name + "=vec3(" + offset + "," + offset + "+1," + offset + "+2);"
+    "vec3 " +
+    name +
+    "=vec3(occlusion[" +
+    offset +
+    "],occlusion[" +
+    offset +
+    "+1],occlusion[" +
+    offset +
+    "+2]);"
   );
 }
 
@@ -110,21 +118,19 @@ function circleArea(rad) {
   return "(pi*(" + rad + ")*(" + rad + "))";
 }
 
-function getCircleAreaUnder(name, x, r) {
-  return (
-    "float " +
-    name +
-    "=0;" +
-    "if (x >= r) " +
-    name +
-    " = pi*(r)*(r);" +
-    "else if (x > -r) " +
-    name +
-    " = ;"
-  );
-}
-
 let ambientOcclusionCode =
+  "float areaUnder(float x, float r) {" +
+  shaderPi +
+  "if (x >= r) return pi*r*r;" +
+  "else if (x > -r) return (pi + 2.0*asin(x/r))*r*r/2.0 + sqrt(-x*x + r*r)*x;" +
+  "return 0.0;" +
+  "}" +
+  "float circleArea(float r, vec2 a, vec2 b) {" +
+  shaderPi +
+  " return pi*r*r - areaUnder(a.x, r) - areaUnder(a.y, r) - areaUnder(-b.x, r) - areaUnder(-b.y, r);" + // TODO corners
+  // " return pi*r*r;" + // TODO corners
+  // " return length(b-a);" + // TODO corners
+  "}" +
   "float ambientOcclusion(vec3 wpos, vec3 normal) {" +
   shaderPi +
   " int occluderSize =" +
@@ -142,35 +148,64 @@ let ambientOcclusionCode =
   "  vec3 d =  pos - wpos;" +
   "  float dist = length(d);" +
   "  if (dist < 0.01) continue;" + // TODO smooth fadeout
+  // "  sum += dist;" +
   "  vec3 dn = d/dist;" +
+  // "  if (i == 0) sum += dn.z;" +
   "  if (-dn.z < 0.01) continue;" + // TODO smooth fadeout; = dot(dn, vec3(0, 0, -1))
+  // "  sum += 10000.0;" +
   "  float dt = dot(dn, norm);" +
   "  float r = length(vec2((1.0-dt)*xyr,dt*radius.z));" +
-  "  float scale = -d.z/(wpos.z+1.0);" +
+  "  float scale = -(wpos.z+1.0)/d.z;" +
   "  vec2 xyproj = vec2(wpos.x+d.x*scale, wpos.y+d.y*scale);" +
   "  vec2 rectb = vec2(" +
   windowRad +
   ");" +
   "  vec2 recta = -rectb;" +
   "  vec2 xyclamp = vec2(clamp(xyproj.x, recta.x, rectb.x), clamp(xyproj.y, recta.y, rectb.y));" +
-  "  float sample = getAmbientLightIntegrand(xyclamp, pos, norm);" +
+  "  float sample = getAmbientLightIntegrand(xyclamp, wpos, normal);" +
+  // "  float sample = 0.01;" +
   // fails on math finals, but is easy and simple
   "  vec2 scale2d = vec2(length(cross(vec3(-1, 0, 0), dn)), length(cross(vec3(0, 1, 0), dn)));" +
+  "  float resScale = length(rectb-recta);" +
   "  recta -= xyproj; recta /= scale2d;" +
   "  rectb -= xyproj; rectb /= scale2d;" +
+  "  resScale /= length(rectb-recta);" +
   "  float intersectionR = r*scale;" +
+  "  float projA = circleArea(intersectionR, recta, rectb)*resScale;" +
+  // "  float projA = r;" +
   // "  float projA = " +
   // circleArea("r") +
   // "*scale/(-dn.z);" + // TODO scale inside ^2??? what about -dn.z
   // only use intersection af the projected circle with the window rect
-  // "  sum += projA*sample"+
+  "  sum += projA*sample;" +
+  // "  sum += 10000.0;" +
+  // "  sum += projA*0.01;" +
+  // "  sum += 1.0/length(scale2d)*0.01;" +
+  // "  sum += length(rectb-recta)*0.01;" +
   " }" +
   " return sum;" +
   "}";
 
+let softmaxScale = "0.02";
+let softmax =
+  "float softmax(float x, float y) {" +
+  // " return light;" +
+  "  return log(exp(x/" +
+  softmaxScale +
+  ") + exp(y/" +
+  softmaxScale +
+  "))*" +
+  softmaxScale +
+  ";" +
+  // " return y;" +
+  "}";
+
 let occlusionSubtraction =
+  softmax +
   "float getLight(float light, float occlusion) {" +
-  " return light - occlusion;" +
+  // " return light;" +
+  " return softmax(light - max(occlusion, 0.0), light*0.05);" +
+  // " return occlusion;" +
   "}";
 
 let cardVertCode =
