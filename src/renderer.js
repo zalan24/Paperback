@@ -125,11 +125,13 @@ let ambientOcclusionCode =
   "else if (x > -r) return (pi + 2.0*asin(x/r))*r*r/2.0 + sqrt(-x*x + r*r)*x;" +
   "return 0.0;" +
   "}" +
+  "float areaUnderCorner(float x, float y, float r) {" +
+  shaderPi +
+  " return 0.0;" + // TODO
+  "}" +
   "float circleArea(float r, vec2 a, vec2 b) {" +
   shaderPi +
-  " return pi*r*r - areaUnder(a.x, r) - areaUnder(a.y, r) - areaUnder(-b.x, r) - areaUnder(-b.y, r);" + // TODO corners
-  // " return pi*r*r;" + // TODO corners
-  // " return length(b-a);" + // TODO corners
+  " return pi*r*r - areaUnder(a.x, r) - areaUnder(a.y, r) - areaUnder(-b.x, r) - areaUnder(-b.y, r) + areaUnderCorner(a.x, a.y, r) + areaUnderCorner(a.x, -b.y, r) + areaUnderCorner(-b.x, a.y, r) + areaUnderCorner(-b.x, -b.y, r);" +
   "}" +
   "float ambientOcclusion(vec3 wpos, vec3 normal) {" +
   shaderPi +
@@ -204,7 +206,7 @@ let occlusionSubtraction =
   softmax +
   "float getLight(float light, float occlusion) {" +
   // " return light;" +
-  " return softmax(light - max(occlusion, 0.0), light*0.05);" +
+  " return softmax(light - occlusion, light*0.05);" +
   // " return occlusion;" +
   "}";
 
@@ -231,7 +233,7 @@ let cardVertCode =
   " fragPos = (model * pos).xyz;" +
   " norm = (model * vec4(normal, 0)).xyz;" +
   " texc = texcoord;" +
-  " o = ambientOcclusion(fragPos, norm);" +
+  " o = max(ambientOcclusion(fragPos, norm), 0.0);" +
   // " l = vec2(1, 1);" +
   "}";
 var cardFragCode =
