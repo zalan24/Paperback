@@ -1,3 +1,8 @@
+const jumpSpeed = 1;
+const gravity = new vec3(0, 0, 0);
+const dashSpeed = 10;
+const dashTime = 0.1;
+
 // TODO remove
 function getRotationAction(speed) {
   return {
@@ -30,12 +35,17 @@ function getPhysicsController() {
       entity.speed = new vec3();
     },
     update: function(entity, updateData) {
-      // TODO
+      entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
+      // TODO collision
+      entity.transform = transformMatMat(
+        getTranslation(mulVecScalar(entity.speed, updateData.dt)),
+        entity.transform
+      );
     }
   };
 }
 
-function getKeyboardController(physAction) {
+function getKeyboardController() {
   return {
     update: function(entity, updateData) {
       let speed = 1;
@@ -55,20 +65,31 @@ function getKeyboardController(physAction) {
       entity.right = false;
       document.addEventListener("keydown", e => {
         e = e || window.event;
-        if (e.keyCode == "37")
+        if (e.keyCode == 37)
           // left arrow
           entity.left = true;
-        else if (e.keyCode == "39")
+        if (e.keyCode == 39)
           // right arrow
           entity.right = true;
+        if (e.keyCode == 32)
+          entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
+        // console.log("key: " + e.keyCode);
+        if (e.keyCode == 67) {
+          // TODO
+          // entity.event_dash(entity, updateData, {
+          //   dir: normalize(
+          //     transformMatDirection(entity.getTransform(), new vec3(1))
+          //   )
+          // });
+        }
       });
 
       document.addEventListener("keyup", e => {
         e = e || window.event;
-        if (e.keyCode == "37")
+        if (e.keyCode == 37)
           // left arrow
           entity.left = false;
-        else if (e.keyCode == "39")
+        if (e.keyCode == 39)
           // right arrow
           entity.right = false;
       });
@@ -76,8 +97,31 @@ function getKeyboardController(physAction) {
   };
 }
 
+function getDashAction() {
+  // TODO
+  return {
+    start: function(entity) {
+      entity.dashTime = null;
+    },
+    update: function(entity, updateData) {
+      if (entity.dashTime == null) return;
+      if (updateData.time - entity.dashTime >= dashTime) {
+        entity.speed = subVec(entity.speed, entity.dashSpeed);
+        entity.dashTime = null;
+      }
+    },
+    event: function(entity, updateData, dashData) {
+      if (entity.dashTime != null) return;
+      entity.dashTime = updateData.time;
+      entity.dashSpeed = mulVecScalar(dashSpeed, dashData.dir);
+      entity.speed = addVec(entity.speed, entity.dashSpeed);
+    }
+  };
+}
+
 function getPlayerController() {
   let phys = getPhysicsController();
-  let keyBoard = getKeyboardController(phys);
-  return getCompoundAction([keyBoard, phys]);
+  let dash = getDashAction();
+  let keyBoard = getKeyboardController(phys, dash);
+  return getCompoundAction([dash, phys, keyBoard]);
 }
