@@ -1,6 +1,7 @@
 var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 
+const circleAreaD = 20;
 const maxOccluderCount = 32;
 const occluderSize = 9;
 var occlusionBuffer = gl.createBuffer();
@@ -119,19 +120,26 @@ function circleArea(rad) {
 }
 
 let ambientOcclusionCode =
-  "float areaUnder(float x, float r) {" +
-  shaderPi +
-  "if (x >= r) return pi*r*r;" +
-  "else if (x > -r) return (pi + 2.0*asin(x/r))*r*r/2.0 + sqrt(-x*x + r*r)*x;" +
-  "return 0.0;" +
-  "}" +
-  "float areaUnderCorner(float x, float y, float r) {" +
-  shaderPi +
-  " return 0.0;" + // TODO
-  "}" +
   "float circleArea(float r, vec2 a, vec2 b) {" +
-  shaderPi +
-  " return pi*r*r - areaUnder(a.x, r) - areaUnder(a.y, r) - areaUnder(-b.x, r) - areaUnder(-b.y, r) + areaUnderCorner(a.x, a.y, r) + areaUnderCorner(a.x, -b.y, r) + areaUnderCorner(-b.x, a.y, r) + areaUnderCorner(-b.x, -b.y, r);" +
+  " float sum = 0.0;" +
+  " for (int i=0;i<" +
+  circleAreaD +
+  ";++i)for (int j=0;j<" +
+  circleAreaD +
+  ";++j){" +
+  "  float x=mix(a.x,b.x,float(i)/float(" +
+  circleAreaD +
+  "));" +
+  "  float y=mix(a.y,b.y,float(j)/float(" +
+  circleAreaD +
+  "));" +
+  "   sum+=x*x+y*y<r*r?1.0:0.0;" +
+  " }" +
+  " return (b.x-a.x)*(b.y-a.y)*sum/float(" +
+  circleAreaD +
+  "*" +
+  circleAreaD +
+  ");" +
   "}" +
   "float ambientOcclusion(vec3 wpos, vec3 normal) {" +
   shaderPi +
