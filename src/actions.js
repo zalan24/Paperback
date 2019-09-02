@@ -37,11 +37,23 @@ function getPhysicsController() {
 
 function getKeyboardController(physAction) {
   return {
-    update: function(entity, updateData) {},
+    update: function(entity, updateData) {
+      let speed = 1;
+      if (entity.left)
+        entity.transform = transformMatMat(
+          getTranslation(new vec3(-speed * updateData.dt)),
+          entity.transform
+        );
+      if (entity.right)
+        entity.transform = transformMatMat(
+          getTranslation(new vec3(speed * updateData.dt)),
+          entity.transform
+        );
+    },
     start: function(entity) {
       entity.left = false;
       entity.right = false;
-      document.onkeydown(e => {
+      document.addEventListener("keydown", e => {
         e = e || window.event;
         if (e.keyCode == "37")
           // left arrow
@@ -51,7 +63,7 @@ function getKeyboardController(physAction) {
           entity.right = true;
       });
 
-      document.onkeyup(e => {
+      document.addEventListener("keyup", e => {
         e = e || window.event;
         if (e.keyCode == "37")
           // left arrow
@@ -66,5 +78,6 @@ function getKeyboardController(physAction) {
 
 function getPlayerController() {
   let phys = getPhysicsController();
-  return getCompoundAction([phys]);
+  let keyBoard = getKeyboardController(phys);
+  return getCompoundAction([keyBoard, phys]);
 }
