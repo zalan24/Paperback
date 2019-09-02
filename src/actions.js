@@ -1,7 +1,7 @@
 const jumpSpeed = 1;
 const gravity = new vec3(0, 0, 0);
-const dashSpeed = 10;
-const dashTime = 0.1;
+const dashSpeed = 5;
+const dashTime = 0.05;
 
 // TODO remove
 function getRotationAction(speed) {
@@ -49,38 +49,54 @@ function getKeyboardController() {
   return {
     update: function(entity, updateData) {
       let speed = 1;
-      if (entity.left)
+      let facing = transformMatDirection(entity.getTransform(), new vec3(-1)).x;
+      let shouldBeFacing = facing;
+      if (entity.left) {
         entity.transform = transformMatMat(
           getTranslation(new vec3(-speed * updateData.dt)),
           entity.transform
         );
-      if (entity.right)
+        shouldBeFacing = 1;
+      }
+      if (entity.right) {
         entity.transform = transformMatMat(
           getTranslation(new vec3(speed * updateData.dt)),
           entity.transform
         );
+        shouldBeFacing = -1;
+      }
+      console.log(facing + " " + shouldBeFacing);
+      if (facing * shouldBeFacing < 0) {
+        console.log("aou");
+        let mirror = new mat3x4();
+        mirror.col0 = mulVecScalar(mirror.col0, -1);
+        entity.transform = transformMatMat(entity.transform, mirror);
+      }
     },
     start: function(entity) {
       entity.left = false;
       entity.right = false;
       document.addEventListener("keydown", e => {
         e = e || window.event;
-        if (e.keyCode == 37)
+        if (e.keyCode == 37) {
           // left arrow
           entity.left = true;
-        if (e.keyCode == 39)
+          entity.right = false;
+        }
+        if (e.keyCode == 39) {
           // right arrow
           entity.right = true;
+          entity.left = false;
+        }
         if (e.keyCode == 32)
           entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
         // console.log("key: " + e.keyCode);
         if (e.keyCode == 67) {
-          // TODO
-          // entity.event_dash(entity, updateData, {
-          //   dir: normalize(
-          //     transformMatDirection(entity.getTransform(), new vec3(1))
-          //   )
-          // });
+          entity.event_dash = {
+            dir: normalize(
+              transformMatDirection(entity.getTransform(), new vec3(1))
+            )
+          };
         }
       });
 
@@ -98,23 +114,24 @@ function getKeyboardController() {
 }
 
 function getDashAction() {
-  // TODO
   return {
     start: function(entity) {
       entity.dashTime = null;
     },
     update: function(entity, updateData) {
-      if (entity.dashTime == null) return;
-      if (updateData.time - entity.dashTime >= dashTime) {
+      if (
+        entity.dashTime != null &&
+        updateData.time - entity.dashTime >= dashTime
+      ) {
         entity.speed = subVec(entity.speed, entity.dashSpeed);
         entity.dashTime = null;
       }
-    },
-    event: function(entity, updateData, dashData) {
-      if (entity.dashTime != null) return;
-      entity.dashTime = updateData.time;
-      entity.dashSpeed = mulVecScalar(dashSpeed, dashData.dir);
-      entity.speed = addVec(entity.speed, entity.dashSpeed);
+      if (entity.event_dash != null && entity.dashTime == null) {
+        entity.dashTime = updateData.time;
+        entity.dashSpeed = mulVecScalar(entity.event_dash.dir, dashSpeed);
+        entity.speed = addVec(entity.speed, entity.dashSpeed);
+        entity.event_dash = null;
+      }
     }
   };
 }
