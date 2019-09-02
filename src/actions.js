@@ -3,6 +3,10 @@ const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
 
+const animations = {
+  hit: []
+};
+
 // TODO remove
 function getRotationAction(speed) {
   return {
@@ -12,6 +16,17 @@ function getRotationAction(speed) {
         entity.transform,
         getRotation(new vec3(0, 0, 1), updateData.dt * 2 * Math.PI * speed)
       );
+    }
+  };
+}
+
+function getAnimateAction() {
+  return {
+    start: function(entity) {
+      entity.animations = [];
+    },
+    update: function(entity, updateData) {
+      for (let i = 0; i < entity.animations.length; ++i) {}
     }
   };
 }
@@ -45,7 +60,7 @@ function getPhysicsController() {
   };
 }
 
-function getKeyboardController() {
+function getMoveAction() {
   return {
     update: function(entity, updateData) {
       let speed = 1;
@@ -65,9 +80,7 @@ function getKeyboardController() {
         );
         shouldBeFacing = -1;
       }
-      console.log(facing + " " + shouldBeFacing);
       if (facing * shouldBeFacing < 0) {
-        console.log("aou");
         let mirror = new mat3x4();
         mirror.col0 = mulVecScalar(mirror.col0, -1);
         entity.transform = transformMatMat(entity.transform, mirror);
@@ -76,6 +89,13 @@ function getKeyboardController() {
     start: function(entity) {
       entity.left = false;
       entity.right = false;
+    }
+  };
+}
+
+function getKeyboardController() {
+  return {
+    start: function(entity) {
       document.addEventListener("keydown", e => {
         e = e || window.event;
         if (e.keyCode == 37) {
@@ -88,8 +108,9 @@ function getKeyboardController() {
           entity.right = true;
           entity.left = false;
         }
-        if (e.keyCode == 32)
+        if (e.keyCode == 90)
           entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
+        if (e.keyCode == 88) entity.animations.push(animations.hit);
         // console.log("key: " + e.keyCode);
         if (e.keyCode == 67) {
           entity.event_dash = {
@@ -99,7 +120,6 @@ function getKeyboardController() {
           };
         }
       });
-
       document.addEventListener("keyup", e => {
         e = e || window.event;
         if (e.keyCode == 37)
@@ -123,13 +143,13 @@ function getDashAction() {
         entity.dashTime != null &&
         updateData.time - entity.dashTime >= dashTime
       ) {
-        entity.speed = subVec(entity.speed, entity.dashSpeed);
+        entity.speed = new vec3();
         entity.dashTime = null;
       }
       if (entity.event_dash != null && entity.dashTime == null) {
         entity.dashTime = updateData.time;
         entity.dashSpeed = mulVecScalar(entity.event_dash.dir, dashSpeed);
-        entity.speed = addVec(entity.speed, entity.dashSpeed);
+        entity.speed = entity.dashSpeed;
         entity.event_dash = null;
       }
     }
@@ -139,6 +159,8 @@ function getDashAction() {
 function getPlayerController() {
   let phys = getPhysicsController();
   let dash = getDashAction();
-  let keyBoard = getKeyboardController(phys, dash);
-  return getCompoundAction([dash, phys, keyBoard]);
+  let move = getMoveAction();
+  let anim = getAnimateAction();
+  let keyBoard = getKeyboardController();
+  return getCompoundAction([dash, phys, move, anim, keyBoard]);
 }

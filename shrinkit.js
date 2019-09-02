@@ -552,6 +552,7 @@ const var_replace = {
   addChild: "_ah",
   xyclamp: "_cl",
   occluderSize: "_sz",
+  animations: "_an",
   areaUnder: "_au"
 };
 
