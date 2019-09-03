@@ -558,6 +558,9 @@ const var_replace = {
   animation: "_am",
   animationLeft: "_ml",
   animationBaseTransform: "_bt",
+  lastStickPos: "_sp",
+  getCardPosition: "_gp",
+  handSpeed: "_hs",
   areaUnder: "_au"
 };
 

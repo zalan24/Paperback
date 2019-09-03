@@ -133,5 +133,8 @@ function createCardWithStick(
     entity.transform
   );
   stick.addChild(entity);
+  stick.getCardPosition = function() {
+    return transformMatPosition(entity.getTransform(), new vec3());
+  };
   return stick;
 }

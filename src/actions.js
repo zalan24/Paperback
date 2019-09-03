@@ -2,24 +2,27 @@ const jumpSpeed = 1;
 const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
+const handAcceleration = 1;
+const handStand = new vec3(0, -1, 0);
+const handRotationAxis = new vec3(0, 0, 1);
 
 function invlerp(v, a, b) {
   return Math.max(0, Math.min(1, (v - a) / (b - a)));
 }
 
-function getTranslationAnimation(from, to, timeStart, timeEnd) {
+function getTranslationAnimation(to, timeStart, timeEnd, from = new vec3()) {
   return function(t) {
     return getTranslation(lerpVec(from, to, invlerp(t, timeStart, timeEnd)));
   };
 }
 
-function getScaleAnimation(from, to, timeStart, timeEnd) {
+function getScaleAnimation(to, timeStart, timeEnd, from = new vec3(1, 1, 1)) {
   return function(t) {
     return getScaling(lerpVec(from, to, invlerp(t, timeStart, timeEnd)));
   };
 }
 
-function getScaleAnimation(axis, from, to, timeStart, timeEnd) {
+function getRotationAnimation(axis, to, timeStart, timeEnd, from = 0) {
   return function(t) {
     return getRotation(
       axis,
@@ -39,8 +42,8 @@ const animations = {
   hit: {
     duration: 0.5,
     transitions: [
-      getTranslationAnimation(new vec3(), new vec3(1, 0, 0), 0, 0.25),
-      getTranslationAnimation(new vec3(), new vec3(-1, 0, 0), 0.25, 0.5)
+      getTranslationAnimation(new vec3(1, 0, 0), 0, 0.25),
+      getTranslationAnimation(new vec3(-1, 0, 0), 0.25, 0.5)
     ]
   }
 };
@@ -216,10 +219,42 @@ function getDashAction() {
   };
 }
 
+function getStickAction() {
+  return {
+    start: function(entity) {
+      entity.lastStickPos = transformMatPosition(entity.transform, new vec3());
+      entity.handSpeed = new vec3();
+    },
+    update: function(entity, updateData) {
+      let currentPos = transformMatPosition(entity.transform, new vec3());
+      let expectedPos = addVec(
+        mulVecScalar(handStand, updateData.dt),
+        addVec(
+          entity.lastStickPos,
+          mulVecScalar(entity.handSpeed, updateData.dt)
+        )
+      );
+      let cardPos = entity.getCardPosition();
+      let diff = subVec(currentPos, expectedPos);
+      let acc =
+        normalize(diff) *
+        Math.max(lengthVec(diff), handAcceleration * updateData.dt);
+      let preferredPosition = addVec(expectedPos, acc);
+
+      entity.handSpeed = mulVecScalar(
+        subVec(currentPos, entity.lastStickPos),
+        1 / updateData.dt
+      );
+      entity.lastStickPos = currentPos;
+    }
+  };
+}
+
 function getPlayerController(weaponId) {
   let phys = getPhysicsController();
   let dash = getDashAction();
   let move = getMoveAction();
+  let stickAction = getStickAction();
   let keyBoard = getKeyboardController(weaponId);
-  return getCompoundAction([dash, phys, move, keyBoard]);
+  return getCompoundAction([dash, phys, move, stickAction, keyBoard]);
 }
