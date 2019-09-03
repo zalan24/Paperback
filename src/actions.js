@@ -3,8 +3,46 @@ const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
 
+function getTranslationAnimation(from, to, timeStart, timeEnd) {
+  return function(t) {
+    return getTranslation(
+      lerpVec(from, to, Math.max(timeStart, Math.min(timeEnd, t)))
+    );
+  };
+}
+
+function getScaleAnimation(from, to, timeStart, timeEnd) {
+  return function(t) {
+    return getScaling(
+      lerpVec(from, to, Math.max(timeStart, Math.min(timeEnd, t)))
+    );
+  };
+}
+
+function getScaleAnimation(axis, from, to, timeStart, timeEnd) {
+  return function(t) {
+    return getRotation(
+      axis,
+      (to - from) * Math.max(timeStart, Math.min(timeEnd, t)) + from
+    );
+  };
+}
+
+function getAnimationTransform(animation, t) {
+  let ret = new mat3x4();
+  for (let i = 0; i < animation.transitions.length; ++i)
+    ret = transformMatMat(ret, animation.transitions[i](t));
+  return ret;
+}
+
 const animations = {
-  hit: []
+  hit: {
+    duration: 0.5,
+    transitions: [
+      getTranslationAnimation(new vec3(), new vec3(1, 0, 0), 0, 0.25),
+      getTranslationAnimation(new vec3(), new vec3(-1, 0, 0), 0.25, 0.5)
+    ]
+  }
 };
 
 // TODO remove
@@ -23,10 +61,25 @@ function getRotationAction(speed) {
 function getAnimateAction() {
   return {
     start: function(entity) {
-      entity.animations = [];
+      entity.animation = null;
+      entity.animationStart = 0;
+      entity.animationBaseTransform = entity.transform;
     },
     update: function(entity, updateData) {
-      for (let i = 0; i < entity.animations.length; ++i) {}
+      if (entity.animation == null) return;
+      if (
+        entity.animation.duration + entity.animationStart <=
+        updateData.time
+      ) {
+        entity.animation = null;
+        entity.transform = entity.animationBaseTransform;
+      } else {
+        let transform = getAnimationTransform(animation, updateData.time);
+        entity.transform = transformMatMat(
+          transform,
+          entity.animationBastTransform
+        );
+      }
     }
   };
 }
@@ -160,7 +213,6 @@ function getPlayerController() {
   let phys = getPhysicsController();
   let dash = getDashAction();
   let move = getMoveAction();
-  let anim = getAnimateAction();
   let keyBoard = getKeyboardController();
-  return getCompoundAction([dash, phys, move, anim, keyBoard]);
+  return getCompoundAction([dash, phys, move, keyBoard]);
 }

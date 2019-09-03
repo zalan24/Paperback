@@ -26,6 +26,10 @@ function dot(a, b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
+function lerpVec(a, b, f) {
+  return addVec(mulVecScalar(subVec(b, a), f));
+}
+
 function cross(a, b) {
   return new vec3(
     a.y * b.z - a.z * b.y,

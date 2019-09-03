@@ -1,6 +1,7 @@
 var fpsLabel = document.getElementById("f");
 
 var entities = [];
+var entityIds = {};
 
 function updateEntity(e, updateData) {
   e.update(updateData);
@@ -83,10 +84,15 @@ function startGame() {
 }
 
 function addEntity(r) {
+  if (r.id != null) entityIds[r.id] = r;
   traverseEntities(r, e => e.start());
   entities.push(r);
 }
 
 function clearScene() {
   startGame();
+}
+
+function getEntityById(id) {
+  return entityIds[id];
 }

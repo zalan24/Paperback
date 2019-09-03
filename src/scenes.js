@@ -8,7 +8,8 @@ var scenes = {
           id: "sword",
           card: "sword",
           scale: 0.3,
-          translation: [1, 0.5, 0]
+          translation: [1, 0.5, 0],
+          action: getAnimateAction()
         }
       ],
       transform: getTranslation(new vec3(0, 0, -0.5)),

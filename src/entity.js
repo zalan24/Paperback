@@ -4,6 +4,7 @@ class Entity {
     this.entities = [];
     this.parent = null;
     this.occluder = true;
+    this.id = null;
   }
 
   addChild(c) {
