@@ -5,6 +5,7 @@ class Entity {
     this.parent = null;
     this.occluder = true;
     this.id = null;
+    this.started = false;
   }
 
   addChild(c) {

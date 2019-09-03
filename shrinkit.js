@@ -553,6 +553,11 @@ const var_replace = {
   xyclamp: "_cl",
   occluderSize: "_sz",
   animations: "_an",
+  transitions: "_tn",
+  duration: "_dr",
+  animation: "_am",
+  animationLeft: "_ml",
+  animationBaseTransform: "_bt",
   areaUnder: "_au"
 };
 

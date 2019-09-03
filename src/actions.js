@@ -3,19 +3,19 @@ const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
 
+function invlerp(v, a, b) {
+  return Math.max(0, Math.min(1, (v - a) / (b - a)));
+}
+
 function getTranslationAnimation(from, to, timeStart, timeEnd) {
   return function(t) {
-    return getTranslation(
-      lerpVec(from, to, Math.max(timeStart, Math.min(timeEnd, t)))
-    );
+    return getTranslation(lerpVec(from, to, invlerp(t, timeStart, timeEnd)));
   };
 }
 
 function getScaleAnimation(from, to, timeStart, timeEnd) {
   return function(t) {
-    return getScaling(
-      lerpVec(from, to, Math.max(timeStart, Math.min(timeEnd, t)))
-    );
+    return getScaling(lerpVec(from, to, invlerp(t, timeStart, timeEnd)));
   };
 }
 
@@ -23,7 +23,7 @@ function getScaleAnimation(axis, from, to, timeStart, timeEnd) {
   return function(t) {
     return getRotation(
       axis,
-      (to - from) * Math.max(timeStart, Math.min(timeEnd, t)) + from
+      (to - from) * invlerp(t, timeStart, timeEnd) + from
     );
   };
 }
@@ -62,26 +62,32 @@ function getAnimateAction() {
   return {
     start: function(entity) {
       entity.animation = null;
-      entity.animationStart = 0;
+      entity.animationLeft = 0;
       entity.animationBaseTransform = entity.transform;
     },
     update: function(entity, updateData) {
       if (entity.animation == null) return;
-      if (
-        entity.animation.duration + entity.animationStart <=
-        updateData.time
-      ) {
+      if (entity.animationLeft <= 0) {
         entity.animation = null;
         entity.transform = entity.animationBaseTransform;
       } else {
-        let transform = getAnimationTransform(animation, updateData.time);
+        let transform = getAnimationTransform(
+          entity.animation,
+          entity.animation.duration - entity.animationLeft
+        );
         entity.transform = transformMatMat(
           transform,
-          entity.animationBastTransform
+          entity.animationBaseTransform
         );
+        entity.animationLeft -= updateData.dt;
       }
     }
   };
+}
+
+function addAnimation(entity, anim) {
+  entity.animation = anim;
+  entity.animationLeft = anim.duration;
 }
 
 function getCompoundAction(actions) {
@@ -146,7 +152,7 @@ function getMoveAction() {
   };
 }
 
-function getKeyboardController() {
+function getKeyboardController(weaponId) {
   return {
     start: function(entity) {
       document.addEventListener("keydown", e => {
@@ -163,7 +169,8 @@ function getKeyboardController() {
         }
         if (e.keyCode == 90)
           entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
-        if (e.keyCode == 88) entity.animations.push(animations.hit);
+        if (e.keyCode == 88)
+          addAnimation(getEntityById(weaponId), animations.hit);
         // console.log("key: " + e.keyCode);
         if (e.keyCode == 67) {
           entity.event_dash = {
@@ -209,10 +216,10 @@ function getDashAction() {
   };
 }
 
-function getPlayerController() {
+function getPlayerController(weaponId) {
   let phys = getPhysicsController();
   let dash = getDashAction();
   let move = getMoveAction();
-  let keyBoard = getKeyboardController();
+  let keyBoard = getKeyboardController(weaponId);
   return getCompoundAction([dash, phys, move, keyBoard]);
 }

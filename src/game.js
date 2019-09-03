@@ -48,6 +48,13 @@ function update() {
   startRender();
 
   let updateData = { dt: dt, time: t };
+
+  entities.forEach(r =>
+    traverseEntities(r, e => {
+      if (!e.started) e.start();
+      e.started = true;
+    })
+  );
   entities.forEach(r => traverseEntities(r, e => updateEntity(e, updateData)));
 
   uploadOccluders(entities);
@@ -84,8 +91,9 @@ function startGame() {
 }
 
 function addEntity(r) {
-  if (r.id != null) entityIds[r.id] = r;
-  traverseEntities(r, e => e.start());
+  traverseEntities(r, e => {
+    if (e.id != null) entityIds[e.id] = e;
+  });
   entities.push(r);
 }
 

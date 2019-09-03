@@ -27,7 +27,7 @@ function dot(a, b) {
 }
 
 function lerpVec(a, b, f) {
-  return addVec(mulVecScalar(subVec(b, a), f));
+  return addVec(mulVecScalar(subVec(b, a), f), a);
 }
 
 function cross(a, b) {

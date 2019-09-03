@@ -13,7 +13,7 @@ var scenes = {
         }
       ],
       transform: getTranslation(new vec3(0, 0, -0.5)),
-      action: getPlayerController()
+      action: getPlayerController("sword")
     },
     {
       id: "testPlatform",
