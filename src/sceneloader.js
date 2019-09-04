@@ -8,10 +8,11 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
       entity.addChild(loadObject(obj.children[i], 1, false));
     }
   }
+  if (obj.cardAction != null) entity.action = obj.cardAction;
   if ((obj.stick == null && defaultStick) || (obj.stick && obj.stick != null)) {
     let stick = createCardWithStick(entity);
-    if (obj.stransform != null)
-      entity.transform = transformMatMat(entity.transform, obj.stransform);
+    if (obj.cardTransform != null)
+      entity.transform = transformMatMat(entity.transform, obj.cardTransform);
     entity = stick;
   }
   if (obj.transform != null) entity.transform = obj.transform;
@@ -21,10 +22,10 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
   );
   if (obj.translation != null) {
     entity.transform = transformMatMat(
-      entity.transform,
       getTranslation(
         new vec3(obj.translation[0], obj.translation[1], obj.translation[2])
-      )
+      ),
+      entity.transform
     );
   }
   if (obj.action != null) entity.action = obj.action;

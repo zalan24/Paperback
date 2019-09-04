@@ -104,3 +104,7 @@ function clearScene() {
 function getEntityById(id) {
   return entityIds[id];
 }
+
+function broadcastEvent(f) {
+  entities.forEach(r => traverseEntities(r, e => f(e)));
+}

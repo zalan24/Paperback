@@ -108,35 +108,43 @@ function transformMatMat(a, b) {
   );
 }
 
-function lookAt(eyePos, target, up) {
-  // TODO this might not work if the determinant is not one
-  let dir = normalize(subVec(target, eyePos));
-  let side = normalize(cross(up, dir));
-  let up2 = cross(dir, side);
-  let mat = new mat3x4(side, up2, dir);
+function invert(mat) {
   let t_inv = new mat3x4();
-  // ret = inv(t * mat) = inv(mat) * inv(t)
-  t_inv.col3 = mulVecScalar(eyePos, -1);
-  // console.log(mat);
+  t_inv.col3 = mulVecScalar(mat.col3, -1);
   let row0 = cross(mat.col1, mat.col2);
   let row1 = cross(mat.col2, mat.col0);
   let row2 = cross(mat.col0, mat.col1);
-  let r12det = cross(row1, row2);
-  let det = dot(mulVec(new vec3(1, -1, 1), row0), r12det);
-  // console.log(det);
-  row0 = mulVecScalar(row0, 1 / det);
-  row1 = mulVecScalar(row1, 1 / det);
-  row2 = mulVecScalar(row2, 1 / det);
+  let c12det = cross(mat.col1, mat.col2);
+  let invDet = 1 / dot(mat.col0, c12det);
+  row0 = mulVecScalar(row0, invDet);
+  row1 = mulVecScalar(row1, invDet);
+  row2 = mulVecScalar(row2, invDet);
   let inv = new mat3x4(
     new vec3(row0.x, row1.x, row2.x),
     new vec3(row0.y, row1.y, row2.y),
     new vec3(row0.z, row1.z, row2.z)
   );
-
   let ret = transformMatMat(inv, t_inv);
-  // console.log(ret);
-  // console.log(transformMatMat(ret, new mat3x4(side, up2, dir, eyePos)));
   return ret;
+}
+
+// let testMat = new mat3x4(
+//   new vec3(2, 0, 0),
+//   new vec3(0, 2, 0),
+//   new vec3(0, 0, 2),
+//   new vec3(10)
+// );
+// let testInvMat = invert(testMat);
+// console.log(testMat);
+// console.log(testInvMat);
+// console.log(transformMatMat(testMat, testInvMat));
+// console.log(transformMatMat(testInvMat, testMat));
+
+function lookAt(eyePos, target, up) {
+  let dir = normalize(subVec(target, eyePos));
+  let side = normalize(cross(up, dir));
+  let up2 = cross(dir, side);
+  return invert(new mat3x4(side, up2, dir, eyePos));
 }
 
 function getProjection(angle, a, zMin, zMax) {

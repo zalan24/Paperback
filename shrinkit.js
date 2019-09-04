@@ -568,6 +568,10 @@ const var_replace = {
   dashLeft: "_dl",
   dashTimem: "_mm",
   hitTime: "_ht",
+  started: "_sd",
+  cardAction: "_ct",
+  cardTransform: "_cf",
+  collider: "_ll",
   areaUnder: "_au"
 };
 

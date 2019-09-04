@@ -8,7 +8,7 @@ var scenes = {
           id: "sword",
           card: "sword",
           scale: 0.3,
-          translation: [1, 0.5, 0],
+          translation: [0.3, 0.2, 0],
           action: getAnimateAction()
         }
       ],
@@ -18,7 +18,7 @@ var scenes = {
     {
       id: "testPlatform",
       card: "platform",
-      action: getPlatformController()
+      cardAction: getPlatformController()
     },
     {
       id: "testPlatform2",
@@ -26,25 +26,34 @@ var scenes = {
       stick: false,
       transform: getTranslation(new vec3(0.5, 0, 0)),
       scale: 0.5,
-      action: getPlatformController()
+      cardAction: getPlatformController()
     },
     {
       id: "testPlatform3",
       card: "platform",
       stick: true,
       transform: getTranslation(new vec3(0.25, 0, 0)),
-      stransform: getRotation(new vec3(0, 0, 1), Math.PI / 4),
+      cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 4),
       scale: 0.3,
-      action: getPlatformController()
+      cardAction: getPlatformController()
     },
     {
       id: "testPlatform3",
       card: "platform",
       stick: true,
       transform: getTranslation(new vec3(-0.5, 0, 0)),
-      stransform: getRotation(new vec3(0, 0, 1), Math.PI / 2),
+      cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 2),
       scale: 0.3,
-      action: getPlatformController()
+      cardAction: getPlatformController()
+    },
+    {
+      id: "testPlatform3",
+      card: "platform",
+      stick: true,
+      translation: [0, -1.5, 0],
+      cardTransform: getScaling(new vec3(6, 1, 1)),
+      scale: 0.3,
+      cardAction: getPlatformController()
     },
     {
       id: "testBackground",
@@ -56,7 +65,7 @@ var scenes = {
     // {
     //   id: "testBackground",
     //   card: "mountain",
-    //   // stransform: getRotation(new vec3(0, 1, 0), Math.PI / 2),
+    //   // cardTransform: getRotation(new vec3(0, 1, 0), Math.PI / 2),
     //   scale: 1,
     //   // translation: [1, -2, -0.5]
     //   translation: [0, -2, -0.5]

@@ -162,7 +162,11 @@ function getPhysicsController() {
     },
     update: function(entity, updateData) {
       entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
-      // TODO collision
+      broadcastEvent(e => {
+        if (e.collider == null /* || !e.collider */) return;
+        let invMat = invert(e.getTransform());
+        // console.log(transformMatMat(e.getTransform(), invMat));
+      });
       entity.transform = transformMatMat(
         getTranslation(mulVecScalar(entity.speed, updateData.dt)),
         entity.transform
@@ -301,9 +305,7 @@ function getStickAction() {
           mulVecScalar(entity.handSpeed, updateData.dt)
         )
       );
-      // let expectedPos = entity.lastStickPos;
       let diff = subVec(currentPos, expectedPos);
-      // if (lengthVec(diff) > 0) {
       let up = normalize(subVec(currentPos, cardPos));
       let moveDiff = mulVecScalar(up, dot(up, diff));
       let acc =
@@ -320,20 +322,13 @@ function getStickAction() {
       if (lengthVec(axis) > 0) {
         let angle = Math.asin(lengthVec(axis));
         axis = normalize(axis);
-        // let side = cross(up, axis);
-        // let angle = Math.atan2(dot(side, dir), dot(up, dir));
         let rot = getRotation(axis, -angle);
-        // let rot = getRotation(
-        //   new vec3(0, 0, 1),
-        //   (updateData.dt * 2 * Math.PI) / 2
-        // );
         let transform = transformMatMat(
           getTranslation(cardPos),
           transformMatMat(rot, getTranslation(mulVecScalar(cardPos, -1)))
         );
         entity.transform = transformMatMat(transform, entity.transform);
       }
-      // }
 
       currentPos = transformMatPosition(entity.transform, new vec3());
       entity.handSpeed = mulVecScalar(
@@ -357,8 +352,11 @@ function getPlayerController(weaponId) {
 
 function getColliderAction() {
   return {
-    start: function(entity) {},
-    update: function(entity, updateData) {}
+    start: function(entity) {
+      entity.collider = true;
+    }
+    // ,
+    // update: function(entity, updateData) {}
   };
 }
 
