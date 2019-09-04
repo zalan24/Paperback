@@ -3,8 +3,9 @@ const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
 const handAcceleration = 0.2;
-const handDrag = 1;
-const handStand = new vec3(0, -0.1, 0);
+const handDrag = 10;
+const handDecceleration = 10;
+const handStand = new vec3(0, -1, 0);
 
 function invlerp(v, a, b) {
   return Math.max(0, Math.min(1, (v - a) / (b - a)));
@@ -225,9 +226,15 @@ function getStickAction() {
     start: function(entity) {
       entity.lastStickPos = transformMatPosition(entity.transform, new vec3());
       entity.handSpeed = new vec3();
+      entity.lastCardPos = entity.getCardPosition();
     },
     update: function(entity, updateData) {
       let currentPos = transformMatPosition(entity.transform, new vec3());
+      let cardPos = entity.getCardPosition();
+      let cardSpeed = mulVecScalar(
+        subVec(cardPos, entity.lastCardPos),
+        1 / updateData.dt
+      );
       let handSpeedLen = lengthVec(entity.handSpeed);
       if (handSpeedLen > 0)
         entity.handSpeed = mulVecScalar(
@@ -238,6 +245,14 @@ function getStickAction() {
             0
           )
         );
+      let speedDiff = subVec(entity.handSpeed, cardSpeed);
+      handSpeedLen = lengthVec(speedDiff);
+      if (handSpeedLen > 0)
+        speedDiff = mulVecScalar(
+          normalize(speedDiff),
+          Math.max(handSpeedLen - handDecceleration * updateData.dt, 0)
+        );
+      entity.handSpeed = addVec(cardSpeed, speedDiff);
       let expectedPos = addVec(
         mulVecScalar(handStand, updateData.dt),
         addVec(
@@ -248,7 +263,6 @@ function getStickAction() {
       // let expectedPos = entity.lastStickPos;
       let diff = subVec(currentPos, expectedPos);
       // if (lengthVec(diff) > 0) {
-      let cardPos = entity.getCardPosition();
       let up = normalize(subVec(currentPos, cardPos));
       let moveDiff = mulVecScalar(up, dot(up, diff));
       let acc =
@@ -286,6 +300,7 @@ function getStickAction() {
         1 / updateData.dt
       );
       entity.lastStickPos = currentPos;
+      entity.lastCardPos = entity.getCardPosition();
     }
   };
 }

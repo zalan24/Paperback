@@ -561,6 +561,7 @@ const var_replace = {
   lastStickPos: "_sp",
   getCardPosition: "_gp",
   handSpeed: "_hs",
+  lastCardPos: "_lp",
   areaUnder: "_au"
 };
 
