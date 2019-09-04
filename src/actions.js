@@ -2,9 +2,9 @@ const jumpSpeed = 1;
 const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
-const handAcceleration = 1;
-const handStand = new vec3(0, -1, 0);
-const handRotationAxis = new vec3(0, 0, 1);
+const handAcceleration = 0.2;
+const handDrag = 1;
+const handStand = new vec3(0, -0.1, 0);
 
 function invlerp(v, a, b) {
   return Math.max(0, Math.min(1, (v - a) / (b - a)));
@@ -211,7 +211,8 @@ function getDashAction() {
       }
       if (entity.event_dash != null && entity.dashTime == null) {
         entity.dashTime = updateData.time;
-        entity.dashSpeed = mulVecScalar(entity.event_dash.dir, dashSpeed);
+        let dir = new vec3(Math.sign(entity.event_dash.dir.x), 0, 0);
+        entity.dashSpeed = mulVecScalar(dir, dashSpeed);
         entity.speed = entity.dashSpeed;
         entity.event_dash = null;
       }
@@ -227,6 +228,16 @@ function getStickAction() {
     },
     update: function(entity, updateData) {
       let currentPos = transformMatPosition(entity.transform, new vec3());
+      let handSpeedLen = lengthVec(entity.handSpeed);
+      if (handSpeedLen > 0)
+        entity.handSpeed = mulVecScalar(
+          normalize(entity.handSpeed),
+          Math.max(
+            handSpeedLen -
+              handSpeedLen * handSpeedLen * handDrag * updateData.dt,
+            0
+          )
+        );
       let expectedPos = addVec(
         mulVecScalar(handStand, updateData.dt),
         addVec(
@@ -234,13 +245,42 @@ function getStickAction() {
           mulVecScalar(entity.handSpeed, updateData.dt)
         )
       );
-      let cardPos = entity.getCardPosition();
+      // let expectedPos = entity.lastStickPos;
       let diff = subVec(currentPos, expectedPos);
+      // if (lengthVec(diff) > 0) {
+      let cardPos = entity.getCardPosition();
+      let up = normalize(subVec(currentPos, cardPos));
+      let moveDiff = mulVecScalar(up, dot(up, diff));
       let acc =
-        normalize(diff) *
-        Math.max(lengthVec(diff), handAcceleration * updateData.dt);
+        lengthVec(moveDiff) > 0
+          ? mulVecScalar(
+              normalize(moveDiff),
+              Math.min(lengthVec(moveDiff), handAcceleration * updateData.dt)
+            )
+          : new vec3();
       let preferredPosition = addVec(expectedPos, acc);
 
+      let dir = normalize(subVec(preferredPosition, cardPos));
+      let axis = cross(dir, up);
+      if (lengthVec(axis) > 0) {
+        let angle = Math.asin(lengthVec(axis));
+        axis = normalize(axis);
+        // let side = cross(up, axis);
+        // let angle = Math.atan2(dot(side, dir), dot(up, dir));
+        let rot = getRotation(axis, -angle);
+        // let rot = getRotation(
+        //   new vec3(0, 0, 1),
+        //   (updateData.dt * 2 * Math.PI) / 2
+        // );
+        let transform = transformMatMat(
+          getTranslation(cardPos),
+          transformMatMat(rot, getTranslation(mulVecScalar(cardPos, -1)))
+        );
+        entity.transform = transformMatMat(transform, entity.transform);
+      }
+      // }
+
+      currentPos = transformMatPosition(entity.transform, new vec3());
       entity.handSpeed = mulVecScalar(
         subVec(currentPos, entity.lastStickPos),
         1 / updateData.dt
