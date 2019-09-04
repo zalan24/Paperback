@@ -354,3 +354,15 @@ function getPlayerController(weaponId) {
   let keyBoard = getKeyboardController(weaponId);
   return getCompoundAction([dash, phys, move, stickAction, keyBoard]);
 }
+
+function getColliderAction() {
+  return {
+    start: function(entity) {},
+    update: function(entity, updateData) {}
+  };
+}
+
+function getPlatformController() {
+  let collider = getColliderAction();
+  return getCompoundAction([collider]);
+}

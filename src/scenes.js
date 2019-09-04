@@ -17,14 +17,25 @@ var scenes = {
     },
     {
       id: "testPlatform",
-      card: "platform"
+      card: "platform",
+      action: getPlatformController()
     },
     {
       id: "testPlatform2",
       card: "platform",
       stick: false,
       transform: getTranslation(new vec3(0.5, 0, 0)),
-      scale: 0.5
+      scale: 0.5,
+      action: getPlatformController()
+    },
+    {
+      id: "testPlatform3",
+      card: "platform",
+      stick: true,
+      transform: getTranslation(new vec3(0.25, 0, 0)),
+      stransform: getRotation(new vec3(0, 0, 1), Math.PI / 4),
+      scale: 0.3,
+      action: getPlatformController()
     },
     {
       id: "testPlatform3",
@@ -32,7 +43,8 @@ var scenes = {
       stick: true,
       transform: getTranslation(new vec3(-0.5, 0, 0)),
       stransform: getRotation(new vec3(0, 0, 1), Math.PI / 2),
-      scale: 0.3
+      scale: 0.3,
+      action: getPlatformController()
     },
     {
       id: "testBackground",

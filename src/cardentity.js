@@ -10,6 +10,7 @@ class CardEntity extends Entity {
       let t = this;
       usePaperTexture(paperTexture, function() {
         t.mesh = paperTexture.mesh;
+        t.box = paperTexture.box;
         t.uploadIndices();
         t.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, t.texture);
