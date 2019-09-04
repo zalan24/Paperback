@@ -165,6 +165,10 @@ function getPhysicsController() {
       broadcastEvent(e => {
         if (e.collider == null /* || !e.collider */) return;
         let invMat = invert(e.getTransform());
+        let localPos = transformMatPosition(
+          invMat,
+          transformMatPosition(entity.getTransform())
+        );
         // console.log(transformMatMat(e.getTransform(), invMat));
       });
       entity.transform = transformMatMat(
@@ -269,12 +273,12 @@ function getDashAction() {
 function getStickAction() {
   return {
     start: function(entity) {
-      entity.lastStickPos = transformMatPosition(entity.transform, new vec3());
+      entity.lastStickPos = transformMatPosition(entity.transform);
       entity.handSpeed = new vec3();
       entity.lastCardPos = entity.getCardPosition();
     },
     update: function(entity, updateData) {
-      let currentPos = transformMatPosition(entity.transform, new vec3());
+      let currentPos = transformMatPosition(entity.transform);
       let cardPos = entity.getCardPosition();
       let cardSpeed = mulVecScalar(
         subVec(cardPos, entity.lastCardPos),
@@ -330,7 +334,7 @@ function getStickAction() {
         entity.transform = transformMatMat(transform, entity.transform);
       }
 
-      currentPos = transformMatPosition(entity.transform, new vec3());
+      currentPos = transformMatPosition(entity.transform);
       entity.handSpeed = mulVecScalar(
         subVec(currentPos, entity.lastStickPos),
         1 / updateData.dt

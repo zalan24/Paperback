@@ -3,7 +3,7 @@ function uploadOccluders(entities) {
   entities.forEach(r =>
     traverseEntities(r, e => {
       if (e.mesh != null && e.occluder) {
-        let pos = transformMatPosition(e.getTransform(), new vec3());
+        let pos = transformMatPosition(e.getTransform());
         let norm = transformMatDirection(e.getTransform(), new vec3(0, 0, -1));
         let radius = new vec3();
         let count = 0;

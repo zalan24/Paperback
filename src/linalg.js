@@ -85,7 +85,7 @@ class mat3x4 {
   }
 }
 
-function transformMatPosition(m, v) {
+function transformMatPosition(m, v = new vec3()) {
   return addVec(
     addVec(mulVecScalar(m.col0, v.x), mulVecScalar(m.col1, v.y)),
     addVec(mulVecScalar(m.col2, v.z), m.col3)
