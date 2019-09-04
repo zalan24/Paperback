@@ -1,4 +1,4 @@
-const jumpSpeed = 1;
+const jumpSpeed = 0.1;
 const gravity = new vec3(0, 0, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
@@ -6,6 +6,11 @@ const handAcceleration = 0.2;
 const handDrag = 10;
 const handDecceleration = 10;
 const handStand = new vec3(0, -1, 0);
+const jumps = 1;
+const dashes = 1;
+const jumpTimeLimit = 0.5;
+const dashTimeLimit = 0.5;
+const hitTimeLimit = 0.3;
 
 function invlerp(v, a, b) {
   return Math.max(0, Math.min(1, (v - a) / (b - a)));
@@ -107,10 +112,53 @@ function getCompoundAction(actions) {
   };
 }
 
+function canJump(entity) {
+  if (entity.grounded) entity.jumpLeft = jumps;
+  return entity.jumpLeft > 0 && entity.jumpTime + jumpTimeLimit < entity.time;
+}
+function jump(entity) {
+  if (canJump(entity)) {
+    entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
+    if (!entity.grounded) entity.jumpLeft--;
+    entity.jumpTime = entity.time;
+  }
+}
+
+function canDash(entity) {
+  if (entity.grounded) entity.dashLeft = dashes;
+  return entity.dashLeft > 0 && entity.dashTimem + dashTimeLimit < entity.time;
+}
+function dash(entity) {
+  if (canDash(entity)) {
+    entity.event_dash = {
+      dir: normalize(transformMatDirection(entity.getTransform(), new vec3(1)))
+    };
+    if (!entity.grounded) entity.dashLeft--;
+    entity.dashTimem = entity.time;
+  }
+}
+
+function canHit(entity) {
+  return entity.hitTime + hitTimeLimit < entity.time;
+}
+function hit(entity, weapon, animation) {
+  if (canHit(entity)) {
+    addAnimation(getEntityById(weapon), animation);
+    entity.hitTime = entity.time;
+  }
+}
+
 function getPhysicsController() {
   return {
     start: function(entity) {
       entity.speed = new vec3();
+      entity.grounded = true;
+      entity.jumpLeft = jumps;
+      entity.jumpTime = 0;
+      entity.dashLeft = dashes;
+      entity.dashTimem = 0;
+      entity.time = 0;
+      entity.hitTime = 0;
     },
     update: function(entity, updateData) {
       entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
@@ -119,6 +167,7 @@ function getPhysicsController() {
         getTranslation(mulVecScalar(entity.speed, updateData.dt)),
         entity.transform
       );
+      entity.time = updateData.time;
     }
   };
 }
@@ -171,18 +220,10 @@ function getKeyboardController(weaponId) {
           entity.right = true;
           entity.left = false;
         }
-        if (e.keyCode == 90)
-          entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
-        if (e.keyCode == 88)
-          addAnimation(getEntityById(weaponId), animations.hit);
+        if (e.keyCode == 90) jump(entity);
+        if (e.keyCode == 88) hit(entity, weaponId, animations.hit);
         // console.log("key: " + e.keyCode);
-        if (e.keyCode == 67) {
-          entity.event_dash = {
-            dir: normalize(
-              transformMatDirection(entity.getTransform(), new vec3(1))
-            )
-          };
-        }
+        if (e.keyCode == 67) dash(entity);
       });
       document.addEventListener("keyup", e => {
         e = e || window.event;

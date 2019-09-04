@@ -562,6 +562,12 @@ const var_replace = {
   getCardPosition: "_gp",
   handSpeed: "_hs",
   lastCardPos: "_lp",
+  grounded: "_gd",
+  jumpLeft: "_jl",
+  jumpTime: "_jt",
+  dashLeft: "_dl",
+  dashTimem: "_mm",
+  hitTime: "_ht",
   areaUnder: "_au"
 };
 
