@@ -362,10 +362,12 @@ function onWindowResize(evt) {
 }
 window.addEventListener("resize", onWindowResize);
 
-gl.clearColor(0.5, 0.5, 0.5, 0.9);
+// gl.clearColor(0.5, 0.5, 0.5, 0.9);
 gl.clearDepth(1.0);
 gl.enable(gl.DEPTH_TEST);
+// CAN_BE_REMOVED
 gl.disable(gl.CULL_FACE);
+// CAN_BE_REMOVED
 gl.enable(gl.BLEND);
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -374,7 +376,12 @@ function startRender() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, frameSize.w, frameSize.h);
 
-  projection = getProjection(40, frameSize.w / frameSize.h, 0.01, 100);
+  projection = getProjection(40, frameSize.w / frameSize.h, 0.01, 10);
+
+  gl.useProgram(shaderPrograms.cardProgram.shader);
+  gl.uniform1i(shaderPrograms.cardProgram.vars.occluderCount, numOccluders);
+  if (numOccluders > 0)
+    gl.uniform1fv(shaderPrograms.cardProgram.vars.occlusion, occlusionData);
 }
 
 function endRender() {
@@ -441,11 +448,6 @@ function renderCard(renderData, cardData) {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, cardData.texture);
   gl.uniform1i(shaderPrograms.cardProgram.vars.texture, 0);
-  // console.log(numOccluders);
-  gl.uniform1i(shaderPrograms.cardProgram.vars.occluderCount, numOccluders);
-  // TODO do this in startRender
-  if (numOccluders > 0)
-    gl.uniform1fv(shaderPrograms.cardProgram.vars.occlusion, occlusionData);
   gl.drawElements(gl.TRIANGLES, cardData.count, gl.UNSIGNED_SHORT, 0);
 }
 
@@ -484,5 +486,3 @@ function createTextureFromColor(color) {
 
   return texture;
 }
-
-// TODO depth testing should be changed to depth test first, then render
