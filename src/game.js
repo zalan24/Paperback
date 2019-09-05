@@ -20,6 +20,7 @@ const writeFpsCount = 60;
 var writeFps = 0;
 var fpsTime = 0;
 const targetFps = 300;
+const maxDt = 0.1;
 
 function update() {
   let elapsed = new Date() - startTime;
@@ -41,8 +42,7 @@ function update() {
     new vec3(0, 0, 0),
     new vec3(0, 1, 0)
   );
-  // TODO
-  let dt = elapsed / 1000;
+  let dt = Math.min(elapsed / 1000, maxDt);
   t += dt;
 
   startRender();

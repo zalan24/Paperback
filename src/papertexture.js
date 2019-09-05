@@ -99,8 +99,8 @@ function createPaperCard(texture) {
             for (let subJ = 0; subJ < vertexSize; ++subJ) {
               if (getPixel(smallData, i + subI, j + subJ).a > 0) {
                 let pos = new vec3(
-                  (subI - smallData.width * middle.x) / maxSize,
-                  (smallData.height * middle.y - subJ) / maxSize
+                  (i + subI - smallData.width * middle.x) / maxSize,
+                  (smallData.height * middle.y - (j + subJ)) / maxSize
                 );
                 min = minVec2D(min, pos);
                 max = maxVec2D(max, pos);

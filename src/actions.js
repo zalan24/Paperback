@@ -1,5 +1,5 @@
 const jumpSpeed = 1;
-const gravity = new vec3(0, -0.7, 0);
+const gravity = new vec3(0, -3, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
 const handAcceleration = 0.2;
@@ -8,7 +8,7 @@ const handDecceleration = 10;
 const handStand = new vec3(0, -1, 0);
 const jumps = 1;
 const dashes = 1;
-const jumpTimeLimit = 0.5;
+const jumpTimeLimit = 0.2;
 const dashTimeLimit = 0.5;
 const hitTimeLimit = 0.3;
 
@@ -194,26 +194,46 @@ function getPhysicsController() {
         let worldUp = transformMatDirection(e.getTransform(), new vec3(0, 1));
         let worldSide = transformMatDirection(e.getTransform(), new vec3(1));
         let translation = new vec3();
-        if (box.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
-          // on top
-          translation = addVec(
-            translation,
-            mulVecScalar(worldUp, collBox.b.y - box.a.y)
-          );
-          entity.speed = removeComponent(
-            entity.speed,
-            mulVecScalar(worldUp, -1)
-          );
+        if (box.a.x < collBox.b.x && box.b.x > collBox.a.x) {
+          if (box.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
+            // on top
+            translation = addVec(
+              translation,
+              new vec3(0, collBox.b.y - box.a.y)
+            );
+            entity.speed = removeComponent(
+              entity.speed,
+              mulVecScalar(worldUp, -1)
+            );
+          }
+          if (box.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
+            // below
+            translation = addVec(
+              translation,
+              new vec3(0, collBox.a.y - box.b.y)
+            );
+            entity.speed = removeComponent(entity.speed, worldUp);
+          }
         }
-        if (box.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
-          // below
-          translation = addVec(
-            translation,
-            mulVecScalar(worldUp, collBox.a.y - box.b.y)
-          );
-          entity.speed = removeComponent(entity.speed, worldUp);
+        if (box.a.y < collBox.b.y && box.b.y > collBox.a.y) {
+          if (box.a.x <= collBox.b.x && box.b.x > collBox.b.x) {
+            translation = addVec(translation, new vec3(collBox.b.x - box.a.x));
+            entity.speed = removeComponent(
+              entity.speed,
+              mulVecScalar(worldSide, -1)
+            );
+          }
+          if (box.b.x >= collBox.a.x && box.a.x < collBox.a.x) {
+            translation = addVec(translation, new vec3(collBox.a.x - box.b.x));
+            entity.speed = removeComponent(entity.speed, worldSide);
+          }
         }
         // console.log(transformMatMat(e.getTransform(), invMat));
+
+        // entity.transform = transformMatMat(
+        //   getTranslation(transformMatDirection(e.getTransform(), translation)),
+        //   entity.transform
+        // );
       });
       entity.transform = transformMatMat(
         getTranslation(mulVecScalar(entity.speed, updateData.dt)),
@@ -231,17 +251,19 @@ function getMoveAction() {
       let facing = transformMatDirection(entity.getTransform(), new vec3(-1)).x;
       let shouldBeFacing = facing;
       if (entity.left) {
-        entity.transform = transformMatMat(
-          getTranslation(new vec3(-speed * updateData.dt)),
-          entity.transform
-        );
+        // entity.transform = transformMatMat(
+        //   getTranslation(new vec3(-speed * updateData.dt)),
+        //   entity.transform
+        // );
+        entity.speed.x = -speed;
         shouldBeFacing = 1;
       }
       if (entity.right) {
-        entity.transform = transformMatMat(
-          getTranslation(new vec3(speed * updateData.dt)),
-          entity.transform
-        );
+        // entity.transform = transformMatMat(
+        //   getTranslation(new vec3(speed * updateData.dt)),
+        //   entity.transform
+        // );
+        entity.speed.x = speed;
         shouldBeFacing = -1;
       }
       if (facing * shouldBeFacing < 0) {
@@ -395,7 +417,7 @@ function getPlayerController(weaponId) {
   let move = getMoveAction();
   let stickAction = getStickAction();
   let keyBoard = getKeyboardController(weaponId);
-  return getCompoundAction([dash, phys, move, stickAction, keyBoard]);
+  return getCompoundAction([dash, move, phys, stickAction, keyBoard]);
 }
 
 function getColliderAction() {
