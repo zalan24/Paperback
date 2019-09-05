@@ -1,5 +1,5 @@
-const jumpSpeed = 0.1;
-const gravity = new vec3(0, 0, 0);
+const jumpSpeed = 1;
+const gravity = new vec3(0, -0.7, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
 const handAcceleration = 0.2;
@@ -165,10 +165,54 @@ function getPhysicsController() {
       broadcastEvent(e => {
         if (e.collider == null /* || !e.collider */) return;
         let invMat = invert(e.getTransform());
-        let localPos = transformMatPosition(
-          invMat,
-          transformMatPosition(entity.getTransform())
-        );
+        // let localPos = transformMatPosition(
+        //   invMat,
+        //   transformMatPosition(entity.getTransform())
+        // );
+        let entityToCollider = transformMatMat(invMat, entity.getTransform());
+        let entityBox = entity.getBox();
+        let transformedBox = [
+          transformMatPosition(entityToCollider, entityBox.a),
+          transformMatPosition(entityToCollider, entityBox.b),
+          transformMatPosition(
+            entityToCollider,
+            new vec3(entityBox.a.x, entityBox.b.y)
+          ),
+          transformMatPosition(
+            entityToCollider,
+            new vec3(entityBox.b.x, entityBox.a.y)
+          )
+        ];
+        let box = { a: transformedBox[0], b: transformedBox[0] };
+        // i < transformedBox.length
+        for (let i = 1; i < 4; ++i) {
+          // CAN_BE_REMOVED
+          box.a = minVec2D(box.a, transformedBox[i]);
+          box.b = maxVec2D(box.b, transformedBox[i]);
+        }
+        let collBox = e.getBox();
+        let worldUp = transformMatDirection(e.getTransform(), new vec3(0, 1));
+        let worldSide = transformMatDirection(e.getTransform(), new vec3(1));
+        let translation = new vec3();
+        if (box.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
+          // on top
+          translation = addVec(
+            translation,
+            mulVecScalar(worldUp, collBox.b.y - box.a.y)
+          );
+          entity.speed = removeComponent(
+            entity.speed,
+            mulVecScalar(worldUp, -1)
+          );
+        }
+        if (box.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
+          // below
+          translation = addVec(
+            translation,
+            mulVecScalar(worldUp, collBox.a.y - box.b.y)
+          );
+          entity.speed = removeComponent(entity.speed, worldUp);
+        }
         // console.log(transformMatMat(e.getTransform(), invMat));
       });
       entity.transform = transformMatMat(

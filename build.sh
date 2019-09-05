@@ -20,7 +20,6 @@ cat \
 	src/actions.js \
 	src/scenes.js \
 	src/main.js \
-	src/debug.js \
 	> build/paper.js
 
 

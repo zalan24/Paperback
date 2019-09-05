@@ -97,15 +97,13 @@ function createPaperCard(texture) {
         if (i > 0 && j > 0) {
           for (let subI = 0; subI < vertexSize; ++subI)
             for (let subJ = 0; subJ < vertexSize; ++subJ) {
-              if (getPixel(texture.texture.data, i + subI, j + subJ).a > 0) {
+              if (getPixel(smallData, i + subI, j + subJ).a > 0) {
                 let pos = new vec3(
                   (subI - smallData.width * middle.x) / maxSize,
                   (smallData.height * middle.y - subJ) / maxSize
                 );
-                min.x = Math.min(min.x, pos.x);
-                min.y = Math.min(min.y, pos.y);
-                max.x = Math.max(max.x, pos.x);
-                max.y = Math.max(max.y, pos.y);
+                min = minVec2D(min, pos);
+                max = maxVec2D(max, pos);
               }
               if (getPixel(smallData, i + subI, j + subJ).a > 0) {
                 vertices[ind3].enabled = true;
@@ -136,6 +134,7 @@ function createPaperCard(texture) {
 
     texture.paperTexture.mesh = new Mesh(vertices, faces);
     texture.paperTexture.box = { a: min, b: max };
+    console.log(texture.paperTexture.box);
     let retData = imageData;
     // let retData = smallData;
     texture.paperTexture.texture = extractTexture(

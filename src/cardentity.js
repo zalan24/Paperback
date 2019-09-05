@@ -11,6 +11,9 @@ class CardEntity extends Entity {
       usePaperTexture(paperTexture, function() {
         t.mesh = paperTexture.mesh;
         t.box = paperTexture.box;
+        t.getBox = function() {
+          return t.box;
+        };
         t.uploadIndices();
         t.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, t.texture);
@@ -136,6 +139,12 @@ function createCardWithStick(
   stick.addChild(entity);
   stick.getCardPosition = function() {
     return transformMatPosition(entity.getTransform());
+  };
+  stick.getBox = function() {
+    return {
+      a: transformMatPosition(entity.transform, entity.getBox().a),
+      b: transformMatPosition(entity.transform, entity.getBox().b)
+    };
   };
   return stick;
 }

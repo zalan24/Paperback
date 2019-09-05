@@ -214,3 +214,16 @@ function cartesianToSpherical(pos) {
   pos = normalize(pos);
   return new vec3(Math.atan2(pos.z, pos.x), Math.acos(pos.y));
 }
+
+function minVec2D(a, b) {
+  return new vec3(Math.min(a.x, b.x), Math.min(a.y, b.y));
+}
+function maxVec2D(a, b) {
+  return new vec3(Math.max(a.x, b.x), Math.max(a.y, b.y));
+}
+
+function removeComponent(v, dir) {
+  return subVec(v, mulVecScalar(dir, Math.max(0, dot(v, dir)) / dot(dir, dir)));
+}
+
+// console.log(removeComponent(new vec3(1, 0, 0), new vec3(-1, 1, 0)));
