@@ -194,44 +194,51 @@ function getPhysicsController() {
           box.a = minVec2D(box.a, transformedBox[i]);
           box.b = maxVec2D(box.b, transformedBox[i]);
         }
+        let transformedSpeed = transformMatDirection(invMat, entity.speed);
+        let speedTranslation = mulVecScalar(transformedSpeed, updateData.dt);
+        let translatedBox = {
+          a: addVec(box.a, speedTranslation),
+          b: addVec(box.b, speedTranslation)
+        };
         let collBox = e.getBox();
         let worldUp = transformMatDirection(e.getTransform(), new vec3(0, 1));
         let worldSide = transformMatDirection(e.getTransform(), new vec3(1));
         let translation = new vec3();
-        if (e.parent != null && e.parent.id == "plat")
-          console.log({ box: box, collBox: collBox });
-        if (box.a.x < collBox.b.x && box.b.x > collBox.a.x) {
-          if (box.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
-            // on top
-            translation = addVec(
-              translation,
-              new vec3(0, collBox.b.y - box.a.y)
-            );
-            entity.speed = removeComponent(
-              entity.speed,
-              mulVecScalar(worldUp, -1)
-            );
-          }
-          if (box.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
-            // below
-            translation = addVec(
-              translation,
-              new vec3(0, collBox.a.y - box.b.y)
-            );
-            entity.speed = removeComponent(entity.speed, worldUp);
-          }
-        }
-        if (box.a.y < collBox.b.y && box.b.y > collBox.a.y) {
-          if (box.a.x <= collBox.b.x && box.b.x > collBox.b.x) {
-            translation = addVec(translation, new vec3(collBox.b.x - box.a.x));
+        // if (e.parent != null && e.parent.id == "plat")
+        //   console.log({ box: box, collBox: collBox });
+        if (
+          translatedBox.a.y < collBox.b.y &&
+          translatedBox.b.y > collBox.a.y
+        ) {
+          if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x) {
+            translation = new vec3(collBox.b.x - box.a.x);
             entity.speed = removeComponent(
               entity.speed,
               mulVecScalar(worldSide, -1)
             );
           }
-          if (box.b.x >= collBox.a.x && box.a.x < collBox.a.x) {
-            translation = addVec(translation, new vec3(collBox.a.x - box.b.x));
+          if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x) {
+            translation = new vec3(collBox.a.x - box.b.x);
             entity.speed = removeComponent(entity.speed, worldSide);
+          }
+        }
+
+        if (
+          translatedBox.a.x < collBox.b.x &&
+          translatedBox.b.x > collBox.a.x
+        ) {
+          if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
+            // on top
+            translation = new vec3(0, collBox.b.y - box.a.y);
+            entity.speed = removeComponent(
+              entity.speed,
+              mulVecScalar(worldUp, -1)
+            );
+          }
+          if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
+            // below
+            translation = new vec3(0, collBox.a.y - box.b.y);
+            entity.speed = removeComponent(entity.speed, worldUp);
           }
         }
         // console.log(transformMatMat(e.getTransform(), invMat));
