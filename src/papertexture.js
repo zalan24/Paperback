@@ -134,7 +134,7 @@ function createPaperCard(texture) {
 
     texture.paperTexture.mesh = new Mesh(vertices, faces);
     texture.paperTexture.box = { a: min, b: max };
-    console.log(texture.paperTexture.box);
+    // console.log(texture.paperTexture.box);
     let retData = imageData;
     // let retData = smallData;
     texture.paperTexture.texture = extractTexture(

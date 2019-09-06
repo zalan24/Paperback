@@ -161,7 +161,11 @@ function getPhysicsController() {
       entity.hitTime = 0;
     },
     update: function(entity, updateData) {
-      entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
+      if (!entity.dashing)
+        entity.speed = addVec(
+          entity.speed,
+          mulVecScalar(gravity, updateData.dt)
+        );
       broadcastEvent(e => {
         if (e.collider == null /* || !e.collider */) return;
         let invMat = invert(e.getTransform());
@@ -194,6 +198,8 @@ function getPhysicsController() {
         let worldUp = transformMatDirection(e.getTransform(), new vec3(0, 1));
         let worldSide = transformMatDirection(e.getTransform(), new vec3(1));
         let translation = new vec3();
+        if (e.parent != null && e.parent.id == "plat")
+          console.log({ box: box, collBox: collBox });
         if (box.a.x < collBox.b.x && box.b.x > collBox.a.x) {
           if (box.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
             // on top
@@ -230,10 +236,10 @@ function getPhysicsController() {
         }
         // console.log(transformMatMat(e.getTransform(), invMat));
 
-        // entity.transform = transformMatMat(
-        //   getTranslation(transformMatDirection(e.getTransform(), translation)),
-        //   entity.transform
-        // );
+        entity.transform = transformMatMat(
+          getTranslation(transformMatDirection(e.getTransform(), translation)),
+          entity.transform
+        );
       });
       entity.transform = transformMatMat(
         getTranslation(mulVecScalar(entity.speed, updateData.dt)),
@@ -247,6 +253,7 @@ function getPhysicsController() {
 function getMoveAction() {
   return {
     update: function(entity, updateData) {
+      if (entity.dashing) return;
       let speed = 1;
       let facing = transformMatDirection(entity.getTransform(), new vec3(-1)).x;
       let shouldBeFacing = facing;
@@ -266,6 +273,10 @@ function getMoveAction() {
         entity.speed.x = speed;
         shouldBeFacing = -1;
       }
+      if (entity.stopped) {
+        entity.speed.x = 0;
+        entity.stopped = false;
+      }
       if (facing * shouldBeFacing < 0) {
         let mirror = new mat3x4();
         mirror.col0 = mulVecScalar(mirror.col0, -1);
@@ -275,6 +286,7 @@ function getMoveAction() {
     start: function(entity) {
       entity.left = false;
       entity.right = false;
+      entity.stopped = false;
     }
   };
 }
@@ -304,9 +316,11 @@ function getKeyboardController(weaponId) {
         if (e.keyCode == 37)
           // left arrow
           entity.left = false;
+        entity.stopped = true;
         if (e.keyCode == 39)
           // right arrow
           entity.right = false;
+        entity.stopped = true;
       });
     }
   };
@@ -316,6 +330,7 @@ function getDashAction() {
   return {
     start: function(entity) {
       entity.dashTime = null;
+      entity.dashing = false;
     },
     update: function(entity, updateData) {
       if (
@@ -324,6 +339,7 @@ function getDashAction() {
       ) {
         entity.speed = new vec3();
         entity.dashTime = null;
+        entity.dashing = false;
       }
       if (entity.event_dash != null && entity.dashTime == null) {
         entity.dashTime = updateData.time;
@@ -331,6 +347,7 @@ function getDashAction() {
         entity.dashSpeed = mulVecScalar(dir, dashSpeed);
         entity.speed = entity.dashSpeed;
         entity.event_dash = null;
+        entity.dashing = true;
       }
     }
   };
@@ -417,7 +434,7 @@ function getPlayerController(weaponId) {
   let move = getMoveAction();
   let stickAction = getStickAction();
   let keyBoard = getKeyboardController(weaponId);
-  return getCompoundAction([dash, move, phys, stickAction, keyBoard]);
+  return getCompoundAction([dash, move, stickAction, keyBoard, phys]);
 }
 
 function getColliderAction() {

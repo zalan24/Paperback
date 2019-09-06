@@ -29,10 +29,9 @@ var scenes = {
       cardAction: getPlatformController()
     },
     {
-      id: "testPlatform2",
       card: "platform",
-      stick: false,
-      translation: [-0.3, -0.6, 0],
+      id: "plat",
+      translation: [-0.3, -1.6, 0],
       scale: 0.5,
       cardAction: getPlatformController()
     },
@@ -46,7 +45,6 @@ var scenes = {
       cardAction: getPlatformController()
     },
     {
-      id: "testPlatform3",
       card: "platform",
       stick: true,
       transform: getTranslation(new vec3(-0.5, 0, 0)),
@@ -55,11 +53,21 @@ var scenes = {
       cardAction: getPlatformController()
     },
     {
-      id: "testPlatform3",
       card: "platform",
       stick: true,
       translation: [0, -1.5, 0],
       cardTransform: getScaling(new vec3(6, 1, 1)),
+      scale: 0.3,
+      cardAction: getPlatformController()
+    },
+    {
+      card: "platform",
+      stick: false,
+      translation: [-0.9, -0.2, 0],
+      transform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+        getScaling(new vec3(6, 1, 1))
+      ),
       scale: 0.3,
       cardAction: getPlatformController()
     },
