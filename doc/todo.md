@@ -20,3 +20,4 @@
 - sound
 - dof
 - adaptive resolution
+- check this: http://www.mpia.de/~mathar/public/mathar20051002.pdf
