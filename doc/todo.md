@@ -1,6 +1,5 @@
 # TODO
 
-- match platform speed (wall jump should work too)
 - fix collision
 - fix the two platforms
 - fix stick animation for platforms

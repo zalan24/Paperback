@@ -1,8 +1,8 @@
-const jumpSpeed = 1;
+const jumpSpeed = 1.5;
 const jumpSideSpeed = 1;
 const gravity = new vec3(0, -3, 0);
-const dashSpeed = 5;
-const dashTime = 0.05;
+const dashSpeed = 2;
+const dashTime = 0.2;
 const handAcceleration = 0.2;
 const handDrag = 10;
 const handDecceleration = 10;
@@ -14,6 +14,7 @@ const dashTimeLimit = 0.5;
 const hitTimeLimit = 0.3;
 const maxWalledFallSpeed = 0.3;
 const groundedWalledTime = 0.05;
+const maxCharacterAcceleration = 10;
 
 function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
@@ -176,6 +177,7 @@ function getPhysicsController() {
       entity.dashTimem = 0;
       entity.time = 0;
       entity.hitTime = 0;
+      entity.platformSpeed = new vec3();
     },
     update: function(entity, updateData) {
       if (!entity.dashing)
@@ -183,6 +185,7 @@ function getPhysicsController() {
           entity.speed,
           mulVecScalar(gravity, updateData.dt)
         );
+      entity.platformSpeed = new vec3();
       broadcastEvent(e => {
         if (e.collider == null /* || !e.collider */) return;
         let colliderSpeed = new vec3();
@@ -238,6 +241,7 @@ function getPhysicsController() {
               entitySpeed.y = Math.max(-maxWalledFallSpeed, entitySpeed.y);
             }
           }
+          entity.platformSpeed = colliderSpeed;
         };
         // CAN_BE_REMOVED
         // this can be shortened with functions
@@ -294,12 +298,13 @@ function getMoveAction() {
       let speed = 1;
       let facing = getFacing(entity);
       let shouldBeFacing = facing;
+      let xSpeed = entity.platformSpeed.x;
       if (entity.left) {
         // entity.transform = transformMatMat(
         //   getTranslation(new vec3(-speed * updateData.dt)),
         //   entity.transform
         // );
-        entity.speed.x = -speed;
+        xSpeed -= speed;
         shouldBeFacing = 1;
       }
       if (entity.right) {
@@ -307,13 +312,20 @@ function getMoveAction() {
         //   getTranslation(new vec3(speed * updateData.dt)),
         //   entity.transform
         // );
-        entity.speed.x = speed;
+        xSpeed += speed;
         shouldBeFacing = -1;
       }
+      // CAN_BE_REMOVED
+      // stopped component is not used
       if (entity.stopped) {
-        entity.speed.x = 0;
+        // entity.speed.x = 0;
         entity.stopped = false;
       }
+      let diff = xSpeed - entity.speed.x;
+      entity.speed.x +=
+        Math.sign(diff) *
+        Math.min(Math.abs(diff), maxCharacterAcceleration * updateData.dt);
+
       if (facing * shouldBeFacing < 0) {
         let mirror = new mat3x4();
         mirror.col0 = mulVecScalar(mirror.col0, -1);

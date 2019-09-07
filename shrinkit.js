@@ -578,6 +578,7 @@ const var_replace = {
   dashing: "_dg",
   stopped: "_pp",
   walled: "_wl",
+  platformSpeed: "_px",
   areaUnder: "_au"
 };
 
