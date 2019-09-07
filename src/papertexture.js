@@ -7,20 +7,34 @@ function createPaperCard(texture) {
     // let stepRadius = texture.paper.stepRadius;
     let stepLimit = texture.paper.stepLimit;
     let vertexSize = texture.paper.vertexSize;
-    let imageData = new ImageData(
-      texture.texture.data.width * scalingFactor,
-      texture.texture.data.width * scalingFactor
-    );
-    let smallData = new ImageData(
+    let preSmallData = new ImageData(
       texture.texture.data.width,
       texture.texture.data.width
     );
+    foreachPixel(
+      preSmallData,
+      0,
+      0,
+      preSmallData.width,
+      preSmallData.height,
+      (x, y) => {
+        let p = getPixel(texture.texture.data, x, y);
+        if (p.r < 0.01) p.a = 0;
+        else p = lerpColor({ r: 0, g: 0, b: 0, a: 1 }, texture.color, p.r);
+        return p;
+      }
+    );
+    let imageData = new ImageData(
+      preSmallData.width * scalingFactor,
+      preSmallData.width * scalingFactor
+    );
+    let smallData = new ImageData(preSmallData.width, preSmallData.width);
     let imageData2 = new ImageData(
-      texture.texture.data.width * scalingFactor,
-      texture.texture.data.width * scalingFactor
+      preSmallData.width * scalingFactor,
+      preSmallData.width * scalingFactor
     );
     filterImage(
-      texture.texture.data,
+      preSmallData,
       0,
       0,
       smallData,
@@ -33,7 +47,7 @@ function createPaperCard(texture) {
     );
     foreachPixel(imageData, 0, 0, imageData.width, imageData.height, (x, y) => {
       let p = getPixel(
-        texture.texture.data,
+        preSmallData,
         Math.floor(x / scalingFactor),
         Math.floor(y / scalingFactor)
       );
@@ -63,7 +77,7 @@ function createPaperCard(texture) {
     );
     foreachPixel(imageData, 0, 0, imageData.width, imageData.height, (x, y) => {
       let p = getPixel(
-        texture.texture.data,
+        preSmallData,
         Math.floor(x / scalingFactor),
         Math.floor(y / scalingFactor)
       );
@@ -100,7 +114,7 @@ function createPaperCard(texture) {
         if (i > 0 && j > 0) {
           for (let subI = 0; subI < vertexSize; ++subI)
             for (let subJ = 0; subJ < vertexSize; ++subJ) {
-              // if (getPixel(texture.texture.data, i + subI, j + subJ).a > 0) {
+              // if (getPixel(preSmallData, i + subI, j + subJ).a > 0) {
               //   let pos = getPixelPos(i + subI, j + subJ);
               //   min = minVec2D(min, pos);
               //   max = maxVec2D(max, pos);

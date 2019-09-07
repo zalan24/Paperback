@@ -3,12 +3,13 @@ var textureCtx = textureCanvas.getContext("2d");
 
 var atlases = {};
 
-function registerTexture(atlas, imageName, rect, paper, middle) {
+function registerTexture(atlas, imageName, rect, paper, middle, color) {
   atlas.textures[imageName] = {
     onload: null,
     rect: rect,
     paper: paper,
-    middle: middle
+    middle: middle,
+    color: color
   };
 }
 
@@ -29,7 +30,8 @@ function registerTexture(atlas, imageName, rect, paper, middle) {
         texKeys2[j],
         tex.rect,
         tex.paper,
-        middle
+        middle,
+        tex.color
       );
     }
   }

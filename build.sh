@@ -1,7 +1,7 @@
 mkdir -p build
 mkdir -p build/res
 
-cp res/test_atlas.png build/res/test_atlas.png
+cp res/32x8_grayscale.png build/res/32x8_grayscale.png
 
 cat \
 	src/linalg.js \

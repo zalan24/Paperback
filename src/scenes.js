@@ -20,78 +20,78 @@ var scenes = {
     //   card: "platform",
     //   action: getPlatformController()
     // },
+    // {
+    //   id: "testPlatform2",
+    //   card: "platform",
+    //   stick: false,
+    //   translation: [0.7, -0.5, 0],
+    //   cardTransform: getScaling(new vec3(1, 0.1, 1)),
+    //   scale: 0.5,
+    //   action: getPlatformController({ to: new vec3(0, 0.5), duration: 5 })
+    // },
+    // {
+    //   card: "platform",
+    //   // stick: false,
+    //   translation: [0.7, 0, 0],
+    //   cardTransform: getScaling(new vec3(1, 0.1, 1)),
+    //   scale: 0.5,
+    //   action: getPlatformController({ to: new vec3(-1), duration: 5 })
+    // },
+    // {
+    //   card: "platform",
+    //   id: "plat",
+    //   translation: [-0.3, -0.4, 0],
+    //   cardTransform: getScaling(new vec3(1, 3, 1)),
+    //   scale: 0.5,
+    //   action: getPlatformController({ to: new vec3(-1), duration: 5 })
+    // },
+    // {
+    //   id: "testPlatform3",
+    //   card: "platform",
+    //   stick: true,
+    //   transform: getTranslation(new vec3(0.25, 0.7, 0)),
+    //   cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 4),
+    //   scale: 0.3,
+    //   action: getPlatformController()
+    // },
+    // {
+    //   card: "platform",
+    //   stick: true,
+    //   transform: getTranslation(new vec3(-0.5, 0.5, 0)),
+    //   cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 2),
+    //   scale: 0.3,
+    //   action: getPlatformController()
+    // },
     {
-      id: "testPlatform2",
       card: "platform",
       stick: false,
-      translation: [0.7, -0.5, 0],
-      cardTransform: getScaling(new vec3(1, 0.1, 1)),
-      scale: 0.5,
-      action: getPlatformController({ to: new vec3(0, 0.5), duration: 5 })
-    },
-    {
-      card: "platform",
-      // stick: false,
-      translation: [0.7, 0, 0],
-      cardTransform: getScaling(new vec3(1, 0.1, 1)),
-      scale: 0.5,
-      action: getPlatformController({ to: new vec3(-1), duration: 5 })
-    },
-    {
-      card: "platform",
-      id: "plat",
-      translation: [-0.3, -0.4, 0],
-      cardTransform: getScaling(new vec3(1, 3, 1)),
-      scale: 0.5,
-      action: getPlatformController({ to: new vec3(-1), duration: 5 })
-    },
-    {
-      id: "testPlatform3",
-      card: "platform",
-      stick: true,
-      transform: getTranslation(new vec3(0.25, 0.7, 0)),
-      cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 4),
-      scale: 0.3,
-      action: getPlatformController()
-    },
-    {
-      card: "platform",
-      stick: true,
-      transform: getTranslation(new vec3(-0.5, 0.5, 0)),
-      cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 2),
-      scale: 0.3,
-      action: getPlatformController()
-    },
-    {
-      card: "platform",
-      // stick: true,
       translation: [0, -0.8, 0],
       cardTransform: getScaling(new vec3(6, 1, 1)),
       scale: 0.3,
       action: getPlatformController()
     },
-    {
-      card: "platform",
-      stick: false,
-      translation: [-0.9, -0.2, 0],
-      cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
-        getScaling(new vec3(6, 1, 1))
-      ),
-      scale: 0.3,
-      action: getPlatformController()
-    },
-    {
-      card: "platform",
-      stick: false,
-      translation: [0.9, -0.2, 0],
-      cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
-        getScaling(new vec3(6, 1, 1))
-      ),
-      scale: 0.3,
-      action: getPlatformController()
-    },
+    // {
+    //   card: "platform",
+    //   stick: false,
+    //   translation: [-0.9, -0.2, 0],
+    //   cardTransform: transformMatMat(
+    //     getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+    //     getScaling(new vec3(6, 1, 1))
+    //   ),
+    //   scale: 0.3,
+    //   action: getPlatformController()
+    // },
+    // {
+    //   card: "platform",
+    //   stick: false,
+    //   translation: [0.9, -0.2, 0],
+    //   cardTransform: transformMatMat(
+    //     getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+    //     getScaling(new vec3(6, 1, 1))
+    //   ),
+    //   scale: 0.3,
+    //   action: getPlatformController()
+    // },
     {
       id: "testBackground",
       card: "mountain",
