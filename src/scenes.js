@@ -40,7 +40,8 @@ var scenes = {
     {
       card: "platform",
       id: "plat",
-      translation: [-0.3, -0.6, 0],
+      translation: [-0.3, -0.4, 0],
+      cardTransform: getScaling(new vec3(1, 3, 1)),
       scale: 0.5,
       action: getPlatformController({ to: new vec3(-1), duration: 5 })
     },
@@ -73,6 +74,17 @@ var scenes = {
       card: "platform",
       stick: false,
       translation: [-0.9, -0.2, 0],
+      cardTransform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+        getScaling(new vec3(6, 1, 1))
+      ),
+      scale: 0.3,
+      action: getPlatformController()
+    },
+    {
+      card: "platform",
+      stick: false,
+      translation: [0.9, -0.2, 0],
       cardTransform: transformMatMat(
         getRotation(new vec3(0, 0, 1), -Math.PI / 2),
         getScaling(new vec3(6, 1, 1))

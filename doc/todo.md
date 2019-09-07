@@ -1,8 +1,8 @@
 # TODO
 
-- match platform speed
-- sliding on wall
+- match platform speed (wall jump should work too)
 - fix collision
+- fix the two platforms
 - fix stick animation for platforms
 - fix zaxis movement
 - camera movement
@@ -23,3 +23,4 @@
 - create boss rooms with bosses
 - sound
 - dof
+- adaptive resolution

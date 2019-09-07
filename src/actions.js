@@ -1,4 +1,5 @@
 const jumpSpeed = 1;
+const jumpSideSpeed = 1;
 const gravity = new vec3(0, -3, 0);
 const dashSpeed = 5;
 const dashTime = 0.05;
@@ -11,6 +12,12 @@ const dashes = 1;
 const jumpTimeLimit = 0.2;
 const dashTimeLimit = 0.5;
 const hitTimeLimit = 0.3;
+const maxWalledFallSpeed = 0.3;
+const groundedWalledTime = 0.05;
+
+function getFacing(entity) {
+  return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
+}
 
 function invlerp(v, a, b) {
   return Math.max(0, Math.min(1, (v - a) / (b - a)));
@@ -118,14 +125,23 @@ function canJump(entity) {
 }
 function jump(entity) {
   if (canJump(entity)) {
-    entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
-    if (entity.grounded < entity.time) entity.jumpLeft--;
+    let plusX = 0;
+    // console.log({walled: entity.walled, })
+    if (entity.walled + groundedWalledTime >= entity.time)
+      plusX = jumpSideSpeed * Math.sign(getFacing(entity));
+    entity.speed = new vec3(entity.speed.x + plusX, jumpSpeed, entity.speed.z);
+    if (entity.grounded + groundedWalledTime < entity.time) entity.jumpLeft--;
     entity.jumpTime = entity.time;
   }
 }
 
 function canDash(entity) {
   if (entity.grounded > entity.dashTimem) entity.dashLeft = dashes;
+  // console.log({
+  //   dashLeft: entity.dashLeft,
+  //   timeLimit: entity.dashTimem + dashTimeLimit,
+  //   entityTime: entity.time
+  // });
   return entity.dashLeft > 0 && entity.dashTimem + dashTimeLimit < entity.time;
 }
 function dash(entity) {
@@ -133,7 +149,7 @@ function dash(entity) {
     entity.event_dash = {
       dir: normalize(transformMatDirection(entity.getTransform(), new vec3(1)))
     };
-    if (entity.grounded < entity.time) entity.dashLeft--;
+    if (entity.grounded + groundedWalledTime < entity.time) entity.dashLeft--;
     entity.dashTimem = entity.time;
   }
 }
@@ -210,22 +226,32 @@ function getPhysicsController() {
         let translation = new vec3();
         // if (e.parent != null && e.parent.id == "plat")
         //   console.log({ box: box, collBox: collBox });
+        let coll = function(dir) {
+          entitySpeed = removeComponent(entitySpeed, dir);
+          dir = normalize(dir);
+          let threshold = Math.cos(Math.PI / 4);
+          let threshold2 = Math.cos(Math.PI / 16);
+          if (dir.y <= threshold2) {
+            entity.grounded = updateData.time;
+            if (Math.abs(dir.x) > threshold) {
+              entity.walled = updateData.time;
+              entitySpeed.y = Math.max(-maxWalledFallSpeed, entitySpeed.y);
+            }
+          }
+        };
+        // CAN_BE_REMOVED
+        // this can be shortened with functions
         if (
           translatedBox.a.y < collBox.b.y &&
           translatedBox.b.y > collBox.a.y
         ) {
           if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x) {
             translation = new vec3(collBox.b.x - box.a.x);
-            entitySpeed = removeComponent(
-              entitySpeed,
-              mulVecScalar(worldSide, -1)
-            );
-            entity.walled = updateData.time;
+            coll(mulVecScalar(worldSide, -1));
           }
           if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x) {
             translation = new vec3(collBox.a.x - box.b.x);
-            entitySpeed = removeComponent(entitySpeed, worldSide);
-            entity.walled = updateData.time;
+            coll(worldSide);
           }
         }
 
@@ -235,17 +261,13 @@ function getPhysicsController() {
         ) {
           if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
             // on top
+            coll(mulVecScalar(worldUp, -1));
             translation = new vec3(0, collBox.b.y - box.a.y);
-            entitySpeed = removeComponent(
-              entitySpeed,
-              mulVecScalar(worldUp, -1)
-            );
-            entity.grounded = updateData.time;
           }
           if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
             // below
+            coll(worldUp);
             translation = new vec3(0, collBox.a.y - box.b.y);
-            entitySpeed = removeComponent(entitySpeed, worldUp);
           }
         }
         // console.log(transformMatMat(e.getTransform(), invMat));
@@ -270,7 +292,7 @@ function getMoveAction() {
     update: function(entity, updateData) {
       if (entity.dashing) return;
       let speed = 1;
-      let facing = transformMatDirection(entity.getTransform(), new vec3(-1)).x;
+      let facing = getFacing(entity);
       let shouldBeFacing = facing;
       if (entity.left) {
         // entity.transform = transformMatMat(
