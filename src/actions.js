@@ -113,19 +113,19 @@ function getCompoundAction(actions) {
 }
 
 function canJump(entity) {
-  if (entity.grounded) entity.jumpLeft = jumps;
+  if (entity.grounded > entity.jumpTime) entity.jumpLeft = jumps;
   return entity.jumpLeft > 0 && entity.jumpTime + jumpTimeLimit < entity.time;
 }
 function jump(entity) {
   if (canJump(entity)) {
     entity.speed = new vec3(entity.speed.x, jumpSpeed, entity.speed.z);
-    if (!entity.grounded) entity.jumpLeft--;
+    if (entity.grounded < entity.time) entity.jumpLeft--;
     entity.jumpTime = entity.time;
   }
 }
 
 function canDash(entity) {
-  if (entity.grounded) entity.dashLeft = dashes;
+  if (entity.grounded > entity.dashTimem) entity.dashLeft = dashes;
   return entity.dashLeft > 0 && entity.dashTimem + dashTimeLimit < entity.time;
 }
 function dash(entity) {
@@ -133,7 +133,7 @@ function dash(entity) {
     entity.event_dash = {
       dir: normalize(transformMatDirection(entity.getTransform(), new vec3(1)))
     };
-    if (!entity.grounded) entity.dashLeft--;
+    if (entity.grounded < entity.time) entity.dashLeft--;
     entity.dashTimem = entity.time;
   }
 }
@@ -152,7 +152,8 @@ function getPhysicsController() {
   return {
     start: function(entity) {
       entity.speed = new vec3();
-      entity.grounded = true;
+      entity.grounded = 0;
+      entity.walled = 0;
       entity.jumpLeft = jumps;
       entity.jumpTime = 0;
       entity.dashLeft = dashes;
@@ -219,10 +220,12 @@ function getPhysicsController() {
               entitySpeed,
               mulVecScalar(worldSide, -1)
             );
+            entity.walled = updateData.time;
           }
           if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x) {
             translation = new vec3(collBox.a.x - box.b.x);
             entitySpeed = removeComponent(entitySpeed, worldSide);
+            entity.walled = updateData.time;
           }
         }
 
@@ -237,6 +240,7 @@ function getPhysicsController() {
               entitySpeed,
               mulVecScalar(worldUp, -1)
             );
+            entity.grounded = updateData.time;
           }
           if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
             // below

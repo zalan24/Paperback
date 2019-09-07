@@ -577,6 +577,7 @@ const var_replace = {
   isStick: "_is",
   dashing: "_dg",
   stopped: "_pp",
+  walled: "_wl",
   areaUnder: "_au"
 };
 

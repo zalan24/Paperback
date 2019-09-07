@@ -1,6 +1,5 @@
 # TODO
 
-- touch ground
 - match platform speed
 - sliding on wall
 - fix collision
