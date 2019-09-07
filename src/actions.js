@@ -190,12 +190,15 @@ function getPhysicsController() {
         if (e.collider == null /* || !e.collider */) return;
         let colliderSpeed = new vec3();
         if (e.speed != null) colliderSpeed = e.speed;
-        let invMat = invert(e.getTransform());
+        let invMat = invert(e.getBoxTransform());
         // let localPos = transformMatPosition(
         //   invMat,
         //   transformMatPosition(entity.getTransform())
         // );
-        let entityToCollider = transformMatMat(invMat, entity.getTransform());
+        let entityToCollider = transformMatMat(
+          invMat,
+          entity.getBoxTransform()
+        );
         let entityBox = entity.getBox();
         let transformedBox = [
           transformMatPosition(entityToCollider, entityBox.a),
@@ -224,8 +227,11 @@ function getPhysicsController() {
           b: addVec(box.b, speedTranslation)
         };
         let collBox = e.getBox();
-        let worldUp = transformMatDirection(e.getTransform(), new vec3(0, 1));
-        let worldSide = transformMatDirection(e.getTransform(), new vec3(1));
+        let worldUp = transformMatDirection(
+          e.getBoxTransform(),
+          new vec3(0, 1)
+        );
+        let worldSide = transformMatDirection(e.getBoxTransform(), new vec3(1));
         let translation = new vec3();
         // if (e.parent != null && e.parent.id == "plat")
         //   console.log({ box: box, collBox: collBox });
@@ -277,7 +283,9 @@ function getPhysicsController() {
         // console.log(transformMatMat(e.getTransform(), invMat));
 
         entity.transform = transformMatMat(
-          getTranslation(transformMatDirection(e.getTransform(), translation)),
+          getTranslation(
+            transformMatDirection(e.getBoxTransform(), translation)
+          ),
           entity.transform
         );
         entity.speed = addVec(entitySpeed, colliderSpeed);

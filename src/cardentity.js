@@ -15,6 +15,9 @@ class CardEntity extends Entity {
         t.getBox = function() {
           return t.box;
         };
+        t.getBoxTransform = function() {
+          return t.getTransform();
+        };
         t.getEntity = function() {
           return t;
         };
@@ -146,11 +149,17 @@ function createCardWithStick(
     return transformMatPosition(entity.getTransform());
   };
   stick.getBox = function() {
-    return {
-      a: transformMatPosition(entity.transform, entity.getBox().a),
-      b: transformMatPosition(entity.transform, entity.getBox().b)
-    };
+    return entity.getBox();
   };
+  stick.getBoxTransform = function() {
+    return entity.getBoxTransform();
+  };
+  // stick.getBox = function() {
+  //   return {
+  //     a: transformMatPosition(entity.transform, entity.getBox().a),
+  //     b: transformMatPosition(entity.transform, entity.getBox().b)
+  //   };
+  // };
   entity.getEntity = function() {
     return stick;
   };

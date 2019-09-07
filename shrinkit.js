@@ -579,6 +579,7 @@ const var_replace = {
   stopped: "_pp",
   walled: "_wl",
   platformSpeed: "_px",
+  getBoxTransform: "_bm",
   areaUnder: "_au"
 };
 

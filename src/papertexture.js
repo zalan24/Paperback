@@ -80,16 +80,19 @@ function createPaperCard(texture) {
     let middle = texture.middle;
     let min = new vec3(9, 9);
     let max = new vec3(-9, -9);
+    let getPixelPos = function(x, y) {
+      return new vec3(
+        (x - smallData.width * middle.x) / maxSize,
+        (smallData.height * middle.y - y) / maxSize
+      );
+    };
     for (let i = 0; i <= smallData.width; i += vertexSize) {
       for (let j = 0; j <= smallData.height; j += vertexSize) {
         let ind3 = vertices.length;
         let ind1 = ind3 - smallData.width / vertexSize;
         vertices.push(
           new Vertex(
-            new vec3(
-              (i - smallData.width * middle.x) / maxSize,
-              (smallData.height * middle.y - j) / maxSize
-            ),
+            getPixelPos(i, j),
             new vec3(0, 0, -1),
             new vec3(i / smallData.width, j / smallData.height)
           )
@@ -97,20 +100,21 @@ function createPaperCard(texture) {
         if (i > 0 && j > 0) {
           for (let subI = 0; subI < vertexSize; ++subI)
             for (let subJ = 0; subJ < vertexSize; ++subJ) {
+              // if (getPixel(texture.texture.data, i + subI, j + subJ).a > 0) {
+              //   let pos = getPixelPos(i + subI, j + subJ);
+              //   min = minVec2D(min, pos);
+              //   max = maxVec2D(max, pos);
+              // }
               if (getPixel(smallData, i + subI, j + subJ).a > 0) {
-                let pos = new vec3(
-                  (i + subI - smallData.width * middle.x) / maxSize,
-                  (smallData.height * middle.y - (j + subJ)) / maxSize
-                );
+                let pos = getPixelPos(i + subI, j + subJ);
                 min = minVec2D(min, pos);
                 max = maxVec2D(max, pos);
-              }
-              if (getPixel(smallData, i + subI, j + subJ).a > 0) {
+
                 vertices[ind3].enabled = true;
                 vertices[ind3 - 1].enabled = true;
                 vertices[ind1].enabled = true;
                 vertices[ind1 - 1].enabled = true;
-                enabled = true;
+                // enabled = true;
                 // CAN_BE_REMOVED
                 break;
               }
@@ -134,7 +138,7 @@ function createPaperCard(texture) {
 
     texture.paperTexture.mesh = new Mesh(vertices, faces);
     texture.paperTexture.box = { a: min, b: max };
-    // console.log(texture.paperTexture.box);
+    // console.log({ name: "aoeu", box: texture.paperTexture.box });
     let retData = imageData;
     // let retData = smallData;
     texture.paperTexture.texture = extractTexture(
