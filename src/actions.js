@@ -363,11 +363,13 @@ function getDashAction() {
 function getStickAction() {
   return {
     start: function(entity) {
+      if (!entity.isStick) return;
       entity.lastStickPos = transformMatPosition(entity.transform);
       entity.handSpeed = new vec3();
       entity.lastCardPos = entity.getCardPosition();
     },
     update: function(entity, updateData) {
+      if (!entity.isStick) return;
       let currentPos = transformMatPosition(entity.transform);
       let cardPos = entity.getCardPosition();
       let cardSpeed = mulVecScalar(
@@ -454,7 +456,31 @@ function getColliderAction() {
   };
 }
 
-function getPlatformController() {
+function getMovePlatformAction(to, duration) {
+  return {
+    start: function(entity) {
+      entity.speed = new vec3();
+      entity.moveState = 0;
+      entity.startPos = entity.transform.col3;
+    },
+    update: function(entity, updateData) {
+      entity.moveState += updateData.dt;
+      let t = Math.sin((entity.moveState * 2 * Math.PI) / duration) / 2 + 0.5;
+      entity.transform.col3 = addVec(entity.startPos, mulVecScalar(to, t));
+      entity.speed = mulVecScalar(
+        to,
+        Math.cos(entity.moveState * 2 * Math.PI) * Math.PI
+      );
+    }
+  };
+}
+
+function getPlatformController(moveData = { to: new vec3(), duration: 1 }) {
   let collider = getColliderAction();
-  return getCompoundAction([collider]);
+  let movePlatformAction = getMovePlatformAction(
+    moveData.to,
+    moveData.duration
+  );
+  let stickAction = getStickAction();
+  return getCompoundAction([collider, movePlatformAction]);
 }

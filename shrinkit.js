@@ -572,6 +572,11 @@ const var_replace = {
   cardAction: "_ct",
   cardTransform: "_cf",
   collider: "_ll",
+  moveState: "_me",
+  startPos: "_ss",
+  isStick: "_is",
+  dashing: "_dg",
+  stopped: "_pp",
   areaUnder: "_au"
 };
 

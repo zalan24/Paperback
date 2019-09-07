@@ -15,67 +15,79 @@ var scenes = {
       translation: [0, -0.5, -0.01],
       action: getPlayerController("sword")
     },
-    {
-      id: "testPlatform",
-      card: "platform",
-      cardAction: getPlatformController()
-    },
+    // {
+    //   id: "testPlatform",
+    //   card: "platform",
+    //   action: getPlatformController()
+    // },
     {
       id: "testPlatform2",
       card: "platform",
       stick: false,
-      transform: getTranslation(new vec3(0.5, 0, 0)),
+      translation: [0.7, -0.5, 0],
+      cardTransform: getScaling(new vec3(1, 0.1, 1)),
       scale: 0.5,
-      cardAction: getPlatformController()
+      action: getPlatformController({ to: new vec3(0, 0.5), duration: 5 })
+    },
+    {
+      card: "platform",
+      // stick: false,
+      translation: [0.7, 0, 0],
+      cardTransform: getScaling(new vec3(1, 0.1, 1)),
+      scale: 0.5,
+      action: getPlatformController({ to: new vec3(-1), duration: 5 })
     },
     {
       card: "platform",
       id: "plat",
       translation: [-0.3, -1.6, 0],
       scale: 0.5,
-      cardAction: getPlatformController()
+      action: getPlatformController()
     },
     {
       id: "testPlatform3",
       card: "platform",
       stick: true,
-      transform: getTranslation(new vec3(0.25, 0, 0)),
+      transform: getTranslation(new vec3(0.25, 0.7, 0)),
       cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 4),
       scale: 0.3,
-      cardAction: getPlatformController()
+      action: getPlatformController()
     },
     {
       card: "platform",
       stick: true,
-      transform: getTranslation(new vec3(-0.5, 0, 0)),
+      transform: getTranslation(new vec3(-0.5, 0.5, 0)),
       cardTransform: getRotation(new vec3(0, 0, 1), Math.PI / 2),
       scale: 0.3,
-      cardAction: getPlatformController()
+      action: getPlatformController()
     },
     {
       card: "platform",
-      stick: true,
-      translation: [0, -1.5, 0],
+      // stick: true,
+      translation: [0, -0.8, 0],
       cardTransform: getScaling(new vec3(6, 1, 1)),
       scale: 0.3,
-      cardAction: getPlatformController()
+      action: getPlatformController()
     },
     {
       card: "platform",
       stick: false,
       translation: [-0.9, -0.2, 0],
-      transform: transformMatMat(
+      cardTransform: transformMatMat(
         getRotation(new vec3(0, 0, 1), -Math.PI / 2),
         getScaling(new vec3(6, 1, 1))
       ),
       scale: 0.3,
-      cardAction: getPlatformController()
+      action: getPlatformController()
     },
     {
       id: "testBackground",
       card: "mountain",
-      transform: getTranslation(new vec3(0, 0, 0.5)),
-      scale: 0.4,
+      transform: transformMatMat(
+        getTranslation(new vec3(0, 2, 0.5)),
+        getScaling(new vec3(0.4, 0.4, 0.4))
+      ),
+      scale: 1,
       action: getRotationAction(0.2)
     }
     // {

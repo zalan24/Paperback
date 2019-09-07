@@ -1,3 +1,9 @@
+// function combineActions(a, b) {
+//   if (a == null) return b;
+//   if (b == null) return a;
+//   return getCompoundAction(a, b);
+// }
+
 function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
   let entity = new CardEntity(resources.textures[obj.card].paperTexture);
 
@@ -9,17 +15,18 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
     }
   }
   if (obj.cardAction != null) entity.action = obj.cardAction;
-  if ((obj.stick == null && defaultStick) || (obj.stick && obj.stick != null)) {
-    let stick = createCardWithStick(entity);
-    if (obj.cardTransform != null)
-      entity.transform = transformMatMat(entity.transform, obj.cardTransform);
-    entity = stick;
-  }
-  if (obj.transform != null) entity.transform = obj.transform;
   entity.transform = transformMatMat(
     entity.transform,
     getScaling(new vec3(scale, scale, scale))
   );
+  let translation = new vec3();
+  if (obj.cardTransform != null)
+    entity.transform = transformMatMat(entity.transform, obj.cardTransform);
+  if ((obj.stick == null && defaultStick) || (obj.stick && obj.stick != null)) {
+    entity = createCardWithStick(entity);
+    translation = new vec3(0, -stickHeight);
+  }
+  if (obj.transform != null) entity.transform = obj.transform;
   if (obj.translation != null) {
     entity.transform = transformMatMat(
       getTranslation(
@@ -28,6 +35,10 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
       entity.transform
     );
   }
+  entity.transform = transformMatMat(
+    getTranslation(translation),
+    entity.transform
+  );
   if (obj.action != null) entity.action = obj.action;
   entity.id = obj.id;
   return entity;

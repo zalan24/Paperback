@@ -6,6 +6,7 @@ class CardEntity extends Entity {
     this.paperTexture = paperTexture;
     this.mesh = null;
     this.occluder = true;
+    this.isStick = false;
     if (paperTexture != null) {
       let t = this;
       usePaperTexture(paperTexture, function() {
@@ -126,17 +127,18 @@ function hackStickCardEntity(width, color, o, radius, height) {
   return stick;
 }
 
+const stickHeight = 2;
+
 function createCardWithStick(
   entity,
   color = defaultPaperData.paperColor,
-  height = 2,
-  radius = 0.01
+  radius = 0.005
   // radius = 0.05
 ) {
-  let stick = hackStickCardEntity(5, color, new vec3(), radius, height);
+  let stick = hackStickCardEntity(5, color, new vec3(), radius, stickHeight);
   stick.uploadIndices();
   entity.transform = transformMatMat(
-    getTranslation(new vec3(0, height, -radius * 1.01)),
+    getTranslation(new vec3(0, stickHeight, -radius * 1.01)),
     entity.transform
   );
   stick.addChild(entity);
@@ -152,5 +154,6 @@ function createCardWithStick(
   entity.getEntity = function() {
     return stick;
   };
+  stick.isStick = true;
   return stick;
 }
