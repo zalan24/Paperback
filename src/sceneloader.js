@@ -19,7 +19,9 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
     entity.transform,
     getScaling(new vec3(scale, scale, scale))
   );
-  let translation = new vec3();
+  // CAN_BE_REMOVED
+  // the random part avoids having cards touch
+  let translation = new vec3(0, 0, Math.random() * 0.01);
   if (obj.cardTransform != null)
     entity.transform = transformMatMat(entity.transform, obj.cardTransform);
   if ((obj.stick == null && defaultStick) || (obj.stick && obj.stick != null)) {

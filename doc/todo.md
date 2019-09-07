@@ -1,6 +1,5 @@
 # TODO
 
-- fix collider
 - fix collision
 - fix stick animation for platforms
 - camera movement

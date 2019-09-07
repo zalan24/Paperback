@@ -7,6 +7,7 @@ function createPaperCard(texture) {
     // let stepRadius = texture.paper.stepRadius;
     let stepLimit = texture.paper.stepLimit;
     let vertexSize = texture.paper.vertexSize;
+    // TODO update middle based on filterSize
     let preSmallData = new ImageData(
       texture.texture.data.width + 2 * filterSize,
       texture.texture.data.height + 2 * filterSize
@@ -87,6 +88,13 @@ function createPaperCard(texture) {
         return p.a > 0 && p.a < 1;
       }
     );
+    let middle = texture.middle;
+    let min = new vec3(9, 9);
+    let max = new vec3(-9, -9);
+    let getPixelPos = function(x, y, w, h) {
+      let ms = Math.max(w, h);
+      return new vec3((x - w * middle.x) / ms, (h * middle.y - y) / ms);
+    };
     foreachPixel(imageData, 0, 0, imageData.width, imageData.height, (x, y) => {
       let p = getPixel(
         preSmallData,
@@ -97,28 +105,23 @@ function createPaperCard(texture) {
       let a = getPixel(imageData2, x, y).a;
       // p.a = softStep(a, stepLimit - stepRadius, stepLimit + stepRadius);
       p.a = 0;
-      if (a > stepLimit) p.a = 1;
+      if (a > stepLimit) {
+        p.a = 1;
+        let pos = getPixelPos(x, y, imageData.width, imageData.height);
+        min = minVec2D(min, pos);
+        max = maxVec2D(max, pos);
+      }
       return p;
     });
     let vertices = [];
     let faces = [];
-    let maxSize = Math.max(smallData.width, smallData.height);
-    let middle = texture.middle;
-    let min = new vec3(9, 9);
-    let max = new vec3(-9, -9);
-    let getPixelPos = function(x, y) {
-      return new vec3(
-        (x - smallData.width * middle.x) / maxSize,
-        (smallData.height * middle.y - y) / maxSize
-      );
-    };
     for (let j = 0; j <= smallData.height; j += vertexSize) {
       for (let i = 0; i <= smallData.width; i += vertexSize) {
         let ind3 = vertices.length;
         let ind1 = ind3 - (smallData.width / vertexSize + 1);
         vertices.push(
           new Vertex(
-            getPixelPos(i, j),
+            getPixelPos(i, j, smallData.width, smallData.height),
             new vec3(0, 0, -1),
             new vec3(i / smallData.width, j / smallData.height)
           )
@@ -126,16 +129,7 @@ function createPaperCard(texture) {
         if (i > 0 && j > 0) {
           for (let subJ = 0; subJ < vertexSize; ++subJ)
             for (let subI = 0; subI < vertexSize; ++subI) {
-              // if (getPixel(preSmallData, i + subI, j + subJ).a > 0) {
-              //   let pos = getPixelPos(i + subI, j + subJ);
-              //   min = minVec2D(min, pos);
-              //   max = maxVec2D(max, pos);
-              // }
               if (getPixel(smallData, i + subI, j + subJ).a > 0) {
-                let pos = getPixelPos(i + subI, j + subJ);
-                min = minVec2D(min, pos);
-                max = maxVec2D(max, pos);
-
                 vertices[ind3].enabled = true;
                 vertices[ind3 - 1].enabled = true;
                 vertices[ind1].enabled = true;
