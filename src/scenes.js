@@ -42,7 +42,7 @@ var scenes = {
       id: "plat",
       translation: [-0.3, -0.6, 0],
       scale: 0.5,
-      action: getPlatformController()
+      action: getPlatformController({ to: new vec3(-1), duration: 5 })
     },
     {
       id: "testPlatform3",

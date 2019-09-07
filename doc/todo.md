@@ -1,6 +1,5 @@
 # TODO
 
-- Collider speed
 - touch ground
 - match platform speed
 - sliding on wall
