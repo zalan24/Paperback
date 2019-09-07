@@ -1,7 +1,7 @@
 function getPixel(imageData, x, y) {
   let dataPerPixel = 4;
   let ind = (x + y * imageData.width) * dataPerPixel;
-  if (ind < 0 || ind >= imageData.data.length)
+  if (x < 0 || x >= imageData.width || y < 0 || y >= imageData.height)
     return { a: 0, r: 0, g: 0, b: 0 };
   return {
     r: imageData.data[ind] / 255,

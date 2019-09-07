@@ -9,7 +9,6 @@
 - ui
 - losing health when falling
 - dying
-- texture colors
 
 * create assets
 * create scenes

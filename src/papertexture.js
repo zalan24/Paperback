@@ -8,9 +8,10 @@ function createPaperCard(texture) {
     let stepLimit = texture.paper.stepLimit;
     let vertexSize = texture.paper.vertexSize;
     let preSmallData = new ImageData(
-      texture.texture.data.width,
-      texture.texture.data.width
+      texture.texture.data.width + 2 * filterSize,
+      texture.texture.data.height + 2 * filterSize
     );
+    const black = { r: 0, g: 0, b: 0, a: 1 };
     foreachPixel(
       preSmallData,
       0,
@@ -18,21 +19,32 @@ function createPaperCard(texture) {
       preSmallData.width,
       preSmallData.height,
       (x, y) => {
-        let p = getPixel(texture.texture.data, x, y);
-        if (p.r < 0.01) p.a = 0;
-        else p = lerpColor({ r: 0, g: 0, b: 0, a: 1 }, texture.color, p.r);
+        let p = getPixel(texture.texture.data, x - filterSize, y - filterSize);
+        // let p = {
+        //   r:
+        //     x >= filterSize &&
+        //     y >= filterSize &&
+        //     x < preSmallData.width - filterSize &&
+        //     y < preSmallData.height - filterSize
+        //       ? ((x + 1) * (y + 1)) / (preSmallData.width * preSmallData.height)
+        //       : // getPixel(texture.texture.data, x - filterSize, y - filterSize)
+        //         black,
+        //   g: 0,
+        //   b: 0,
+        //   a: 1
+        // };
+        // if (x >= preSmallData.width - filterSize) p.r = 0;
+        if (p.r == 0) p.a = 0;
+        else p = lerpColor(black, texture.color, p.r);
         return p;
       }
     );
     let imageData = new ImageData(
       preSmallData.width * scalingFactor,
-      preSmallData.width * scalingFactor
+      preSmallData.height * scalingFactor
     );
-    let smallData = new ImageData(preSmallData.width, preSmallData.width);
-    let imageData2 = new ImageData(
-      preSmallData.width * scalingFactor,
-      preSmallData.width * scalingFactor
-    );
+    let smallData = new ImageData(preSmallData.width, preSmallData.height);
+    let imageData2 = new ImageData(imageData.width, imageData.height);
     filterImage(
       preSmallData,
       0,
@@ -46,14 +58,14 @@ function createPaperCard(texture) {
       getGaussFilter(3 / filterSize)
     );
     foreachPixel(imageData, 0, 0, imageData.width, imageData.height, (x, y) => {
+      // return { r: 0.5, g: 0, b: 0, a: 1 };
       let p = getPixel(
         preSmallData,
         Math.floor(x / scalingFactor),
         Math.floor(y / scalingFactor)
       );
-      //   return p;
-      if (p.a > 0) return { a: 1, r: 1, g: 1, b: 1 };
-      else return { a: 0, r: 1, g: 1, b: 1 };
+      if (p.a > 0) p.a = 1;
+      return p;
     });
     filterImage(
       imageData,
@@ -100,10 +112,10 @@ function createPaperCard(texture) {
         (smallData.height * middle.y - y) / maxSize
       );
     };
-    for (let i = 0; i <= smallData.width; i += vertexSize) {
-      for (let j = 0; j <= smallData.height; j += vertexSize) {
+    for (let j = 0; j <= smallData.height; j += vertexSize) {
+      for (let i = 0; i <= smallData.width; i += vertexSize) {
         let ind3 = vertices.length;
-        let ind1 = ind3 - smallData.width / vertexSize;
+        let ind1 = ind3 - (smallData.width / vertexSize + 1);
         vertices.push(
           new Vertex(
             getPixelPos(i, j),
@@ -112,8 +124,8 @@ function createPaperCard(texture) {
           )
         );
         if (i > 0 && j > 0) {
-          for (let subI = 0; subI < vertexSize; ++subI)
-            for (let subJ = 0; subJ < vertexSize; ++subJ) {
+          for (let subJ = 0; subJ < vertexSize; ++subJ)
+            for (let subI = 0; subI < vertexSize; ++subI) {
               // if (getPixel(preSmallData, i + subI, j + subJ).a > 0) {
               //   let pos = getPixelPos(i + subI, j + subJ);
               //   min = minVec2D(min, pos);
@@ -133,6 +145,7 @@ function createPaperCard(texture) {
                 break;
               }
             }
+          vertices[ind1 - 1].enabled = true;
           if (vertices[ind1 - 1].enabled) {
             // approximation
             faces.push(new Face(ind1 - 1, ind1, ind3 - 1));
