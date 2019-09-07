@@ -45,8 +45,6 @@ function update() {
   let dt = Math.min(elapsed / 1000, maxDt);
   t += dt;
 
-  startRender();
-
   let updateData = { dt: dt, time: t };
 
   entities.forEach(r =>
@@ -59,6 +57,7 @@ function update() {
 
   uploadOccluders(entities);
 
+  startRender();
   let renderData = { view: camera };
   entities.forEach(r => traverseEntities(r, e => renderEntity(e, renderData)));
 

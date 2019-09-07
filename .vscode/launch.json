@@ -9,14 +9,16 @@
       "request": "launch",
       "reAttach": true,
       "name": "Debug",
-      "file": "${workspaceFolder}/index-debug.html"
+      "file": "${workspaceFolder}/index-debug.html",
+      "internalConsoleOptions": "openOnSessionStart"
     },
     {
       "type": "firefox",
       "request": "launch",
       "reAttach": true,
       "name": "Release",
-      "file": "${workspaceFolder}/build/index.html"
+      "file": "${workspaceFolder}/build/index.html",
+      "internalConsoleOptions": "openOnSessionStart"
     }
   ]
 }

@@ -372,6 +372,7 @@ gl.enable(gl.BLEND);
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
 function startRender() {
+  gl.finish();
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.render);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.viewport(0, 0, frameSize.w, frameSize.h);
@@ -400,7 +401,6 @@ function endRender() {
     gl.COLOR_BUFFER_BIT,
     gl.LINEAR
   );
-  gl.finish();
 }
 
 function renderCard(renderData, cardData) {
