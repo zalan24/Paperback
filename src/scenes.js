@@ -40,7 +40,7 @@ var scenes = {
     {
       card: "platform",
       id: "plat",
-      translation: [-0.3, -1.6, 0],
+      translation: [-0.3, -0.6, 0],
       scale: 0.5,
       action: getPlatformController()
     },
