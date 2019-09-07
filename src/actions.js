@@ -282,6 +282,7 @@ function getPhysicsController() {
         );
         entity.speed = addVec(entitySpeed, colliderSpeed);
       });
+      entity.speed.z = 0; // just to make sure, the objects do not move on Z axis by accident
       entity.transform = transformMatMat(
         getTranslation(mulVecScalar(entity.speed, updateData.dt)),
         entity.transform

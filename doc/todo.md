@@ -3,7 +3,6 @@
 - fix collision
 - fix the two platforms
 - fix stick animation for platforms
-- fix zaxis movement
 - camera movement
 - scene changing
 - restore position when falling
