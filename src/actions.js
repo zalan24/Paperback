@@ -15,6 +15,14 @@ const hitTimeLimit = 0.3;
 const maxWalledFallSpeed = 0.3;
 const groundedWalledTime = 0.05;
 const maxCharacterAcceleration = 10;
+const sceneChangeThreshold = 0.9;
+
+var sceneId = 0;
+var sceneCount = 0;
+function loadSceneById(id) {
+  sceneId = id;
+  loadScene(sceneList[id]);
+}
 
 function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
@@ -499,6 +507,16 @@ const restorePositionAction = {
   }
 };
 
+const sceneChangeAction = {
+  update: function(entity, updateData) {
+    let x = entity.getCardPosition().x;
+    if (x < -sceneChangeThreshold && sceneId > 0) loadSceneById(sceneId - 1);
+    // TODO the current game logic only allows to go left
+    // if (x > sceneChangeThreshold && sceneId + 1 < sceneCount)
+    //   loadSceneById(sceneId + 1);
+  }
+};
+
 function getPlayerController(weaponId) {
   let keyBoard = getKeyboardController(weaponId);
   return getCompoundAction([
@@ -507,7 +525,8 @@ function getPlayerController(weaponId) {
     moveAction,
     stickAction,
     keyBoard,
-    physicsController
+    physicsController,
+    sceneChangeAction
   ]);
 }
 

@@ -47,6 +47,7 @@ function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
 }
 
 function loadScene(scene) {
+  clearScene();
   for (let i = 0; i < scene.length; ++i) {
     addEntity(loadObject(scene[i]));
   }

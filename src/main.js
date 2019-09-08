@@ -1,3 +1,3 @@
 startGame();
 
-loadScene(scenes.testScene);
+loadSceneById(sceneList.length - 1);

@@ -1,4 +1,4 @@
-var scenes = {
+const scenes = {
   testScene: [
     {
       id: "player",
@@ -111,5 +111,33 @@ var scenes = {
     //   // translation: [1, -2, -0.5]
     //   translation: [0, -2, -0.5]
     // }
+  ],
+  bladeScene: [
+    {
+      id: "player",
+      card: "character",
+      children: [
+        {
+          id: "sword",
+          card: "sword",
+          scale: 0.3,
+          translation: [0.3, 0.2, 0],
+          action: animationAction
+        }
+      ],
+      translation: [0, -0.5, -0.01],
+      action: getPlayerController("sword")
+    },
+    {
+      card: "platform",
+      stick: false,
+      translation: [0.3, -0.8, 0],
+      cardTransform: getScaling(new vec3(7, 1, 1)),
+      scale: 0.3,
+      action: getPlatformController()
+    }
   ]
 };
+
+const sceneList = [scenes.bladeScene, scenes.testScene];
+sceneCount = sceneList.length;
