@@ -2,7 +2,6 @@
 
 - camera movement
 - ui
-- losing health when falling
 - dying
 - try to compress gl function / var names
 - compress html

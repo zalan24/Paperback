@@ -584,6 +584,8 @@ const var_replace = {
   safePlace: "_se",
   deadlyPlatform: "_dy",
   fallen: "_fe",
+  lives: "_vl",
+  heartOn: "_ho",
   areaUnder: "_au"
 };
 

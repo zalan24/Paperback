@@ -483,6 +483,17 @@ const stickAction = {
   }
 };
 
+const lifeAction = {
+  start: function(entity) {
+    entity.lives = maxLives;
+  },
+  update: function(entity, updateData) {}
+};
+
+function hurt(entity) {
+  entity.lives--;
+}
+
 const restorePositionAction = {
   start: function(entity) {
     entity.safePlace = entity.getCardPosition();
@@ -499,6 +510,7 @@ const restorePositionAction = {
       entity.speed = new vec3();
       entity.lastStickPos = null;
       entity.fallen = false;
+      hurt(entity);
     } else if (
       entity.grounded == entity.time &&
       entity.walled < entity.time &&
@@ -520,14 +532,6 @@ const sceneChangeAction = {
     // if (x > sceneChangeThreshold && sceneId + 1 < sceneCount)
     //   loadSceneById(sceneId + 1);
   }
-};
-
-const lifeAction = {
-  start: function(entity) {
-    entity.max = maxLives;
-    entity.lives = maxLives;
-  },
-  update: function(entity, updateData) {}
 };
 
 function getPlayerController(weaponId) {
@@ -597,10 +601,13 @@ function getPlatformController(
 function getHeartAction(playerId, i) {
   return getCompoundAction([
     {
-      // start: function(entity) {},
+      start: function(entity) {
+        entity.heartOn = true;
+      },
       update: function(entity, updateData) {
         let invMat = invert(camera);
         let p = getEntityById(playerId);
+        let on = p.lives > i;
         let pos = transformMatPosition(
           invMat,
           new vec3(
@@ -615,6 +622,7 @@ function getHeartAction(playerId, i) {
         );
       }
     },
+    animationAction,
     stickAction
   ]);
 }
