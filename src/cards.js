@@ -32,6 +32,16 @@ var textureProps = {
         paper: defaultPaperData,
         color: { r: 0, g: 1, b: 0, a: 1 }
       },
+      heart: {
+        rect: {
+          x: 8,
+          y: 0,
+          w: 8,
+          h: 8
+        },
+        paper: defaultPaperData,
+        color: { r: 1, g: 0, b: 0, a: 1 }
+      },
       platform: {
         rect: {
           x: 16,

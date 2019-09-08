@@ -1,20 +1,35 @@
+const player = {
+  id: "player",
+  card: "character",
+  children: [
+    {
+      id: "sword",
+      card: "sword",
+      scale: 0.3,
+      translation: [0.3, 0.2, 0],
+      action: animationAction
+    }
+  ],
+  translation: [0, -0.5, -0.01],
+  action: getPlayerController("sword")
+};
+
+function createHeartEntity(i) {
+  return {
+    card: "heart",
+    scale: 0.3,
+    transform: getScaling(new vec3(0.02, 0.02, 0.02)),
+    action: getHeartAction(player.id, i)
+  };
+}
+
+const maxHeartNum = 10;
+var hearts = [];
+for (let i = 0; i < maxHeartNum; ++i) hearts.push(createHeartEntity(i));
+
 const scenes = {
   testScene: [
-    {
-      id: "player",
-      card: "character",
-      children: [
-        {
-          id: "sword",
-          card: "sword",
-          scale: 0.3,
-          translation: [0.3, 0.2, 0],
-          action: animationAction
-        }
-      ],
-      translation: [0, -0.5, -0.01],
-      action: getPlayerController("sword")
-    },
+    player,
     // {
     //   id: "testPlatform",
     //   card: "platform",
@@ -116,21 +131,7 @@ const scenes = {
     // }
   ],
   bladeScene: [
-    {
-      id: "player",
-      card: "character",
-      children: [
-        {
-          id: "sword",
-          card: "sword",
-          scale: 0.3,
-          translation: [0.3, 0.2, 0],
-          action: animationAction
-        }
-      ],
-      translation: [0, -0.5, -0.01],
-      action: getPlayerController("sword")
-    },
+    player,
     {
       card: "platform",
       stick: false,

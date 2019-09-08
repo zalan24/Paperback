@@ -16,12 +16,13 @@ const maxWalledFallSpeed = 0.3;
 const groundedWalledTime = 0.05;
 const maxCharacterAcceleration = 10;
 const sceneChangeThreshold = 0.9;
+const maxLives = 5;
 
 var sceneId = 0;
 var sceneCount = 0;
 function loadSceneById(id) {
   sceneId = id;
-  loadScene(sceneList[id]);
+  loadScene(sceneList[id].concat(hearts));
 }
 
 function getFacing(entity) {
@@ -521,10 +522,19 @@ const sceneChangeAction = {
   }
 };
 
+const lifeAction = {
+  start: function(entity) {
+    entity.max = maxLives;
+    entity.lives = maxLives;
+  },
+  update: function(entity, updateData) {}
+};
+
 function getPlayerController(weaponId) {
   let keyBoard = getKeyboardController(weaponId);
   return getCompoundAction([
     restorePositionAction,
+    lifeAction,
     dashAction,
     moveAction,
     stickAction,
@@ -580,6 +590,31 @@ function getPlatformController(
   return getCompoundAction([
     getColliderAction(deadly),
     movePlatformAction,
+    stickAction
+  ]);
+}
+
+function getHeartAction(playerId, i) {
+  return getCompoundAction([
+    {
+      // start: function(entity) {},
+      update: function(entity, updateData) {
+        let invMat = invert(camera);
+        let p = getEntityById(playerId);
+        let pos = transformMatPosition(
+          invMat,
+          new vec3(
+            i * 0.003 - 0.065,
+            (-0.065 * glCanvas.height) / glCanvas.width,
+            maxLives > i ? 0.1 : -2
+          )
+        );
+        entity.transform = transformMatMat(
+          getTranslation(subVec(pos, entity.getCardPosition())),
+          entity.transform
+        );
+      }
+    },
     stickAction
   ]);
 }

@@ -6,6 +6,7 @@
 - dying
 - try to compress gl function / var names
 - compress html
+- restore credits screen
 
 * create assets
 * create scenes
