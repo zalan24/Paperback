@@ -9,7 +9,7 @@ var scenes = {
           card: "sword",
           scale: 0.3,
           translation: [0.3, 0.2, 0],
-          action: getAnimateAction()
+          action: animationAction
         }
       ],
       translation: [0, -0.5, -0.01],

@@ -75,32 +75,30 @@ function getRotationAction(speed) {
   };
 }
 
-function getAnimateAction() {
-  return {
-    start: function(entity) {
+const animationAction = {
+  start: function(entity) {
+    entity.animation = null;
+    entity.animationLeft = 0;
+    entity.animationBaseTransform = entity.transform;
+  },
+  update: function(entity, updateData) {
+    if (entity.animation == null) return;
+    if (entity.animationLeft <= 0) {
       entity.animation = null;
-      entity.animationLeft = 0;
-      entity.animationBaseTransform = entity.transform;
-    },
-    update: function(entity, updateData) {
-      if (entity.animation == null) return;
-      if (entity.animationLeft <= 0) {
-        entity.animation = null;
-        entity.transform = entity.animationBaseTransform;
-      } else {
-        let transform = getAnimationTransform(
-          entity.animation,
-          entity.animation.duration - entity.animationLeft
-        );
-        entity.transform = transformMatMat(
-          transform,
-          entity.animationBaseTransform
-        );
-        entity.animationLeft -= updateData.dt;
-      }
+      entity.transform = entity.animationBaseTransform;
+    } else {
+      let transform = getAnimationTransform(
+        entity.animation,
+        entity.animation.duration - entity.animationLeft
+      );
+      entity.transform = transformMatMat(
+        transform,
+        entity.animationBaseTransform
+      );
+      entity.animationLeft -= updateData.dt;
     }
-  };
-}
+  }
+};
 
 function addAnimation(entity, anim) {
   entity.animation = anim;
@@ -168,199 +166,175 @@ function hit(entity, weapon, animation) {
   }
 }
 
-function getPhysicsController() {
-  return {
-    start: function(entity) {
-      entity.speed = new vec3();
-      entity.grounded = 0;
-      entity.walled = 0;
-      entity.jumpLeft = jumps;
-      entity.jumpTime = 0;
-      entity.dashLeft = dashes;
-      entity.dashTimem = 0;
-      entity.time = 0;
-      entity.hitTime = 0;
-      entity.platformSpeed = new vec3();
-    },
-    update: function(entity, updateData) {
-      if (!entity.dashing)
-        entity.speed = addVec(
-          entity.speed,
-          mulVecScalar(gravity, updateData.dt)
-        );
-      entity.platformSpeed = new vec3();
-      broadcastEvent(e => {
-        if (e.collider == null /* || !e.collider */) return;
-        let colliderSpeed = new vec3();
-        if (e.speed != null) colliderSpeed = e.speed;
-        let invMat = invert(e.getBoxTransform());
-        // let localPos = transformMatPosition(
-        //   invMat,
-        //   transformMatPosition(entity.getTransform())
-        // );
-        let entityToCollider = transformMatMat(
-          invMat,
-          entity.getBoxTransform()
-        );
-        let entityBox = entity.getBox();
-        let transformedBox = [
-          transformMatPosition(entityToCollider, entityBox.a),
-          transformMatPosition(entityToCollider, entityBox.b),
-          transformMatPosition(
-            entityToCollider,
-            new vec3(entityBox.a.x, entityBox.b.y)
-          ),
-          transformMatPosition(
-            entityToCollider,
-            new vec3(entityBox.b.x, entityBox.a.y)
-          )
-        ];
-        let box = { a: transformedBox[0], b: transformedBox[0] };
-        // i < transformedBox.length
-        for (let i = 1; i < 4; ++i) {
-          // CAN_BE_REMOVED
-          box.a = minVec2D(box.a, transformedBox[i]);
-          box.b = maxVec2D(box.b, transformedBox[i]);
-        }
-        let entitySpeed = subVec(entity.speed, colliderSpeed);
-        let transformedSpeed = transformMatDirection(invMat, entity.speed);
-        let speedTranslation = mulVecScalar(transformedSpeed, updateData.dt);
-        let relativeSpeed = transformMatDirection(invMat, entitySpeed);
-        let translatedBox = {
-          a: addVec(box.a, speedTranslation),
-          b: addVec(box.b, speedTranslation)
-        };
-        let collBox = e.getBox();
-        let worldUp = transformMatDirection(
-          e.getBoxTransform(),
-          new vec3(0, 1)
-        );
-        let worldSide = transformMatDirection(e.getBoxTransform(), new vec3(1));
-        let translation = new vec3();
-        // if (e.parent != null && e.parent.id == "plat")
-        //   console.log({ box: box, collBox: collBox });
-        let correctedSpeed = entitySpeed;
-        let score = -Infinity;
-        let coll = function(dir, tr) {
-          let ltr = lengthVec(tr);
-          let sc =
-            ltr > 0
-              ? dot(normalize(tr), relativeSpeed) * updateData.dt - ltr
-              : -Infinity;
-          // console.log({
-          //   score: score,
-          //   sc: sc
-          // });
-          if (sc < score) return;
-          score = sc;
-          correctedSpeed = removeComponent(entitySpeed, dir);
-          dir = normalize(dir);
-          let threshold = Math.cos(Math.PI / 4);
-          let threshold2 = Math.cos(Math.PI / 16);
-          if (dir.y <= threshold2) {
-            entity.grounded = updateData.time;
-            if (Math.abs(dir.x) > threshold) {
-              entity.walled = updateData.time;
-              correctedSpeed.y = Math.max(
-                -maxWalledFallSpeed,
-                correctedSpeed.y
-              );
-            }
-          }
-          entity.platformSpeed = colliderSpeed;
-          translation = tr;
-        };
+const physicsController = {
+  start: function(entity) {
+    entity.speed = new vec3();
+    entity.grounded = 0;
+    entity.walled = 0;
+    entity.jumpLeft = jumps;
+    entity.jumpTime = 0;
+    entity.dashLeft = dashes;
+    entity.dashTimem = 0;
+    entity.time = 0;
+    entity.hitTime = 0;
+    entity.platformSpeed = new vec3();
+  },
+  update: function(entity, updateData) {
+    if (!entity.dashing)
+      entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
+    entity.platformSpeed = new vec3();
+    broadcastEvent(e => {
+      if (e.collider == null /* || !e.collider */) return;
+      let colliderSpeed = new vec3();
+      if (e.speed != null) colliderSpeed = e.speed;
+      let invMat = invert(e.getBoxTransform());
+      // let localPos = transformMatPosition(
+      //   invMat,
+      //   transformMatPosition(entity.getTransform())
+      // );
+      let entityToCollider = transformMatMat(invMat, entity.getBoxTransform());
+      let entityBox = entity.getBox();
+      let transformedBox = [
+        transformMatPosition(entityToCollider, entityBox.a),
+        transformMatPosition(entityToCollider, entityBox.b),
+        transformMatPosition(
+          entityToCollider,
+          new vec3(entityBox.a.x, entityBox.b.y)
+        ),
+        transformMatPosition(
+          entityToCollider,
+          new vec3(entityBox.b.x, entityBox.a.y)
+        )
+      ];
+      let box = { a: transformedBox[0], b: transformedBox[0] };
+      // i < transformedBox.length
+      for (let i = 1; i < 4; ++i) {
         // CAN_BE_REMOVED
-        // this can be shortened with functions
-        if (
-          translatedBox.a.y < collBox.b.y &&
-          translatedBox.b.y > collBox.a.y
-        ) {
-          if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x)
-            coll(mulVecScalar(worldSide, -1), new vec3(collBox.b.x - box.a.x));
-          if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x)
-            coll(worldSide, new vec3(collBox.a.x - box.b.x));
+        box.a = minVec2D(box.a, transformedBox[i]);
+        box.b = maxVec2D(box.b, transformedBox[i]);
+      }
+      let entitySpeed = subVec(entity.speed, colliderSpeed);
+      let transformedSpeed = transformMatDirection(invMat, entity.speed);
+      let speedTranslation = mulVecScalar(transformedSpeed, updateData.dt);
+      let relativeSpeed = transformMatDirection(invMat, entitySpeed);
+      let translatedBox = {
+        a: addVec(box.a, speedTranslation),
+        b: addVec(box.b, speedTranslation)
+      };
+      let collBox = e.getBox();
+      let worldUp = transformMatDirection(e.getBoxTransform(), new vec3(0, 1));
+      let worldSide = transformMatDirection(e.getBoxTransform(), new vec3(1));
+      let translation = new vec3();
+      // if (e.parent != null && e.parent.id == "plat")
+      //   console.log({ box: box, collBox: collBox });
+      let correctedSpeed = entitySpeed;
+      let score = -Infinity;
+      let coll = function(dir, tr) {
+        let ltr = lengthVec(tr);
+        let sc =
+          ltr > 0
+            ? dot(normalize(tr), relativeSpeed) * updateData.dt - ltr
+            : -Infinity;
+        // console.log({
+        //   score: score,
+        //   sc: sc
+        // });
+        if (sc < score) return;
+        score = sc;
+        correctedSpeed = removeComponent(entitySpeed, dir);
+        dir = normalize(dir);
+        let threshold = Math.cos(Math.PI / 4);
+        let threshold2 = Math.cos(Math.PI / 16);
+        if (dir.y <= threshold2) {
+          entity.grounded = updateData.time;
+          if (Math.abs(dir.x) > threshold) {
+            entity.walled = updateData.time;
+            correctedSpeed.y = Math.max(-maxWalledFallSpeed, correctedSpeed.y);
+          }
         }
+        entity.platformSpeed = colliderSpeed;
+        translation = tr;
+      };
+      // CAN_BE_REMOVED
+      // this can be shortened with functions
+      if (translatedBox.a.y < collBox.b.y && translatedBox.b.y > collBox.a.y) {
+        if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x)
+          coll(mulVecScalar(worldSide, -1), new vec3(collBox.b.x - box.a.x));
+        if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x)
+          coll(worldSide, new vec3(collBox.a.x - box.b.x));
+      }
 
-        if (
-          translatedBox.a.x < collBox.b.x &&
-          translatedBox.b.x > collBox.a.x
-        ) {
-          if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y)
-            // on top
-            coll(mulVecScalar(worldUp, -1), new vec3(0, collBox.b.y - box.a.y));
-          if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y)
-            // below
-            coll(worldUp, new vec3(0, collBox.a.y - box.b.y));
-        }
-        // console.log(transformMatMat(e.getTransform(), invMat));
+      if (translatedBox.a.x < collBox.b.x && translatedBox.b.x > collBox.a.x) {
+        if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y)
+          // on top
+          coll(mulVecScalar(worldUp, -1), new vec3(0, collBox.b.y - box.a.y));
+        if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y)
+          // below
+          coll(worldUp, new vec3(0, collBox.a.y - box.b.y));
+      }
+      // console.log(transformMatMat(e.getTransform(), invMat));
 
-        entity.transform = transformMatMat(
-          getTranslation(
-            transformMatDirection(e.getBoxTransform(), translation)
-          ),
-          entity.transform
-        );
-        entity.speed = addVec(correctedSpeed, colliderSpeed);
-      });
-      entity.speed.z = 0; // just to make sure, the objects do not move on Z axis by accident
       entity.transform = transformMatMat(
-        getTranslation(mulVecScalar(entity.speed, updateData.dt)),
+        getTranslation(transformMatDirection(e.getBoxTransform(), translation)),
         entity.transform
       );
-      entity.time = updateData.time;
+      entity.speed = addVec(correctedSpeed, colliderSpeed);
+    });
+    entity.speed.z = 0; // just to make sure, the objects do not move on Z axis by accident
+    entity.transform = transformMatMat(
+      getTranslation(mulVecScalar(entity.speed, updateData.dt)),
+      entity.transform
+    );
+    entity.time = updateData.time;
+  }
+};
+
+const moveAction = {
+  update: function(entity, updateData) {
+    if (entity.dashing) return;
+    let speed = 1;
+    let facing = getFacing(entity);
+    let shouldBeFacing = facing;
+    let xSpeed = entity.platformSpeed.x;
+    if (entity.left) {
+      // entity.transform = transformMatMat(
+      //   getTranslation(new vec3(-speed * updateData.dt)),
+      //   entity.transform
+      // );
+      xSpeed -= speed;
+      shouldBeFacing = 1;
     }
-  };
-}
-
-function getMoveAction() {
-  return {
-    update: function(entity, updateData) {
-      if (entity.dashing) return;
-      let speed = 1;
-      let facing = getFacing(entity);
-      let shouldBeFacing = facing;
-      let xSpeed = entity.platformSpeed.x;
-      if (entity.left) {
-        // entity.transform = transformMatMat(
-        //   getTranslation(new vec3(-speed * updateData.dt)),
-        //   entity.transform
-        // );
-        xSpeed -= speed;
-        shouldBeFacing = 1;
-      }
-      if (entity.right) {
-        // entity.transform = transformMatMat(
-        //   getTranslation(new vec3(speed * updateData.dt)),
-        //   entity.transform
-        // );
-        xSpeed += speed;
-        shouldBeFacing = -1;
-      }
-      // CAN_BE_REMOVED
-      // stopped component is not used
-      if (entity.stopped) {
-        // entity.speed.x = 0;
-        entity.stopped = false;
-      }
-      let diff = xSpeed - entity.speed.x;
-      entity.speed.x +=
-        Math.sign(diff) *
-        Math.min(Math.abs(diff), maxCharacterAcceleration * updateData.dt);
-
-      if (facing * shouldBeFacing < 0) {
-        let mirror = new mat3x4();
-        mirror.col0 = mulVecScalar(mirror.col0, -1);
-        entity.transform = transformMatMat(entity.transform, mirror);
-      }
-    },
-    start: function(entity) {
-      entity.left = false;
-      entity.right = false;
+    if (entity.right) {
+      // entity.transform = transformMatMat(
+      //   getTranslation(new vec3(speed * updateData.dt)),
+      //   entity.transform
+      // );
+      xSpeed += speed;
+      shouldBeFacing = -1;
+    }
+    // CAN_BE_REMOVED
+    // stopped component is not used
+    if (entity.stopped) {
+      // entity.speed.x = 0;
       entity.stopped = false;
     }
-  };
-}
+    let diff = xSpeed - entity.speed.x;
+    entity.speed.x +=
+      Math.sign(diff) *
+      Math.min(Math.abs(diff), maxCharacterAcceleration * updateData.dt);
+
+    if (facing * shouldBeFacing < 0) {
+      let mirror = new mat3x4();
+      mirror.col0 = mulVecScalar(mirror.col0, -1);
+      entity.transform = transformMatMat(entity.transform, mirror);
+    }
+  },
+  start: function(entity) {
+    entity.left = false;
+    entity.right = false;
+    entity.stopped = false;
+  }
+};
 
 function getKeyboardController(weaponId) {
   return {
@@ -397,159 +371,153 @@ function getKeyboardController(weaponId) {
   };
 }
 
-function getDashAction() {
-  return {
-    start: function(entity) {
+const dashAction = {
+  start: function(entity) {
+    entity.dashTime = null;
+    entity.dashing = false;
+  },
+  update: function(entity, updateData) {
+    if (
+      entity.dashTime != null &&
+      updateData.time - entity.dashTime >= dashTime
+    ) {
+      entity.speed = new vec3();
       entity.dashTime = null;
       entity.dashing = false;
-    },
-    update: function(entity, updateData) {
-      if (
-        entity.dashTime != null &&
-        updateData.time - entity.dashTime >= dashTime
-      ) {
-        entity.speed = new vec3();
-        entity.dashTime = null;
-        entity.dashing = false;
-      }
-      if (entity.event_dash != null && entity.dashTime == null) {
-        entity.dashTime = updateData.time;
-        let dir = new vec3(Math.sign(entity.event_dash.dir.x), 0, 0);
-        entity.dashSpeed = mulVecScalar(dir, dashSpeed);
-        entity.speed = entity.dashSpeed;
-        entity.event_dash = null;
-        entity.dashing = true;
-      }
     }
-  };
-}
+    if (entity.event_dash != null && entity.dashTime == null) {
+      entity.dashTime = updateData.time;
+      let dir = new vec3(Math.sign(entity.event_dash.dir.x), 0, 0);
+      entity.dashSpeed = mulVecScalar(dir, dashSpeed);
+      entity.speed = entity.dashSpeed;
+      entity.event_dash = null;
+      entity.dashing = true;
+    }
+  }
+};
 
-function getStickAction() {
-  return {
-    start: function(entity) {
-      if (!entity.isStick) return;
-      entity.handSpeed = new vec3();
-    },
-    update: function(entity, updateData) {
-      if (!entity.isStick) return;
-      if (entity.lastStickPos != null) {
-        let currentPos = transformMatPosition(entity.transform);
-        let cardPos = entity.getCardPosition();
-        let cardSpeed = mulVecScalar(
-          subVec(cardPos, entity.lastCardPos),
-          1 / updateData.dt
-        );
-        let handSpeedLen = lengthVec(entity.handSpeed);
-        if (handSpeedLen > 0)
-          entity.handSpeed = mulVecScalar(
-            normalize(entity.handSpeed),
-            Math.max(
-              handSpeedLen -
-                handSpeedLen * handSpeedLen * handDrag * updateData.dt,
-              0
-            )
-          );
-        let speedDiff = subVec(entity.handSpeed, cardSpeed);
-        handSpeedLen = lengthVec(speedDiff);
-        if (handSpeedLen > 0)
-          speedDiff = mulVecScalar(
-            normalize(speedDiff),
-            Math.max(handSpeedLen - handDecceleration * updateData.dt, 0)
-          );
-        entity.handSpeed = addVec(cardSpeed, speedDiff);
-        let expectedPos = addVec(
-          mulVecScalar(handStand, updateData.dt),
-          addVec(
-            entity.lastStickPos,
-            mulVecScalar(entity.handSpeed, updateData.dt)
+const stickAction = {
+  start: function(entity) {
+    if (!entity.isStick) return;
+    entity.handSpeed = new vec3();
+  },
+  update: function(entity, updateData) {
+    if (!entity.isStick) return;
+    if (entity.lastStickPos != null) {
+      let currentPos = transformMatPosition(entity.transform);
+      let cardPos = entity.getCardPosition();
+      let cardSpeed = mulVecScalar(
+        subVec(cardPos, entity.lastCardPos),
+        1 / updateData.dt
+      );
+      let handSpeedLen = lengthVec(entity.handSpeed);
+      if (handSpeedLen > 0)
+        entity.handSpeed = mulVecScalar(
+          normalize(entity.handSpeed),
+          Math.max(
+            handSpeedLen -
+              handSpeedLen * handSpeedLen * handDrag * updateData.dt,
+            0
           )
         );
-        let diff = subVec(currentPos, expectedPos);
-        let up = normalize(subVec(currentPos, cardPos));
-        let moveDiff = mulVecScalar(up, dot(up, diff));
-        let acc =
-          lengthVec(moveDiff) > 0
-            ? mulVecScalar(
-                normalize(moveDiff),
-                Math.min(lengthVec(moveDiff), handAcceleration * updateData.dt)
-              )
-            : new vec3();
-        let preferredPosition = addVec(expectedPos, acc);
-
-        let dir = normalize(subVec(preferredPosition, cardPos));
-        let axis = cross(dir, up);
-        if (lengthVec(axis) > 0) {
-          let angle = Math.asin(lengthVec(axis));
-          axis = normalize(axis);
-          // axis = new vec3(0, 0, 1);
-          // angle = updateData.dt * 0.5;
-          let rot = getRotation(axis, -angle);
-          let transform = transformMatMat(
-            getTranslation(cardPos),
-            transformMatMat(rot, getTranslation(mulVecScalar(cardPos, -1)))
-          );
-          entity.transform = transformMatMat(transform, entity.transform);
-        }
-        currentPos = transformMatPosition(entity.transform);
-        entity.handSpeed = mulVecScalar(
-          subVec(currentPos, entity.lastStickPos),
-          1 / updateData.dt
+      let speedDiff = subVec(entity.handSpeed, cardSpeed);
+      handSpeedLen = lengthVec(speedDiff);
+      if (handSpeedLen > 0)
+        speedDiff = mulVecScalar(
+          normalize(speedDiff),
+          Math.max(handSpeedLen - handDecceleration * updateData.dt, 0)
         );
-      }
-      entity.lastStickPos = transformMatPosition(entity.transform);
-      entity.lastCardPos = entity.getCardPosition();
-    }
-  };
-}
+      entity.handSpeed = addVec(cardSpeed, speedDiff);
+      let expectedPos = addVec(
+        mulVecScalar(handStand, updateData.dt),
+        addVec(
+          entity.lastStickPos,
+          mulVecScalar(entity.handSpeed, updateData.dt)
+        )
+      );
+      let diff = subVec(currentPos, expectedPos);
+      let up = normalize(subVec(currentPos, cardPos));
+      let moveDiff = mulVecScalar(up, dot(up, diff));
+      let acc =
+        lengthVec(moveDiff) > 0
+          ? mulVecScalar(
+              normalize(moveDiff),
+              Math.min(lengthVec(moveDiff), handAcceleration * updateData.dt)
+            )
+          : new vec3();
+      let preferredPosition = addVec(expectedPos, acc);
 
-function getRestorePositionAction() {
-  return {
-    start: function(entity) {
+      let dir = normalize(subVec(preferredPosition, cardPos));
+      let axis = cross(dir, up);
+      if (lengthVec(axis) > 0) {
+        let angle = Math.asin(lengthVec(axis));
+        axis = normalize(axis);
+        // axis = new vec3(0, 0, 1);
+        // angle = updateData.dt * 0.5;
+        let rot = getRotation(axis, -angle);
+        let transform = transformMatMat(
+          getTranslation(cardPos),
+          transformMatMat(rot, getTranslation(mulVecScalar(cardPos, -1)))
+        );
+        entity.transform = transformMatMat(transform, entity.transform);
+      }
+      currentPos = transformMatPosition(entity.transform);
+      entity.handSpeed = mulVecScalar(
+        subVec(currentPos, entity.lastStickPos),
+        1 / updateData.dt
+      );
+    }
+    entity.lastStickPos = transformMatPosition(entity.transform);
+    entity.lastCardPos = entity.getCardPosition();
+  }
+};
+
+const restorePositionAction = {
+  start: function(entity) {
+    entity.safePlace = entity.getCardPosition();
+    // entity.storedPlace = 0;
+  },
+  update: function(entity, updateData) {
+    let pos = entity.getCardPosition();
+    if (pos.y < -1) {
+      entity.transform = transformMatMat(
+        getTranslation(subVec(entity.safePlace, pos)),
+        entity.transform
+      );
+      entity.speed = new vec3();
+      entity.lastStickPos = null;
+    } else if (
+      entity.grounded == entity.time &&
+      entity.walled < entity.time &&
+      lengthVec(entity.platformSpeed) == 0 &&
+      // updateData.time - entity.storedPlace > 0.5 &&
+      Math.abs(entity.speed.y) < 0.05
+    ) {
       entity.safePlace = entity.getCardPosition();
-      // entity.storedPlace = 0;
-    },
-    update: function(entity, updateData) {
-      let pos = entity.getCardPosition();
-      if (pos.y < -1) {
-        entity.transform = transformMatMat(
-          getTranslation(subVec(entity.safePlace, pos)),
-          entity.transform
-        );
-        entity.speed = new vec3();
-        entity.lastStickPos = null;
-      } else if (
-        entity.grounded == entity.time &&
-        entity.walled < entity.time &&
-        lengthVec(entity.platformSpeed) == 0 &&
-        // updateData.time - entity.storedPlace > 0.5 &&
-        Math.abs(entity.speed.y) < 0.05
-      ) {
-        entity.safePlace = entity.getCardPosition();
-        // entity.storedPlace = updateData.time;
-      }
+      // entity.storedPlace = updateData.time;
     }
-  };
-}
+  }
+};
 
 function getPlayerController(weaponId) {
-  let phys = getPhysicsController();
-  let dash = getDashAction();
-  let move = getMoveAction();
-  let stickAction = getStickAction();
   let keyBoard = getKeyboardController(weaponId);
-  let restore = getRestorePositionAction();
-  return getCompoundAction([restore, dash, move, stickAction, keyBoard, phys]);
+  return getCompoundAction([
+    restorePositionAction,
+    dashAction,
+    moveAction,
+    stickAction,
+    keyBoard,
+    physicsController
+  ]);
 }
 
-function getColliderAction() {
-  return {
-    start: function(entity) {
-      entity.collider = true;
-    }
-    // ,
-    // update: function(entity, updateData) {}
-  };
-}
+const colliderAction = {
+  start: function(entity) {
+    entity.collider = true;
+  }
+  // ,
+  // update: function(entity, updateData) {}
+};
 
 function getMovePlatformAction(to, duration) {
   return {
@@ -576,11 +544,9 @@ function getMovePlatformAction(to, duration) {
 }
 
 function getPlatformController(moveData = { to: new vec3(), duration: 1 }) {
-  let collider = getColliderAction();
   let movePlatformAction = getMovePlatformAction(
     moveData.to,
     moveData.duration
   );
-  let stickAction = getStickAction();
-  return getCompoundAction([collider, movePlatformAction, stickAction]);
+  return getCompoundAction([colliderAction, movePlatformAction, stickAction]);
 }
