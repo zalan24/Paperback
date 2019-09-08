@@ -5,6 +5,7 @@
 - losing health when falling
 - dying
 - try to compress gl function / var names
+- compress html
 
 * create assets
 * create scenes

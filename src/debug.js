@@ -1,4 +1,13 @@
 console.log("time: " + new Date().toLocaleString());
+var fpsLabel = document.getElementById("f");
+
+setInterval(function() {
+  if (writeFps >= writeFpsCount) {
+    fpsLabel.textContent = "fps: " + Math.ceil((writeFps * 1000) / fpsTime);
+    writeFps = 0;
+    fpsTime = 0;
+  }
+}, 300);
 
 // let child = new CardEntity(resources.textures.sword.paperTexture);
 // child.transform =

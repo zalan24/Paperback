@@ -4,55 +4,35 @@
     <meta charset="UTF-8" />
     <title>Paper</title>
     <style>
-      /* div:last-child {
-			color: #e90;
-		}
-
-		b {
-			animation: r 1s infinite;
-		}
-
-		@keyframes r {
-			50% {
-				opacity: 0;
-			}
-		} */
-
       #c {
         width: 100%;
-        /* image-rendering: optimizeSpeed;
-        image-rendering: pixelated;
-        cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABGdBTUEAALGPC/xhBQAAAAZQTFRFAAAA////pdmf3QAAAAF0Uk5TAEDm2GYAAAATSURBVAjXYxBgEGBgYDgGxEAWAAc4AQebSvKuAAAAAElFTkSuQmCC),
-          auto; */
+        z-index: 0;
       }
-
-      #f {
+      @keyframes scrollAnimation {
+        0% {
+          top: 110%;
+        }
+        100% {
+          top: -10%;
+        }
+      }
+      #d {
         position: fixed;
-        top: 10px;
-        left: 10px;
-        z-index: 1;
+        top: -50%;
+        left: 50%;
+        z-index: -1;
+        transform: translate(-50%, -50%);
+        animation-name: scrollAnimation;
+        animation-duration: 5s;
+        animation-timing-function: linear;
       }
-
-      /* #a {
-			font-weight: bold;
-			color: #c80;
-			position: absolute;
-			top: 4vw;
-			left: 2vw;
-			font-size: 1.6vw;
-			overflow: hidden;
-			white-space: nowrap;
-			width: 94%;
-			text-shadow: 0 0 7px #f70;
-			transition: opacity 1s;
-		} */
     </style>
   </head>
 
-  <body style="margin:0;background:rgb(255, 255, 255)">
+  <body style="margin:0;background:black">
     <canvas id="c"></canvas>
     <canvas id="t" hidden></canvas>
-    <label id="f"></label>
+    <label id="d" style="color: white">Created by Végvári Zalán</label>
     <script>
       GAME_SOURCE;
     </script>

@@ -33,6 +33,24 @@
         left: 10px;
         z-index: 1;
       }
+      @keyframes scrollAnimation {
+        0% {
+          top: 110%;
+        }
+        100% {
+          top: -10%;
+        }
+      }
+      #d {
+        position: fixed;
+        top: -50%;
+        left: 50%;
+        z-index: -1;
+        transform: translate(-50%, -50%);
+        animation-name: scrollAnimation;
+        animation-duration: 5s;
+        animation-timing-function: linear;
+      }
 
       /* #a {
         font-weight: bold;
@@ -50,11 +68,12 @@
     </style>
   </head>
 
-  <body style="margin:0;background:rgb(255, 255, 255)">
+  <body style="margin:0;background:black">
     <!-- <canvas id="c" width="300" height="240"></canvas> -->
     <canvas id="c"></canvas>
     <canvas id="t" hidden></canvas>
-    <label id="f"></label>
+    <label id="f" style="color: white"></label>
+    <label id="d" style="color: white">Created by Végvári Zalán</label>
 
     <script type="text/javascript" src="src/linalg.js"></script>
     <script type="text/javascript" src="src/mesh.js"></script>

@@ -1,5 +1,3 @@
-var fpsLabel = document.getElementById("f");
-
 var entities = [];
 var entityIds = {};
 
@@ -17,6 +15,7 @@ var startTime;
 var t = 0;
 
 const writeFpsCount = 60;
+// CAN_BE_REMOVED
 var writeFps = 0;
 var fpsTime = 0;
 const targetFps = 300;
@@ -27,11 +26,6 @@ function update() {
   startTime = new Date();
   fpsTime += elapsed;
   writeFps++;
-  if (writeFps == writeFpsCount) {
-    fpsLabel.textContent = "fps: " + Math.ceil((writeFps * 1000) / fpsTime);
-    writeFps = 0;
-    fpsTime = 0;
-  }
   let size = 1;
   camera = lookAt(
     new vec3(
@@ -63,8 +57,7 @@ function update() {
 
   endRender();
 
-  let timeOut = 1000 / targetFps - (new Date() - startTime);
-  if (timeOut < 0) timeOut = 1;
+  let timeOut = Math.max(0, 1000 / targetFps - (new Date() - startTime));
 
   setTimeout(update, timeOut);
 }
