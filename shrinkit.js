@@ -586,6 +586,7 @@ const var_replace = {
   fallen: "_fe",
   lives: "_vl",
   heartOn: "_ho",
+  loseHeart: "_lh",
   areaUnder: "_au"
 };
 

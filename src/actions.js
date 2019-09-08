@@ -68,6 +68,12 @@ const animations = {
       getTranslationAnimation(new vec3(1, 0, 0), 0, 0.25),
       getTranslationAnimation(new vec3(-1, 0, 0), 0.25, 0.5)
     ]
+  },
+  loseHeart: {
+    duration: 0.5,
+    transitions: [
+      getRotationAnimation(new vec3(0, 1, 0), Math.PI / 4.1, 0, 0.5)
+    ]
   }
 };
 
@@ -620,6 +626,8 @@ function getHeartAction(playerId, i) {
           getTranslation(subVec(pos, entity.getCardPosition())),
           entity.transform
         );
+        if (!on && entity.heartOn) addAnimation(entity, animations.loseHeart);
+        entity.heartOn = on;
       }
     },
     animationAction,
