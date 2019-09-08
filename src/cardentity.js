@@ -21,6 +21,9 @@ class CardEntity extends Entity {
         t.getEntity = function() {
           return t;
         };
+        t.getCardPosition = function() {
+          return transformMatPosition(t.getTransform());
+        };
         t.uploadIndices();
         t.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, t.texture);

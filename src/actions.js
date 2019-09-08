@@ -130,7 +130,10 @@ function jump(entity) {
     // console.log({walled: entity.walled, })
     if (entity.walled + groundedWalledTime >= entity.time)
       plusX = jumpSideSpeed * Math.sign(getFacing(entity));
-    entity.speed = new vec3(entity.speed.x + plusX, jumpSpeed, entity.speed.z);
+    entity.speed = addVec(
+      entity.platformSpeed,
+      new vec3(entity.speed.x + plusX, jumpSpeed, entity.speed.z)
+    );
     if (entity.grounded + groundedWalledTime < entity.time) entity.jumpLeft--;
     entity.jumpTime = entity.time;
   }
@@ -415,74 +418,75 @@ function getStickAction() {
   return {
     start: function(entity) {
       if (!entity.isStick) return;
-      entity.lastStickPos = transformMatPosition(entity.transform);
       entity.handSpeed = new vec3();
-      entity.lastCardPos = entity.getCardPosition();
     },
     update: function(entity, updateData) {
       if (!entity.isStick) return;
-      let currentPos = transformMatPosition(entity.transform);
-      let cardPos = entity.getCardPosition();
-      let cardSpeed = mulVecScalar(
-        subVec(cardPos, entity.lastCardPos),
-        1 / updateData.dt
-      );
-      let handSpeedLen = lengthVec(entity.handSpeed);
-      if (handSpeedLen > 0)
-        entity.handSpeed = mulVecScalar(
-          normalize(entity.handSpeed),
-          Math.max(
-            handSpeedLen -
-              handSpeedLen * handSpeedLen * handDrag * updateData.dt,
-            0
+      if (entity.lastStickPos != null) {
+        let currentPos = transformMatPosition(entity.transform);
+        let cardPos = entity.getCardPosition();
+        let cardSpeed = mulVecScalar(
+          subVec(cardPos, entity.lastCardPos),
+          1 / updateData.dt
+        );
+        let handSpeedLen = lengthVec(entity.handSpeed);
+        if (handSpeedLen > 0)
+          entity.handSpeed = mulVecScalar(
+            normalize(entity.handSpeed),
+            Math.max(
+              handSpeedLen -
+                handSpeedLen * handSpeedLen * handDrag * updateData.dt,
+              0
+            )
+          );
+        let speedDiff = subVec(entity.handSpeed, cardSpeed);
+        handSpeedLen = lengthVec(speedDiff);
+        if (handSpeedLen > 0)
+          speedDiff = mulVecScalar(
+            normalize(speedDiff),
+            Math.max(handSpeedLen - handDecceleration * updateData.dt, 0)
+          );
+        entity.handSpeed = addVec(cardSpeed, speedDiff);
+        let expectedPos = addVec(
+          mulVecScalar(handStand, updateData.dt),
+          addVec(
+            entity.lastStickPos,
+            mulVecScalar(entity.handSpeed, updateData.dt)
           )
         );
-      let speedDiff = subVec(entity.handSpeed, cardSpeed);
-      handSpeedLen = lengthVec(speedDiff);
-      if (handSpeedLen > 0)
-        speedDiff = mulVecScalar(
-          normalize(speedDiff),
-          Math.max(handSpeedLen - handDecceleration * updateData.dt, 0)
-        );
-      entity.handSpeed = addVec(cardSpeed, speedDiff);
-      let expectedPos = addVec(
-        mulVecScalar(handStand, updateData.dt),
-        addVec(
-          entity.lastStickPos,
-          mulVecScalar(entity.handSpeed, updateData.dt)
-        )
-      );
-      let diff = subVec(currentPos, expectedPos);
-      let up = normalize(subVec(currentPos, cardPos));
-      let moveDiff = mulVecScalar(up, dot(up, diff));
-      let acc =
-        lengthVec(moveDiff) > 0
-          ? mulVecScalar(
-              normalize(moveDiff),
-              Math.min(lengthVec(moveDiff), handAcceleration * updateData.dt)
-            )
-          : new vec3();
-      let preferredPosition = addVec(expectedPos, acc);
+        let diff = subVec(currentPos, expectedPos);
+        let up = normalize(subVec(currentPos, cardPos));
+        let moveDiff = mulVecScalar(up, dot(up, diff));
+        let acc =
+          lengthVec(moveDiff) > 0
+            ? mulVecScalar(
+                normalize(moveDiff),
+                Math.min(lengthVec(moveDiff), handAcceleration * updateData.dt)
+              )
+            : new vec3();
+        let preferredPosition = addVec(expectedPos, acc);
 
-      let dir = normalize(subVec(preferredPosition, cardPos));
-      let axis = cross(dir, up);
-      if (lengthVec(axis) > 0) {
-        let angle = Math.asin(lengthVec(axis));
-        axis = normalize(axis);
-        let rot = getRotation(axis, -angle);
-        let transform = transformMatMat(
-          getTranslation(cardPos),
-          transformMatMat(rot, getTranslation(mulVecScalar(cardPos, -1)))
+        let dir = normalize(subVec(preferredPosition, cardPos));
+        let axis = cross(dir, up);
+        if (lengthVec(axis) > 0) {
+          let angle = Math.asin(lengthVec(axis));
+          axis = normalize(axis);
+          // axis = new vec3(0, 0, 1);
+          // angle = updateData.dt * 0.5;
+          let rot = getRotation(axis, -angle);
+          let transform = transformMatMat(
+            getTranslation(cardPos),
+            transformMatMat(rot, getTranslation(mulVecScalar(cardPos, -1)))
+          );
+          entity.transform = transformMatMat(transform, entity.transform);
+        }
+        currentPos = transformMatPosition(entity.transform);
+        entity.handSpeed = mulVecScalar(
+          subVec(currentPos, entity.lastStickPos),
+          1 / updateData.dt
         );
-        entity.transform = transformMatMat(transform, entity.transform);
       }
-
-      currentPos = transformMatPosition(entity.transform);
-      entity.handSpeed = mulVecScalar(
-        subVec(currentPos, entity.lastStickPos),
-        1 / updateData.dt
-      );
-      entity.lastStickPos = currentPos;
+      entity.lastStickPos = transformMatPosition(entity.transform);
       entity.lastCardPos = entity.getCardPosition();
     }
   };
@@ -512,12 +516,16 @@ function getMovePlatformAction(to, duration) {
     start: function(entity) {
       entity.speed = new vec3();
       entity.moveState = 0;
-      entity.startPos = entity.transform.col3;
+      entity.startPos = entity.getCardPosition();
     },
     update: function(entity, updateData) {
       entity.moveState += updateData.dt;
       let t = Math.sin((entity.moveState * 2 * Math.PI) / duration) / 2 + 0.5;
-      entity.transform.col3 = addVec(entity.startPos, mulVecScalar(to, t));
+      let position = addVec(entity.startPos, mulVecScalar(to, t));
+      entity.transform = transformMatMat(
+        getTranslation(subVec(position, entity.getCardPosition())),
+        entity.transform
+      );
       entity.speed = mulVecScalar(
         to,
         (Math.cos((entity.moveState * 2 * Math.PI) / duration) * Math.PI) /
@@ -534,5 +542,5 @@ function getPlatformController(moveData = { to: new vec3(), duration: 1 }) {
     moveData.duration
   );
   let stickAction = getStickAction();
-  return getCompoundAction([collider, movePlatformAction]);
+  return getCompoundAction([collider, movePlatformAction, stickAction]);
 }

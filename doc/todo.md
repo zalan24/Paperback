@@ -1,7 +1,6 @@
 # TODO
 
 - fix collision
-- fix stick animation for platforms
 - camera movement
 - scene changing
 - restore position when falling
@@ -20,4 +19,4 @@
 - sound
 - dof
 - adaptive resolution
-- check this: http://www.mpia.de/~mathar/public/mathar20051002.pdf
+- check this: http://www.mpia.de/~mathar/public/mathar20051002.pdf; https://onlinelibrary.wiley.com/doi/pdf/10.1002/9780470976913.app3
