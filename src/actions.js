@@ -191,6 +191,7 @@ const physicsController = {
     if (!entity.dashing)
       entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
     entity.platformSpeed = new vec3();
+    entity.fallen = entity.getCardPosition().y < -1;
     broadcastEvent(e => {
       if (e.collider == null /* || !e.collider */) return;
       let colliderSpeed = new vec3();
@@ -238,6 +239,7 @@ const physicsController = {
       let correctedSpeed = entitySpeed;
       let score = -Infinity;
       let coll = function(dir, tr) {
+        if (e.deadlyPlatform) entity.fallen = true;
         let ltr = lengthVec(tr);
         let sc =
           ltr > 0
@@ -483,17 +485,19 @@ const stickAction = {
 const restorePositionAction = {
   start: function(entity) {
     entity.safePlace = entity.getCardPosition();
+    entity.fallen = false;
     // entity.storedPlace = 0;
   },
   update: function(entity, updateData) {
     let pos = entity.getCardPosition();
-    if (pos.y < -1) {
+    if (entity.fallen) {
       entity.transform = transformMatMat(
         getTranslation(subVec(entity.safePlace, pos)),
         entity.transform
       );
       entity.speed = new vec3();
       entity.lastStickPos = null;
+      entity.fallen = false;
     } else if (
       entity.grounded == entity.time &&
       entity.walled < entity.time &&
@@ -530,13 +534,16 @@ function getPlayerController(weaponId) {
   ]);
 }
 
-const colliderAction = {
-  start: function(entity) {
-    entity.collider = true;
-  }
-  // ,
-  // update: function(entity, updateData) {}
-};
+function getColliderAction(deadly) {
+  return {
+    start: function(entity) {
+      entity.collider = true;
+      entity.deadlyPlatform = deadly;
+    }
+    // ,
+    // update: function(entity, updateData) {}
+  };
+}
 
 function getMovePlatformAction(to, duration) {
   return {
@@ -562,10 +569,17 @@ function getMovePlatformAction(to, duration) {
   };
 }
 
-function getPlatformController(moveData = { to: new vec3(), duration: 1 }) {
+function getPlatformController(
+  deadly = false,
+  moveData = { to: new vec3(), duration: 1 }
+) {
   let movePlatformAction = getMovePlatformAction(
     moveData.to,
     moveData.duration
   );
-  return getCompoundAction([colliderAction, movePlatformAction, stickAction]);
+  return getCompoundAction([
+    getColliderAction(deadly),
+    movePlatformAction,
+    stickAction
+  ]);
 }

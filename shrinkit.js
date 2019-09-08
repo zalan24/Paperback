@@ -582,6 +582,8 @@ const var_replace = {
   getBoxTransform: "_bm",
   storedPlace: "_rr",
   safePlace: "_se",
+  deadlyPlatform: "_dy",
+  fallen: "_fe",
   areaUnder: "_au"
 };
 

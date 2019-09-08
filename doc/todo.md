@@ -1,7 +1,6 @@
 # TODO
 
 - camera movement
-- saw blades, spikes, stuff like that
 - ui
 - losing health when falling
 - dying
