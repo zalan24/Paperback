@@ -2,10 +2,11 @@
 
 - camera movement
 - scene changing
-- restore position when falling
 - ui
 - losing health when falling
 - dying
+- change getAction functions to just const vars
+- try to compress gl function / var names
 
 * create assets
 * create scenes

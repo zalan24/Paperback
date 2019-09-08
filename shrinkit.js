@@ -580,6 +580,8 @@ const var_replace = {
   walled: "_wl",
   platformSpeed: "_px",
   getBoxTransform: "_bm",
+  storedPlace: "_rr",
+  safePlace: "_se",
   areaUnder: "_au"
 };
 

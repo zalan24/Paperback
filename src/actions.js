@@ -502,13 +502,43 @@ function getStickAction() {
   };
 }
 
+function getRestorePositionAction() {
+  return {
+    start: function(entity) {
+      entity.safePlace = entity.getCardPosition();
+      // entity.storedPlace = 0;
+    },
+    update: function(entity, updateData) {
+      let pos = entity.getCardPosition();
+      if (pos.y < -1) {
+        entity.transform = transformMatMat(
+          getTranslation(subVec(entity.safePlace, pos)),
+          entity.transform
+        );
+        entity.speed = new vec3();
+        entity.lastStickPos = null;
+      } else if (
+        entity.grounded == entity.time &&
+        entity.walled < entity.time &&
+        lengthVec(entity.platformSpeed) == 0 &&
+        // updateData.time - entity.storedPlace > 0.5 &&
+        Math.abs(entity.speed.y) < 0.05
+      ) {
+        entity.safePlace = entity.getCardPosition();
+        // entity.storedPlace = updateData.time;
+      }
+    }
+  };
+}
+
 function getPlayerController(weaponId) {
   let phys = getPhysicsController();
   let dash = getDashAction();
   let move = getMoveAction();
   let stickAction = getStickAction();
   let keyBoard = getKeyboardController(weaponId);
-  return getCompoundAction([dash, move, stickAction, keyBoard, phys]);
+  let restore = getRestorePositionAction();
+  return getCompoundAction([restore, dash, move, stickAction, keyBoard, phys]);
 }
 
 function getColliderAction() {
