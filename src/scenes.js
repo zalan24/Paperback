@@ -43,7 +43,8 @@ var scenes = {
       translation: [-0.3, -0.4, 0],
       cardTransform: getScaling(new vec3(1, 3, 1)),
       scale: 0.5,
-      action: getPlatformController({ to: new vec3(-1), duration: 5 })
+      // action: getPlatformController({ to: new vec3(-1), duration: 5 })
+      action: getPlatformController()
     },
     {
       id: "testPlatform3",

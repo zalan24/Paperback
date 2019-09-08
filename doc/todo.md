@@ -1,6 +1,5 @@
 # TODO
 
-- fix collision
 - camera movement
 - scene changing
 - restore position when falling

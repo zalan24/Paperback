@@ -225,6 +225,7 @@ function getPhysicsController() {
         let entitySpeed = subVec(entity.speed, colliderSpeed);
         let transformedSpeed = transformMatDirection(invMat, entity.speed);
         let speedTranslation = mulVecScalar(transformedSpeed, updateData.dt);
+        let relativeSpeed = transformMatDirection(invMat, entitySpeed);
         let translatedBox = {
           a: addVec(box.a, speedTranslation),
           b: addVec(box.b, speedTranslation)
@@ -238,8 +239,21 @@ function getPhysicsController() {
         let translation = new vec3();
         // if (e.parent != null && e.parent.id == "plat")
         //   console.log({ box: box, collBox: collBox });
-        let coll = function(dir) {
-          entitySpeed = removeComponent(entitySpeed, dir);
+        let correctedSpeed = entitySpeed;
+        let score = -Infinity;
+        let coll = function(dir, tr) {
+          let ltr = lengthVec(tr);
+          let sc =
+            ltr > 0
+              ? dot(normalize(tr), relativeSpeed) * updateData.dt - ltr
+              : -Infinity;
+          // console.log({
+          //   score: score,
+          //   sc: sc
+          // });
+          if (sc < score) return;
+          score = sc;
+          correctedSpeed = removeComponent(entitySpeed, dir);
           dir = normalize(dir);
           let threshold = Math.cos(Math.PI / 4);
           let threshold2 = Math.cos(Math.PI / 16);
@@ -247,10 +261,14 @@ function getPhysicsController() {
             entity.grounded = updateData.time;
             if (Math.abs(dir.x) > threshold) {
               entity.walled = updateData.time;
-              entitySpeed.y = Math.max(-maxWalledFallSpeed, entitySpeed.y);
+              correctedSpeed.y = Math.max(
+                -maxWalledFallSpeed,
+                correctedSpeed.y
+              );
             }
           }
           entity.platformSpeed = colliderSpeed;
+          translation = tr;
         };
         // CAN_BE_REMOVED
         // this can be shortened with functions
@@ -258,30 +276,22 @@ function getPhysicsController() {
           translatedBox.a.y < collBox.b.y &&
           translatedBox.b.y > collBox.a.y
         ) {
-          if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x) {
-            translation = new vec3(collBox.b.x - box.a.x);
-            coll(mulVecScalar(worldSide, -1));
-          }
-          if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x) {
-            translation = new vec3(collBox.a.x - box.b.x);
-            coll(worldSide);
-          }
+          if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x)
+            coll(mulVecScalar(worldSide, -1), new vec3(collBox.b.x - box.a.x));
+          if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x)
+            coll(worldSide, new vec3(collBox.a.x - box.b.x));
         }
 
         if (
           translatedBox.a.x < collBox.b.x &&
           translatedBox.b.x > collBox.a.x
         ) {
-          if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y) {
+          if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y)
             // on top
-            coll(mulVecScalar(worldUp, -1));
-            translation = new vec3(0, collBox.b.y - box.a.y);
-          }
-          if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y) {
+            coll(mulVecScalar(worldUp, -1), new vec3(0, collBox.b.y - box.a.y));
+          if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y)
             // below
-            coll(worldUp);
-            translation = new vec3(0, collBox.a.y - box.b.y);
-          }
+            coll(worldUp, new vec3(0, collBox.a.y - box.b.y));
         }
         // console.log(transformMatMat(e.getTransform(), invMat));
 
@@ -291,7 +301,7 @@ function getPhysicsController() {
           ),
           entity.transform
         );
-        entity.speed = addVec(entitySpeed, colliderSpeed);
+        entity.speed = addVec(correctedSpeed, colliderSpeed);
       });
       entity.speed.z = 0; // just to make sure, the objects do not move on Z axis by accident
       entity.transform = transformMatMat(
