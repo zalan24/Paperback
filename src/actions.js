@@ -30,10 +30,6 @@ function getMaxLives() {
   return 3 + sceneId;
 }
 
-function getFacing(entity) {
-  return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
-}
-
 function invlerp(v, a, b) {
   return Math.max(0, Math.min(1, (v - a) / (b - a)));
 }
@@ -331,12 +327,6 @@ const moveAction = {
       xSpeed += speed;
       shouldBeFacing = -1;
     }
-    // CAN_BE_REMOVED
-    // stopped component is not used
-    if (entity.stopped) {
-      // entity.speed.x = 0;
-      entity.stopped = false;
-    }
     let diff = xSpeed - entity.speed.x;
     entity.speed.x +=
       Math.sign(diff) *
@@ -351,7 +341,8 @@ const moveAction = {
   start: function(entity) {
     entity.left = false;
     entity.right = false;
-    entity.stopped = false;
+    entity.up = false;
+    entity.down = false;
   }
 };
 
@@ -370,6 +361,16 @@ function getKeyboardController(weaponId) {
           entity.right = true;
           entity.left = false;
         }
+        if (e.keyCode == 38) {
+          // Up arrow
+          entity.up = true;
+          entity.down = false;
+        }
+        if (e.keyCode == 40) {
+          // right arrow
+          entity.down = true;
+          entity.up = false;
+        }
         if (e.keyCode == 90) jump(entity);
         if (e.keyCode == 88) hit(entity, weaponId, animations.hit);
         // console.log("key: " + e.keyCode);
@@ -377,14 +378,10 @@ function getKeyboardController(weaponId) {
       });
       document.addEventListener("keyup", e => {
         e = e || window.event;
-        if (e.keyCode == 37)
-          // left arrow
-          entity.left = false;
-        entity.stopped = true;
-        if (e.keyCode == 39)
-          // right arrow
-          entity.right = false;
-        entity.stopped = true;
+        if (e.keyCode == 37) entity.left = false;
+        if (e.keyCode == 39) entity.right = false;
+        if (e.keyCode == 38) entity.up = false;
+        if (e.keyCode == 40) entity.down = false;
       });
     }
   };

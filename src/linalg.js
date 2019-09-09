@@ -206,9 +206,9 @@ function getRotation(axis, angle) {
   );
 }
 
-// function lerpVec(a, b, f) {
-//   return addVec(mulVecScalar(subVec(b, a), f), a);
-// }
+function lerpVec(a, b, f) {
+  return addVec(mulVecScalar(subVec(b, a), f), a);
+}
 
 function cartesianToSpherical(pos) {
   pos = normalize(pos);

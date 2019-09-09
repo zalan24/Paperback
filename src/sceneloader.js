@@ -51,4 +51,5 @@ function loadScene(scene) {
   for (let i = 0; i < scene.length; ++i) {
     addEntity(loadObject(scene[i]));
   }
+  followEntity = getEntityById("player");
 }

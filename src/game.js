@@ -9,7 +9,10 @@ function renderEntity(e, renderData) {
   e.render(renderData);
 }
 
-var camera = lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+var followEntity = null;
+var cameraTranslation = new vec3();
+
+var camera = null; // lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
 // var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
 var startTime;
 var t = 0;
@@ -21,23 +24,59 @@ var fpsTime = 0;
 const targetFps = 300;
 const maxDt = 0.1;
 
+function getFacing(entity) {
+  return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
+}
+
 function update() {
   let elapsed = new Date() - startTime;
   startTime = new Date();
   fpsTime += elapsed;
   writeFps++;
-  let size = 1;
-  camera = lookAt(
-    new vec3(
-      size * Math.sin((t * 2 * Math.PI) / 10),
-      size * Math.cos((t * 2 * Math.PI) / 10),
-      -3
-    ),
-    new vec3(0, 0, 0),
-    new vec3(0, 1, 0)
-  );
+  // let size = 1;
+  // camera = lookAt(
+  //   new vec3(
+  //     size * Math.sin((t * 2 * Math.PI) / 10),
+  //     size * Math.cos((t * 2 * Math.PI) / 10),
+  //     -3
+  //   ),
+  //   new vec3(0, 0, 0),
+  //   new vec3(0, 1, 0)
+  // );
   let dt = Math.min(elapsed / 1000, maxDt);
   t += dt;
+
+  // TODO test
+  // CAN_BE_REMOVED
+  if (followEntity == null) {
+    camera = lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+  } else {
+    let ud = 0.5;
+    if (
+      (followEntity.speed && followEntity.speed.y < -1.5) ||
+      followEntity.down
+    )
+      ud = -0.7;
+    else if (followEntity.up) ud = 1;
+    let cameraTargetTranslation = new vec3(
+      -getFacing(followEntity) * 0.1,
+      ud * 0.1
+    );
+    // cameraTranslation = cameraTargetTranslation;
+    cameraTranslation = lerpVec(
+      cameraTranslation,
+      cameraTargetTranslation,
+      1 - Math.pow(2, -dt * 10)
+    );
+    let pos = addVec(followEntity.getCardPosition(), cameraTranslation);
+    let limit = 0.9;
+    let camPos = new vec3(
+      Math.max(-limit, Math.min(pos.x, limit)),
+      Math.max(-limit, Math.min(pos.y, limit)),
+      -0.5
+    );
+    camera = lookAt(camPos, pos, new vec3(0, 1, 0));
+  }
 
   let updateData = { dt: dt, time: t };
 
@@ -90,6 +129,7 @@ function addEntity(r) {
 }
 
 function clearScene() {
+  followEntity = null;
   startGame();
 }
 
