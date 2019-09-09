@@ -38,6 +38,7 @@ function registerTexture(atlas, imageName, rect, paper, middle, color) {
 }
 
 function getImageData(img, atlasObj) {
+  img.crossOrigin = "Anonymous";
   textureCanvas.height = img.height;
   textureCanvas.width = img.width;
   textureCtx.drawImage(img, 0, 0);

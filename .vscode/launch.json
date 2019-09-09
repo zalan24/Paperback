@@ -5,10 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug - Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "file": "${workspaceFolder}/index-debug.html"
+    },
+    {
+      "name": "Release - Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "file": "${workspaceFolder}/build/index.html"
+    },
+    {
       "type": "firefox",
       "request": "launch",
       "reAttach": true,
-      "name": "Debug",
+      "name": "Debug - Firefox",
       "file": "${workspaceFolder}/index-debug.html",
       "internalConsoleOptions": "openOnSessionStart"
     },
@@ -16,7 +28,7 @@
       "type": "firefox",
       "request": "launch",
       "reAttach": true,
-      "name": "Release",
+      "name": "Release - Firefox",
       "file": "${workspaceFolder}/build/index.html",
       "internalConsoleOptions": "openOnSessionStart"
     }

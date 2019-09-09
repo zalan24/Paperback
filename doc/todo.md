@@ -3,6 +3,7 @@
 - try to compress gl function / var names
 - compress html
 - restore credits screen
+- add favicon.ico
 
 * create assets
 * create scenes
