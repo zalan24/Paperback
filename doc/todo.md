@@ -4,6 +4,7 @@
 - compress html
 - restore credits screen
 - add favicon.ico
+- chrome is slow. Maybe make the game small for chrome???
 
 * create assets
 * create scenes
