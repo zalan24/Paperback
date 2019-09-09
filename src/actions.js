@@ -17,6 +17,8 @@ const groundedWalledTime = 0.05;
 const maxCharacterAcceleration = 10;
 const sceneChangeThreshold = 0.9;
 const maxLives = 5;
+const maxHeartRotationSpeed = 2;
+const heartRotationTargetX = 0.1;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -67,12 +69,6 @@ const animations = {
     transitions: [
       getTranslationAnimation(new vec3(1, 0, 0), 0, 0.25),
       getTranslationAnimation(new vec3(-1, 0, 0), 0.25, 0.5)
-    ]
-  },
-  loseHeart: {
-    duration: 0.5,
-    transitions: [
-      getRotationAnimation(new vec3(0, 1, 0), Math.PI / 4.1, 0, 0.5)
     ]
   }
 };
@@ -607,9 +603,9 @@ function getPlatformController(
 function getHeartAction(playerId, i) {
   return getCompoundAction([
     {
-      start: function(entity) {
-        entity.heartOn = true;
-      },
+      // start: function(entity) {
+      //   entity.heartOn = true;
+      // },
       update: function(entity, updateData) {
         let invMat = invert(camera);
         let p = getEntityById(playerId);
@@ -626,8 +622,27 @@ function getHeartAction(playerId, i) {
           getTranslation(subVec(pos, entity.getCardPosition())),
           entity.transform
         );
-        if (!on && entity.heartOn) addAnimation(entity, animations.loseHeart);
-        entity.heartOn = on;
+        // if (!on && entity.heartOn) addAnimation(entity, animations.loseHeart);
+        // entity.heartOn = on;
+        let side = normalize(
+          transformMatDirection(entity.transform, new vec3(1))
+        );
+        let target = normalize(
+          on ? new vec3(1) : new vec3(heartRotationTargetX, 0, 1)
+        );
+        let cr = cross(side, target);
+        let angleDiff = Math.asin(lengthVec(cr));
+        let move = Math.max(
+          -maxHeartRotationSpeed * updateData.dt,
+          Math.min(angleDiff, maxHeartRotationSpeed * updateData.dt)
+        );
+        // move = maxHeartRotationSpeed * updateData.dt;
+        // cr = new vec3(0, 1, 0);
+        // if (i == 4) console.log({ move: move, angle: angleDiff, cr: cr });
+        entity.transform = transformMatMat(
+          entity.transform,
+          getRotation(cr, move)
+        );
       }
     },
     animationAction,

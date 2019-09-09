@@ -1,7 +1,6 @@
 # TODO
 
 - camera movement
-- ui
 - dying
 - try to compress gl function / var names
 - compress html
