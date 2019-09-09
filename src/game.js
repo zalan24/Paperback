@@ -24,6 +24,20 @@ var fpsTime = 0;
 const targetFps = 300;
 const maxDt = 0.1;
 
+var graphicsFps = 0;
+var graphicsFpsTime = 0;
+const minResFps = 24;
+const maxResFps = 40;
+const minAAFps = 40;
+const maxAAFps = 70;
+// const minResFps = 220;
+// const maxResFps = 250;
+// const minAAFps = 250;
+// const maxAAFps = 300;
+const minCanvasScale = 1 / 8;
+const maxAA = 2;
+const scaleStep = 0.8;
+
 function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
 }
@@ -45,6 +59,33 @@ function update() {
   // );
   let dt = Math.min(elapsed / 1000, maxDt);
   t += dt;
+  graphicsFps++;
+  if ((graphicsFpsTime += dt) > 10) {
+    let fps = 1 / (graphicsFpsTime / graphicsFps);
+    let res = false;
+    if (fps < minResFps && canvasSizeScale > minCanvasScale) {
+      canvasSizeScale = Math.max(minCanvasScale, canvasSizeScale * scaleStep);
+      res = true;
+    }
+    if (fps > maxResFps && canvasSizeScale < 1) {
+      canvasSizeScale = Math.min(1, canvasSizeScale / scaleStep);
+      res = true;
+    }
+    if (fps < minAAFps && antiAliasQuality > 1) {
+      antiAliasQuality = Math.max(1, antiAliasQuality * scaleStep);
+      res = true;
+    }
+    if (fps > maxAAFps && antiAliasQuality < maxAA) {
+      antiAliasQuality = Math.min(maxAA, antiAliasQuality / scaleStep);
+      res = true;
+    }
+    if (res) {
+      // console.log({ canvas: canvasSizeScale, aa: antiAliasQuality });
+      resize();
+    }
+    graphicsFpsTime = 0;
+    graphicsFps = 0;
+  }
 
   // TODO test
   // CAN_BE_REMOVED

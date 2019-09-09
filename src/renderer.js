@@ -299,8 +299,10 @@ var colorRenderbuffer = gl.createRenderbuffer();
 var depthRenderbuffer = gl.createRenderbuffer();
 var frameSize = {};
 
+var canvasSizeScale = 1;
+var antiAliasQuality = 2;
+
 function resize() {
-  let canvasSizeScale = 1;
   glCanvas.width = Math.floor(window.innerWidth * canvasSizeScale);
   glCanvas.height = Math.floor(window.innerHeight * canvasSizeScale);
 
@@ -325,7 +327,6 @@ function resize() {
   // );
 
   // rendering in higher resolution for anti-aliasing
-  const antiAliasQuality = 2;
   frameSize.w = Math.floor(glCanvas.width * antiAliasQuality);
   frameSize.h = Math.floor(glCanvas.height * antiAliasQuality);
   gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
