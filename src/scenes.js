@@ -42,7 +42,7 @@ const scenes = {
       translation: [0.7, -0.5, 0],
       cardTransform: getScaling(new vec3(1, 0.1, 1)),
       scale: 0.5,
-      action: getPlatformController(false, {
+      action: getPlatformController(false, false, {
         to: new vec3(0, 0.5),
         duration: 5
       })
@@ -53,7 +53,10 @@ const scenes = {
       translation: [0.7, 0, 0],
       cardTransform: getScaling(new vec3(1, 0.1, 1)),
       scale: 0.5,
-      action: getPlatformController(false, { to: new vec3(-1), duration: 2 })
+      action: getPlatformController(false, false, {
+        to: new vec3(-1),
+        duration: 2
+      })
     },
     {
       card: "platform",
@@ -146,7 +149,18 @@ const scenes = {
       translation: [-0.7, -1, 0],
       cardTransform: getScaling(new vec3(1, 0.5, 1)),
       scale: 0.5,
-      action: getPlatformController(true, { to: new vec3(0, 0.1), duration: 2 })
+      action: getPlatformController(true, false, {
+        to: new vec3(0, 0.1),
+        duration: 2
+      })
+    },
+    {
+      card: "platform",
+      // stick: false,
+      translation: [0.5, 0, 0],
+      cardTransform: getScaling(new vec3(1, 0.5, 1)),
+      scale: 0.5,
+      action: getPlatformController(false, true)
     },
     {
       card: "platform",
@@ -155,7 +169,10 @@ const scenes = {
       cardTransform: getScaling(new vec3(0.5, 0.5, 0.5)),
       cardAction: getRotationAction(1),
       scale: 0.5,
-      action: getPlatformController(true, { to: new vec3(0, 0.1), duration: 2 })
+      action: getPlatformController(true, false, {
+        to: new vec3(0, 0.1),
+        duration: 2
+      })
     }
   ]
 };

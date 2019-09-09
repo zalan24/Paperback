@@ -587,6 +587,9 @@ const var_replace = {
   lives: "_vl",
   heartOn: "_ho",
   loseHeart: "_lh",
+  checkPointPlatform: "_pi",
+  onCheckPoint: "_op",
+  checkPointPlace: "_cx",
   areaUnder: "_au"
 };
 

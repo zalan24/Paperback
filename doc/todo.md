@@ -1,7 +1,6 @@
 # TODO
 
 - camera movement
-- dying
 - try to compress gl function / var names
 - compress html
 - restore credits screen

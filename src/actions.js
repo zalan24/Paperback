@@ -16,7 +16,6 @@ const maxWalledFallSpeed = 0.3;
 const groundedWalledTime = 0.05;
 const maxCharacterAcceleration = 10;
 const sceneChangeThreshold = 0.9;
-const maxLives = 5;
 const maxHeartRotationSpeed = 2;
 const heartRotationTargetX = 0.1;
 
@@ -25,6 +24,10 @@ var sceneCount = 0;
 function loadSceneById(id) {
   sceneId = id;
   loadScene(sceneList[id].concat(hearts));
+}
+
+function getMaxLives() {
+  return 3 + sceneId;
 }
 
 function getFacing(entity) {
@@ -189,12 +192,14 @@ const physicsController = {
     entity.time = 0;
     entity.hitTime = 0;
     entity.platformSpeed = new vec3();
+    entity.onCheckPoint = false;
   },
   update: function(entity, updateData) {
     if (!entity.dashing)
       entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
     entity.platformSpeed = new vec3();
     entity.fallen = entity.getCardPosition().y < -1;
+    entity.onCheckPoint = false;
     broadcastEvent(e => {
       if (e.collider == null /* || !e.collider */) return;
       let colliderSpeed = new vec3();
@@ -243,6 +248,7 @@ const physicsController = {
       let score = -Infinity;
       let coll = function(dir, tr) {
         if (e.deadlyPlatform) entity.fallen = true;
+        if (e.checkPointPlatform) entity.onCheckPoint = true;
         let ltr = lengthVec(tr);
         let sc =
           ltr > 0
@@ -485,20 +491,36 @@ const stickAction = {
   }
 };
 
+var checkPointId = 0;
+var checkPointPlace = null;
+var lives = null;
+
 const lifeAction = {
   start: function(entity) {
-    entity.lives = maxLives;
+    if (lives == null) lives = getMaxLives();
+    else lives = Math.min(lives, getMaxLives());
   },
   update: function(entity, updateData) {}
 };
 
 function hurt(entity) {
-  entity.lives--;
+  if (--lives == 0) {
+    if (checkPointId != sceneId) loadSceneById(checkPointId);
+    lives = getMaxLives();
+    entity.transform = transformMatMat(
+      getTranslation(subVec(checkPointPlace, entity.getCardPosition())),
+      entity.transform
+    );
+  }
 }
 
 const restorePositionAction = {
   start: function(entity) {
     entity.safePlace = entity.getCardPosition();
+    if (checkPointPlace == null) {
+      checkPointPlace = entity.getCardPosition();
+      checkPointId = sceneId;
+    }
     entity.fallen = false;
     // entity.storedPlace = 0;
   },
@@ -521,6 +543,11 @@ const restorePositionAction = {
       Math.abs(entity.speed.y) < 0.05
     ) {
       entity.safePlace = entity.getCardPosition();
+      if (entity.onCheckPoint) {
+        checkPointPlace = entity.getCardPosition();
+        checkPointId = sceneId;
+        lives = getMaxLives();
+      }
       // entity.storedPlace = updateData.time;
     }
   }
@@ -550,11 +577,12 @@ function getPlayerController(weaponId) {
   ]);
 }
 
-function getColliderAction(deadly) {
+function getColliderAction(deadly, checkPoint) {
   return {
     start: function(entity) {
       entity.collider = true;
       entity.deadlyPlatform = deadly;
+      entity.checkPointPlatform = checkPoint;
     }
     // ,
     // update: function(entity, updateData) {}
@@ -587,6 +615,7 @@ function getMovePlatformAction(to, duration) {
 
 function getPlatformController(
   deadly = false,
+  checkPoint = false,
   moveData = { to: new vec3(), duration: 1 }
 ) {
   let movePlatformAction = getMovePlatformAction(
@@ -594,12 +623,14 @@ function getPlatformController(
     moveData.duration
   );
   return getCompoundAction([
-    getColliderAction(deadly),
+    getColliderAction(deadly, checkPoint),
     movePlatformAction,
     stickAction
   ]);
 }
 
+// CAN_BE_REMOVED
+// the playerId is not used
 function getHeartAction(playerId, i) {
   return getCompoundAction([
     {
@@ -608,14 +639,14 @@ function getHeartAction(playerId, i) {
       // },
       update: function(entity, updateData) {
         let invMat = invert(camera);
-        let p = getEntityById(playerId);
-        let on = p.lives > i;
+        // let p = getEntityById(playerId);
+        let on = lives > i;
         let pos = transformMatPosition(
           invMat,
           new vec3(
             i * 0.003 - 0.065,
             (-0.065 * glCanvas.height) / glCanvas.width,
-            maxLives > i ? 0.1 : -2
+            getMaxLives() > i ? 0.1 : -2
           )
         );
         entity.transform = transformMatMat(
