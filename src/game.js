@@ -12,8 +12,9 @@ function renderEntity(e, renderData) {
 var followEntity = null;
 var cameraTranslation = new vec3();
 
-var camera = null; // lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
-// var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
+// var camera = null; // lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
+var nextCameraPos = null;
 var startTime;
 var t = 0;
 
@@ -86,11 +87,14 @@ function update() {
     graphicsFpsTime = 0;
     graphicsFps = 0;
   }
-
   // TODO test
   // CAN_BE_REMOVED
   if (followEntity == null) {
-    camera = lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+    nextCameraPos = lookAt(
+      new vec3(2, 3, -5),
+      new vec3(0, 0, 0),
+      new vec3(0, 1, 0)
+    );
   } else {
     let ud = 0.5;
     if (
@@ -116,7 +120,7 @@ function update() {
       Math.max(-limit, Math.min(pos.y, limit)),
       -0.5
     );
-    camera = lookAt(camPos, pos, new vec3(0, 1, 0));
+    nextCameraPos = lookAt(camPos, pos, new vec3(0, 1, 0));
   }
 
   let updateData = { dt: dt, time: t };
@@ -130,6 +134,8 @@ function update() {
   entities.forEach(r => traverseEntities(r, e => updateEntity(e, updateData)));
 
   uploadOccluders(entities);
+
+  camera = nextCameraPos;
 
   startRender();
   let renderData = { view: camera };

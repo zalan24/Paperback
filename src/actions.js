@@ -635,7 +635,7 @@ function getHeartAction(playerId, i) {
       //   entity.heartOn = true;
       // },
       update: function(entity, updateData) {
-        let invMat = invert(camera);
+        let invMat = invert(nextCameraPos);
         // let p = getEntityById(playerId);
         let on = lives > i;
         let pos = transformMatPosition(
