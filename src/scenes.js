@@ -1,21 +1,24 @@
-const player = {
-  id: "player",
-  card: "character",
-  children: [
-    {
-      id: "sword",
-      card: "sword",
-      scale: 0.3,
-      translation: [0.3, 0.2, 0],
-      action: animationAction
-    }
-  ],
-  translation: [0, -0.5, -0.01],
-  action: getPlayerController("sword")
-};
+function getPlayer(pos) {
+  return {
+    id: "player",
+    card: "character",
+    children: [
+      {
+        id: "sword",
+        card: "sword",
+        scale: 0.3,
+        translation: [0.3, 0.2, 0],
+        action: animationAction
+      }
+    ],
+    translation: pos,
+    action: getPlayerController("sword")
+  };
+}
 
 function getEnemy(
   id,
+  pos,
   card,
   weaponCard,
   moveScale = 1,
@@ -38,7 +41,7 @@ function getEnemy(
         action: animationAction
       }
     ],
-    translation: [0, -0.5, -0.01],
+    translation: pos,
     action: getEnemyController(
       id + "sword",
       moveScale,
@@ -57,7 +60,7 @@ function createHeartEntity(i) {
     card: "heart",
     scale: 0.3,
     transform: getScaling(new vec3(0.02, 0.02, 0.02)),
-    action: getHeartAction(player.id, i)
+    action: getHeartAction("player", i)
   };
 }
 
@@ -67,7 +70,7 @@ for (let i = 0; i < maxHeartNum; ++i) hearts.push(createHeartEntity(i));
 
 const scenes = {
   testScene: [
-    player,
+    getPlayer([0, -0.5, -0.01]),
     // {
     //   id: "testPlatform",
     //   card: "platform",
@@ -172,8 +175,20 @@ const scenes = {
     // }
   ],
   bladeScene: [
-    player,
-    getEnemy("enemy", "character", "sword", 0.1, true, 10, true, 10, true, 10),
+    getPlayer([0.3, 0.5, -0.01]),
+    getEnemy(
+      "enemy",
+      [-0.7, 0.5, 0],
+      "character",
+      "sword",
+      1,
+      true,
+      1,
+      true,
+      1,
+      true,
+      1
+    ),
     {
       card: "platform",
       stick: false,
