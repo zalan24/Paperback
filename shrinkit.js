@@ -591,6 +591,10 @@ const var_replace = {
   onCheckPoint: "_op",
   checkPointPlace: "_cx",
   followTime: "_fw",
+  moveScale: "_msc",
+  jumpScale: "_js",
+  dashScale: "_dsc",
+  hitScale: "_hsc",
   areaUnder: "_au"
 };
 

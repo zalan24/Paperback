@@ -18,9 +18,13 @@ function getEnemy(
   id,
   card,
   weaponCard,
+  moveScale = 1,
   canHit = true,
+  hitScale = 1,
   canJump = false,
-  canDash = false
+  jumpScale = 1,
+  canDash = false,
+  dashScale = 1
 ) {
   return {
     id: id,
@@ -35,7 +39,16 @@ function getEnemy(
       }
     ],
     translation: [0, -0.5, -0.01],
-    action: getEnemyController(id + "sword", canHit, canJump, canDash)
+    action: getEnemyController(
+      id + "sword",
+      moveScale,
+      canHit,
+      hitScale,
+      canJump,
+      jumpScale,
+      canDash,
+      dashScale
+    )
   };
 }
 
@@ -160,7 +173,7 @@ const scenes = {
   ],
   bladeScene: [
     player,
-    getEnemy("enemy", "character", "sword", true, true, true),
+    getEnemy("enemy", "character", "sword", 0.1, true, 10, true, 10, true, 10),
     {
       card: "platform",
       stick: false,

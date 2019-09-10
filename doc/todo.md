@@ -11,7 +11,6 @@
 
 ## optional
 
-- create enemy ai
 - add hit logic
 - create boss rooms with bosses
 - sound

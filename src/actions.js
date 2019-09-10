@@ -136,7 +136,10 @@ function getCompoundAction(actions) {
 
 function canJump(entity) {
   if (entity.grounded > entity.jumpTime) entity.jumpLeft = jumps;
-  return entity.jumpLeft > 0 && entity.jumpTime + jumpTimeLimit < entity.time;
+  return (
+    entity.jumpLeft > 0 &&
+    entity.jumpTime + jumpTimeLimit * entity.jumpScale < entity.time
+  );
 }
 function jump(entity) {
   if (canJump(entity)) {
@@ -160,7 +163,10 @@ function canDash(entity) {
   //   timeLimit: entity.dashTimem + dashTimeLimit,
   //   entityTime: entity.time
   // });
-  return entity.dashLeft > 0 && entity.dashTimem + dashTimeLimit < entity.time;
+  return (
+    entity.dashLeft > 0 &&
+    entity.dashTimem + dashTimeLimit * entity.dashScale < entity.time
+  );
 }
 function dash(entity) {
   if (canDash(entity)) {
@@ -173,7 +179,7 @@ function dash(entity) {
 }
 
 function canHit(entity) {
-  return entity.hitTime + hitTimeLimit < entity.time;
+  return entity.hitTime + hitTimeLimit * entity.hitScale < entity.time;
 }
 function hit(entity, weapon, animation) {
   if (canHit(entity)) {
@@ -313,7 +319,7 @@ const physicsController = {
 const moveAction = {
   update: function(entity, updateData) {
     if (entity.dashing) return;
-    let speed = 1;
+    let speed = entity.moveScale;
     let facing = getFacing(entity);
     let shouldBeFacing = facing;
     let xSpeed = entity.platformSpeed.x;
@@ -352,10 +358,24 @@ const moveAction = {
   }
 };
 
-function getAiController(targetId, weaponId, canHit, canJump, canDash) {
+function getAiController(
+  targetId,
+  weaponId,
+  moveScale,
+  canHit,
+  hitScale,
+  canJump,
+  jumpScale,
+  canDash,
+  dashScale
+) {
   return {
     start: function(entity) {
       entity.followTime = -100;
+      entity.moveScale = moveScale;
+      entity.jumpScale = jumpScale;
+      entity.dashScale = dashScale;
+      entity.hitScale = hitScale;
     },
     update: function(entity, updateData) {
       let pl = getEntityById(targetId);
@@ -398,6 +418,10 @@ function getAiController(targetId, weaponId, canHit, canJump, canDash) {
 function getKeyboardController(weaponId) {
   return {
     start: function(entity) {
+      entity.moveScale = 1;
+      entity.jumpScale = 1;
+      entity.dashScale = 1;
+      entity.hitScale = 1;
       document.addEventListener("keydown", e => {
         e = e || window.event;
         if (e.keyCode == 37) {
@@ -623,8 +647,27 @@ function getPlayerController(weaponId) {
   ]);
 }
 
-function getEnemyController(weaponId, canHit, canJump, canDash) {
-  let ai = getAiController("player", weaponId, canHit, canJump, canDash);
+function getEnemyController(
+  weaponId,
+  moveScale,
+  canHit,
+  hitScale,
+  canJump,
+  jumpScale,
+  canDash,
+  dashScale
+) {
+  let ai = getAiController(
+    "player",
+    weaponId,
+    moveScale,
+    canHit,
+    hitScale,
+    canJump,
+    jumpScale,
+    canDash,
+    dashScale
+  );
   let l = [dashAction, moveAction, stickAction, ai, physicsController];
   return getCompoundAction(l);
 }
