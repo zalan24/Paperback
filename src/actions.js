@@ -75,6 +75,20 @@ const animations = {
       getTranslationAnimation(new vec3(1, 0, 0), 0, 0.25),
       getTranslationAnimation(new vec3(-1, 0, 0), 0.25, 0.5)
     ]
+  },
+  hitUp: {
+    duration: 0.5,
+    transitions: [
+      getTranslationAnimation(new vec3(0, 1, 0), 0, 0.25),
+      getTranslationAnimation(new vec3(0, -1, 0), 0.25, 0.5)
+    ]
+  },
+  hitDown: {
+    duration: 0.5,
+    transitions: [
+      getTranslationAnimation(new vec3(0, -1, 0), 0, 0.25),
+      getTranslationAnimation(new vec3(0, 1, 0), 0.25, 0.5)
+    ]
   }
 };
 
@@ -181,8 +195,18 @@ function dash(entity) {
 function canHit(entity) {
   return entity.hitTime + hitTimeLimit * entity.hitScale < entity.time;
 }
-function hit(entity, weapon, animation) {
+function hit(entity, weapon) {
   if (canHit(entity)) {
+    let animation = animations.hit;
+    let hitDir = new vec3(getFacing(entity));
+    if (entity.up) {
+      animation = animations.hitUp;
+      hitDir = new vec3(0, 1);
+    }
+    if (entity.down) {
+      animation = animations.hitDown;
+      hitDir = new vec3(0, -1);
+    }
     addAnimation(getEntityById(weapon), animation);
     entity.hitTime = entity.time;
   }
@@ -386,7 +410,7 @@ function getAiController(
         // Following the player
         let f = getFacing(entity);
         if (lengthVec(diff) < enemyHitRange) {
-          if (canHit) hit(entity, weaponId, animations.hit);
+          if (canHit) hit(entity, weaponId);
         } else {
           entity.left = diff.x < 0;
           entity.right = !entity.left;
@@ -407,6 +431,8 @@ function getAiController(
           pl.speed.x * f <= 0
         )
           dash(entity);
+        entity.down = diff.y < -Math.abs(diff.x);
+        entity.up = diff.y > Math.abs(diff.x);
       } else {
         entity.left = false;
         entity.right = false;
@@ -445,7 +471,7 @@ function getKeyboardController(weaponId) {
           entity.up = false;
         }
         if (e.keyCode == 90) jump(entity);
-        if (e.keyCode == 88) hit(entity, weaponId, animations.hit);
+        if (e.keyCode == 88) hit(entity, weaponId);
         // console.log("key: " + e.keyCode);
         if (e.keyCode == 67) dash(entity);
       });
