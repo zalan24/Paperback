@@ -590,6 +590,7 @@ const var_replace = {
   checkPointPlatform: "_pi",
   onCheckPoint: "_op",
   checkPointPlace: "_cx",
+  followTime: "_fw",
   areaUnder: "_au"
 };
 

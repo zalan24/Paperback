@@ -14,6 +14,31 @@ const player = {
   action: getPlayerController("sword")
 };
 
+function getEnemy(
+  id,
+  card,
+  weaponCard,
+  canHit = true,
+  canJump = false,
+  canDash = false
+) {
+  return {
+    id: id,
+    card: card,
+    children: [
+      {
+        id: id + "sword",
+        card: weaponCard,
+        scale: 0.3,
+        translation: [0.3, 0.2, 0],
+        action: animationAction
+      }
+    ],
+    translation: [0, -0.5, -0.01],
+    action: getEnemyController(id + "sword", canHit, canJump, canDash)
+  };
+}
+
 function createHeartEntity(i) {
   return {
     card: "heart",
@@ -135,6 +160,7 @@ const scenes = {
   ],
   bladeScene: [
     player,
+    getEnemy("enemy", "character", "sword", true, true, true),
     {
       card: "platform",
       stick: false,
@@ -157,6 +183,28 @@ const scenes = {
     {
       card: "platform",
       // stick: false,
+      translation: [-0.7, -0.7, 0],
+      cardTransform: getScaling(new vec3(1, 0.5, 1)),
+      scale: 0.5,
+      action: getPlatformController(false, false, {
+        to: new vec3(0.2, 0),
+        duration: 2
+      })
+    },
+    {
+      card: "platform",
+      // stick: false,
+      translation: [0.7, -0.7, 0],
+      cardTransform: getScaling(new vec3(1, 0.5, 1)),
+      scale: 0.5,
+      action: getPlatformController(false, false, {
+        to: new vec3(-0.2, 0),
+        duration: 2
+      })
+    },
+    {
+      card: "platform",
+      // stick: false,
       translation: [0.5, 0, 0],
       cardTransform: getScaling(new vec3(1, 0.5, 1)),
       scale: 0.5,
@@ -173,6 +221,17 @@ const scenes = {
         to: new vec3(0, 0.1),
         duration: 2
       })
+    },
+    {
+      card: "platform",
+      stick: false,
+      translation: [0.9, -0.2, 0],
+      cardTransform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+        getScaling(new vec3(6, 1, 1))
+      ),
+      scale: 0.3,
+      action: getPlatformController()
     }
   ]
 };

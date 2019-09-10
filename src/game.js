@@ -38,6 +38,7 @@ const maxAAFps = 70;
 const minCanvasScale = 1 / 8;
 const maxAA = 2;
 const scaleStep = 0.8;
+const cameraZ = -2;
 
 function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
@@ -118,7 +119,7 @@ function update() {
     let camPos = new vec3(
       Math.max(-limit, Math.min(pos.x, limit)),
       Math.max(-limit, Math.min(pos.y, limit)),
-      -0.5
+      cameraZ
     );
     nextCameraPos = lookAt(camPos, pos, new vec3(0, 1, 0));
   }

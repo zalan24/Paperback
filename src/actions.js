@@ -18,6 +18,12 @@ const maxCharacterAcceleration = 10;
 const sceneChangeThreshold = 0.9;
 const maxHeartRotationSpeed = 2;
 const heartRotationTargetX = 0.1;
+const enemyFollowRange = 0.2;
+const enemyFollowTime = 9;
+const enemyHitRange = 0.1;
+const enemyJumpHightLimit = 0.1;
+const enemyJumpSpeedLimit = 0.1;
+const enemyDashLimit = 0.3;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -346,6 +352,49 @@ const moveAction = {
   }
 };
 
+function getAiController(targetId, weaponId, canHit, canJump, canDash) {
+  return {
+    start: function(entity) {
+      entity.followTime = -100;
+    },
+    update: function(entity, updateData) {
+      let pl = getEntityById(targetId);
+      let p = pl.getCardPosition();
+      let diff = subVec(p, entity.getCardPosition());
+      if (lengthVec(diff) < enemyFollowRange) entity.followTime = entity.time;
+      if (entity.time - entity.followTime < enemyFollowTime) {
+        // Following the player
+        let f = getFacing(entity);
+        if (lengthVec(diff) < enemyHitRange) {
+          if (canHit) hit(entity, weaponId, animations.hit);
+        } else {
+          entity.left = diff.x < 0;
+          entity.right = !entity.left;
+        }
+        if (
+          canJump &&
+          diff.y > 0.05 &&
+          (entity.walled >= entity.time ||
+            (diff.y > enemyJumpHightLimit &&
+              Math.abs(pl.speed.y) < enemyJumpSpeedLimit))
+        )
+          jump(entity);
+        if (
+          canDash &&
+          diff.x * f < 0 &&
+          Math.abs(diff.y) < enemyJumpHightLimit &&
+          Math.abs(diff.x) > enemyDashLimit &&
+          pl.speed.x * f <= 0
+        )
+          dash(entity);
+      } else {
+        entity.left = false;
+        entity.right = false;
+      }
+    }
+  };
+}
+
 function getKeyboardController(weaponId) {
   return {
     start: function(entity) {
@@ -572,6 +621,12 @@ function getPlayerController(weaponId) {
     physicsController,
     sceneChangeAction
   ]);
+}
+
+function getEnemyController(weaponId, canHit, canJump, canDash) {
+  let ai = getAiController("player", weaponId, canHit, canJump, canDash);
+  let l = [dashAction, moveAction, stickAction, ai, physicsController];
+  return getCompoundAction(l);
 }
 
 function getColliderAction(deadly, checkPoint) {
