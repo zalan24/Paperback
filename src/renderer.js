@@ -1,5 +1,6 @@
 var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
+var fullWindow = document.getElementById("w");
 
 const circleAreaD = 20;
 const maxOccluderCount = 32;
@@ -303,8 +304,15 @@ var canvasSizeScale = 1;
 var antiAliasQuality = 2;
 
 function resize() {
-  glCanvas.width = Math.floor(window.innerWidth * canvasSizeScale);
-  glCanvas.height = Math.floor(window.innerHeight * canvasSizeScale);
+  let aa = antiAliasQuality;
+  if (!fullWindow.checked) {
+    glCanvas.width = Math.floor(window.innerWidth * canvasSizeScale);
+    glCanvas.height = Math.floor(window.innerHeight * canvasSizeScale);
+  } else {
+    glCanvas.width = 320;
+    glCanvas.height = 200;
+    aa = 1;
+  }
 
   // mulitsampling
   // frameSize.w = glCanvas.width;
@@ -327,8 +335,8 @@ function resize() {
   // );
 
   // rendering in higher resolution for anti-aliasing
-  frameSize.w = Math.floor(glCanvas.width * antiAliasQuality);
-  frameSize.h = Math.floor(glCanvas.height * antiAliasQuality);
+  frameSize.w = Math.floor(glCanvas.width * aa);
+  frameSize.h = Math.floor(glCanvas.height * aa);
   gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderbuffer);
   gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA8, frameSize.w, frameSize.h);
   gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer);
@@ -362,6 +370,7 @@ function onWindowResize(evt) {
   resize();
 }
 window.addEventListener("resize", onWindowResize);
+fullWindow.onclick = resize;
 
 // gl.clearColor(0.5, 0.5, 0.5, 0.9);
 gl.clearDepth(1.0);

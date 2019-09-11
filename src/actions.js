@@ -34,6 +34,8 @@ const enemyChangeTime = 1;
 const enemyChargeDuration = 0.3;
 const dieJump = 1;
 
+var spareMe = document.getElementById("p");
+
 var sceneId = 0;
 var sceneCount = 0;
 function loadSceneById(id) {
@@ -472,12 +474,16 @@ const moveAction = {
   }
 };
 
+var pl = {
+  lives: null
+};
+
 function getAiController(
   targetId,
   weaponId,
   chargeScale,
   moveScale,
-  canHit,
+  ch,
   hitScale,
   canJump,
   jumpScale,
@@ -495,8 +501,8 @@ function getAiController(
       entity.chargeStart = -enemyChangeTime;
     },
     update: function(entity, updateData) {
-      let pl = getEntityById(targetId);
-      let p = pl.getCardPosition();
+      let pe = getEntityById(targetId);
+      let p = pe.getCardPosition();
       let diff = subVec(p, entity.getCardPosition());
       if (lengthVec(diff) < enemyFollowRange) entity.followTime = entity.time;
       if (
@@ -507,8 +513,14 @@ function getAiController(
       ) {
         // Following the player
         let f = getFacing(entity);
+        let move = false;
         if (lengthVec(diff) < enemyHitRange) {
-          if (canHit) {
+          if (
+            ch &&
+            canHit(entity) &&
+            (pl.lives > 1 || !spareMe.checked) &&
+            diff.x * f < 0
+          ) {
             if (
               entity.chargeStart +
                 enemyChangeTime * entity.chargeScale +
@@ -519,10 +531,16 @@ function getAiController(
               entity.chargeStart = -enemyChangeTime;
             } else {
               entity.chargeStart = entity.time;
-              addAnimation(getEntityById(weaponId), animations.hitPrepare);
+              let anim = {
+                duration:
+                  enemyChangeTime * entity.chargeScale + enemyChargeDuration,
+                transitions: animations.hitPrepare.transitions
+              };
+              addAnimation(getEntityById(weaponId), anim);
             }
-          }
-        } else {
+          } else move = true;
+        } else move = true;
+        if (move) {
           entity.left = diff.x < 0;
           entity.right = !entity.left;
         }
@@ -531,7 +549,7 @@ function getAiController(
           diff.y > 0.05 &&
           (entity.walled >= entity.time ||
             (diff.y > enemyJumpHightLimit &&
-              Math.abs(pl.speed.y) < enemyJumpSpeedLimit))
+              Math.abs(pe.speed.y) < enemyJumpSpeedLimit))
         )
           jump(entity);
         if (
@@ -711,9 +729,6 @@ const stickAction = {
 
 var checkPointId = 0;
 var checkPointPlace = null;
-var pl = {
-  lives: null
-};
 
 function getLifeAction(ll, max) {
   return {
