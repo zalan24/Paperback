@@ -29,6 +29,7 @@ const hitRadius = hitDistance;
 const hitDownPush = 1.5;
 const hitPushBack = 1;
 const hitPushEnemy = 1;
+const hurtTimeLimit = 1;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -37,8 +38,8 @@ function loadSceneById(id) {
   loadScene(sceneList[id].concat(hearts));
 }
 
-function getMaxLives() {
-  return 3 + sceneId;
+function getMaxLives(si) {
+  return 3 + si;
 }
 
 function invlerp(v, a, b) {
@@ -94,6 +95,10 @@ const animations = {
       getTranslationAnimation(new vec3(0, -1, 0), 0, 0.25),
       getTranslationAnimation(new vec3(0, 1, 0), 0.25, 0.5)
     ]
+  },
+  hitPrepare: {
+    duration: 1,
+    transitions: [getTranslationAnimation(new vec3(1, -1, 0), 0, 0.25)]
   }
 };
 
@@ -653,24 +658,38 @@ const stickAction = {
 
 var checkPointId = 0;
 var checkPointPlace = null;
-var lives = null;
-
-const lifeAction = {
-  start: function(entity) {
-    if (lives == null) lives = getMaxLives();
-    else lives = Math.min(lives, getMaxLives());
-  },
-  update: function(entity, updateData) {}
+var pl = {
+  lives: null
 };
 
-function hurt(entity) {
-  if (--lives == 0) {
-    if (checkPointId != sceneId) loadSceneById(checkPointId);
-    lives = getMaxLives();
-    entity.transform = transformMatMat(
-      getTranslation(subVec(checkPointPlace, entity.getCardPosition())),
-      entity.transform
-    );
+function getLifeAction(ll, max) {
+  return {
+    start: function(entity) {
+      if (entity.l == null) entity.l = ll;
+      if (entity.l.lives == null) entity.l.lives = max;
+      else entity.l.lives = Math.min(entity.l.lives, max);
+      entity.l.max = max;
+      entity.hurtTime = 0;
+    }
+    // ,
+    // update: function(entity, updateData) {}
+  };
+}
+
+function hurt(entity, ignoreTime = false) {
+  if (entity.hurtTime + hurtTimeLimit > entity.time && !ignoreTime) return;
+  entity.hurtTime = entity.time;
+  if (--entity.l.lives == 0) {
+    if (getEntityById("player") == entity) {
+      if (checkPointId != sceneId) loadSceneById(checkPointId);
+      entity.l.lives = getMaxLives(sceneId);
+      entity.transform = transformMatMat(
+        getTranslation(subVec(checkPointPlace, entity.getCardPosition())),
+        entity.transform
+      );
+    } else {
+      // TODO destory
+    }
   }
 }
 
@@ -706,7 +725,7 @@ const restorePositionAction = {
       if (entity.onCheckPoint) {
         checkPointPlace = entity.getCardPosition();
         checkPointId = sceneId;
-        lives = getMaxLives();
+        entity.l.lives = entity.l.max;
       }
       // entity.storedPlace = updateData.time;
     }
@@ -723,11 +742,11 @@ const sceneChangeAction = {
   }
 };
 
-function getPlayerController(weaponId) {
+function getPlayerController(weaponId, scene) {
   let keyBoard = getKeyboardController(weaponId);
   return getCompoundAction([
     restorePositionAction,
-    lifeAction,
+    getLifeAction(pl, getMaxLives(scene)),
     dashAction,
     moveAction,
     stickAction,
@@ -823,15 +842,16 @@ function getHeartAction(playerId, i) {
       //   entity.heartOn = true;
       // },
       update: function(entity, updateData) {
+        let p = getEntityById(playerId);
+        if (p.l == null) return;
         let invMat = invert(camera);
-        // let p = getEntityById(playerId);
-        let on = lives > i;
+        let on = p.l.lives > i;
         let pos = transformMatPosition(
           invMat,
           new vec3(
             i * 0.003 - 0.065,
             (-0.065 * glCanvas.height) / glCanvas.width,
-            getMaxLives() > i ? 0.1 : -2
+            p.l.max > i ? 0.1 : -2
           )
         );
         entity.transform = transformMatMat(

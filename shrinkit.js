@@ -595,6 +595,7 @@ const var_replace = {
   jumpScale: "_js",
   dashScale: "_dsc",
   hitScale: "_hsc",
+  hurtTime: "_hte",
   areaUnder: "_au"
 };
 

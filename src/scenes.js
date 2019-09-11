@@ -1,4 +1,4 @@
-function getPlayer(pos) {
+function getPlayer(pos, scenei) {
   return {
     id: "player",
     card: "character",
@@ -12,7 +12,7 @@ function getPlayer(pos) {
       }
     ],
     translation: pos,
-    action: getPlayerController("sword")
+    action: getPlayerController("sword", scenei)
   };
 }
 
@@ -70,7 +70,7 @@ for (let i = 0; i < maxHeartNum; ++i) hearts.push(createHeartEntity(i));
 
 const scenes = {
   testScene: [
-    getPlayer([0, -0.5, -0.01]),
+    getPlayer([0, -0.5, -0.01], 1),
     // {
     //   id: "testPlatform",
     //   card: "platform",
@@ -175,7 +175,7 @@ const scenes = {
     // }
   ],
   bladeScene: [
-    getPlayer([0.3, 0.5, -0.01]),
+    getPlayer([0.3, 0.5, -0.01], 0),
     getEnemy(
       "enemy",
       [-0.7, 0.5, 0],
