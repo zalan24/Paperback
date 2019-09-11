@@ -14,7 +14,7 @@ var cameraTranslation = new vec3();
 
 // var camera = null; // lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
 var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
-var nextCameraPos = null;
+// var nextCameraPos = null;
 var startTime;
 var t = 0;
 
@@ -42,6 +42,36 @@ const cameraZ = -2;
 
 function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
+}
+
+function getCamera(dt) {
+  // TODO test
+  // CAN_BE_REMOVED
+  if (followEntity == null) {
+    return lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+  }
+  let ud = 0.5;
+  if ((followEntity.speed && followEntity.speed.y < -1.5) || followEntity.down)
+    ud = -0.7;
+  else if (followEntity.up) ud = 1;
+  let cameraTargetTranslation = new vec3(
+    -getFacing(followEntity) * 0.1,
+    ud * 0.1
+  );
+  // cameraTranslation = cameraTargetTranslation;
+  cameraTranslation = lerpVec(
+    cameraTranslation,
+    cameraTargetTranslation,
+    1 - Math.pow(2, -dt * 10)
+  );
+  let pos = addVec(followEntity.getCardPosition(), cameraTranslation);
+  let limit = 0.9;
+  let camPos = new vec3(
+    Math.max(-limit, Math.min(pos.x, limit)),
+    Math.max(-limit, Math.min(pos.y, limit)),
+    cameraZ
+  );
+  return lookAt(camPos, pos, new vec3(0, 1, 0));
 }
 
 function update() {
@@ -88,41 +118,7 @@ function update() {
     graphicsFpsTime = 0;
     graphicsFps = 0;
   }
-  // TODO test
-  // CAN_BE_REMOVED
-  if (followEntity == null) {
-    nextCameraPos = lookAt(
-      new vec3(2, 3, -5),
-      new vec3(0, 0, 0),
-      new vec3(0, 1, 0)
-    );
-  } else {
-    let ud = 0.5;
-    if (
-      (followEntity.speed && followEntity.speed.y < -1.5) ||
-      followEntity.down
-    )
-      ud = -0.7;
-    else if (followEntity.up) ud = 1;
-    let cameraTargetTranslation = new vec3(
-      -getFacing(followEntity) * 0.1,
-      ud * 0.1
-    );
-    // cameraTranslation = cameraTargetTranslation;
-    cameraTranslation = lerpVec(
-      cameraTranslation,
-      cameraTargetTranslation,
-      1 - Math.pow(2, -dt * 10)
-    );
-    let pos = addVec(followEntity.getCardPosition(), cameraTranslation);
-    let limit = 0.9;
-    let camPos = new vec3(
-      Math.max(-limit, Math.min(pos.x, limit)),
-      Math.max(-limit, Math.min(pos.y, limit)),
-      cameraZ
-    );
-    nextCameraPos = lookAt(camPos, pos, new vec3(0, 1, 0));
-  }
+  // nextCameraPos = getCamera(dt);
 
   let updateData = { dt: dt, time: t };
 
@@ -136,7 +132,7 @@ function update() {
 
   uploadOccluders(entities);
 
-  camera = nextCameraPos;
+  camera = getCamera(dt);
 
   startRender();
   let renderData = { view: camera };
