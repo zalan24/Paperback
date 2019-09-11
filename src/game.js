@@ -44,7 +44,11 @@ function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
 }
 
-function getCamera(dt) {
+var camTime = 0;
+
+function getCamera(time) {
+  let dt = time - camTime;
+  camTime = time;
   // TODO test
   // CAN_BE_REMOVED
   if (followEntity == null) {
@@ -59,6 +63,7 @@ function getCamera(dt) {
     ud * 0.1
   );
   // cameraTranslation = cameraTargetTranslation;
+  // if (dt > 0)
   cameraTranslation = lerpVec(
     cameraTranslation,
     cameraTargetTranslation,
@@ -132,7 +137,7 @@ function update() {
 
   uploadOccluders(entities);
 
-  camera = getCamera(dt);
+  camera = getCamera(t);
 
   startRender();
   let renderData = { view: camera };
@@ -174,6 +179,8 @@ function addEntity(r) {
 
 function clearScene() {
   followEntity = null;
+  cameraTranslation = new vec3();
+  camTime = 0;
   startGame();
 }
 

@@ -925,7 +925,7 @@ function getHeartAction(playerId, i) {
       update: function(entity, updateData) {
         let p = getEntityById(playerId);
         if (p.l == null) return;
-        let invMat = invert(camera);
+        let invMat = invert(getCamera(updateData.time));
         let on = p.l.lives > i;
         let pos = transformMatPosition(
           invMat,
@@ -962,7 +962,7 @@ function getHeartAction(playerId, i) {
         );
       }
     },
-    animationAction,
-    stickAction
+    animationAction
+    // stickAction
   ]);
 }
