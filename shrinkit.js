@@ -596,6 +596,8 @@ const var_replace = {
   dashScale: "_dsc",
   hitScale: "_hsc",
   hurtTime: "_hte",
+  chargeScale: "_cc",
+  chargeStart: "_cst",
   areaUnder: "_au"
 };
 

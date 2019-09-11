@@ -30,6 +30,8 @@ const hitDownPush = 1.5;
 const hitPushBack = 1;
 const hitPushEnemy = 1;
 const hurtTimeLimit = 1;
+const enemyChangeTime = 1;
+const enemyChargeDuration = 0.3;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -97,7 +99,7 @@ const animations = {
     ]
   },
   hitPrepare: {
-    duration: 1,
+    duration: 9,
     transitions: [getTranslationAnimation(new vec3(1, -1, 0), 0, 0.25)]
   }
 };
@@ -452,6 +454,7 @@ const moveAction = {
 function getAiController(
   targetId,
   weaponId,
+  chargeScale,
   moveScale,
   canHit,
   hitScale,
@@ -467,17 +470,35 @@ function getAiController(
       entity.jumpScale = jumpScale;
       entity.dashScale = dashScale;
       entity.hitScale = hitScale;
+      entity.chargeScale = chargeScale;
+      entity.chargeStart = -enemyChangeTime;
     },
     update: function(entity, updateData) {
       let pl = getEntityById(targetId);
       let p = pl.getCardPosition();
       let diff = subVec(p, entity.getCardPosition());
       if (lengthVec(diff) < enemyFollowRange) entity.followTime = entity.time;
-      if (entity.time - entity.followTime < enemyFollowTime) {
+      if (
+        entity.time - entity.followTime < enemyFollowTime &&
+        entity.chargeStart + enemyChangeTime * entity.chargeScale < entity.time
+      ) {
         // Following the player
         let f = getFacing(entity);
         if (lengthVec(diff) < enemyHitRange) {
-          if (canHit) hit(entity, weaponId);
+          if (canHit) {
+            if (
+              entity.chargeStart +
+                enemyChangeTime * entity.chargeScale +
+                enemyChargeDuration >
+              entity.time
+            ) {
+              hit(entity, weaponId);
+              entity.chargeStart = -enemyChangeTime;
+            } else {
+              entity.chargeStart = entity.time;
+              addAnimation(getEntityById(weaponId), animations.hitPrepare);
+            }
+          }
         } else {
           entity.left = diff.x < 0;
           entity.right = !entity.left;
@@ -763,6 +784,7 @@ function getPlayerController(weaponId, scene) {
 function getEnemyController(
   lives,
   weaponId,
+  chargeScale,
   moveScale,
   canHit,
   hitScale,
@@ -774,6 +796,7 @@ function getEnemyController(
   let ai = getAiController(
     "player",
     weaponId,
+    chargeScale,
     moveScale,
     canHit,
     hitScale,
