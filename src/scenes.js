@@ -181,12 +181,12 @@ const scenes = {
       [-0.7, 0.5, 0],
       "character",
       "sword",
-      1,
+      0.1,
       true,
       1,
-      true,
+      false,
       1,
-      true,
+      false,
       1
     ),
     {

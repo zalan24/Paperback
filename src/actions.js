@@ -27,7 +27,8 @@ const enemyDashLimit = 0.3;
 const hitDistance = 0.1;
 const hitRadius = hitDistance;
 const hitDownPush = 1.5;
-const hitPushBack = 1.0;
+const hitPushBack = 1;
+const hitPushEnemy = 1;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -219,6 +220,7 @@ function hit(entity, weapon) {
     );
     let hitSomething = false;
     broadcastForParents(e => {
+      if (e == entity) return;
       if (e.collider) {
         // collider
         if (e.deadlyPlatform) {
@@ -251,11 +253,13 @@ function hit(entity, weapon) {
           }
         }
       } else if (e.speed != null) {
-        // let p = e.getCardPosition();
-        // if (lengthVec(subVec(p, hitPos)) < hitRadius) {
-        //   // physics controller
-        //   hitSomething = true;
-        // }
+        let p = e.getCardPosition();
+        if (lengthVec(subVec(p, hitPos)) < hitRadius) {
+          // physics controller
+          hitSomething = true;
+          e.speed = removeComponent(e.speed, mulVecScalar(hitDir, -1));
+          e.speed = addVec(e.speed, mulVecScalar(hitDir, hitPushEnemy));
+        }
       }
     });
     if (hitSomething) {
@@ -505,39 +509,42 @@ function getKeyboardController(weaponId) {
       entity.jumpScale = 1;
       entity.dashScale = 1;
       entity.hitScale = 1;
+      let id = entity.id;
       document.addEventListener("keydown", e => {
         e = e || window.event;
+        let ent = getEntityById(id);
         if (e.keyCode == 37) {
           // left arrow
-          entity.left = true;
-          entity.right = false;
+          ent.left = true;
+          ent.right = false;
         }
         if (e.keyCode == 39) {
           // right arrow
-          entity.right = true;
-          entity.left = false;
+          ent.right = true;
+          ent.left = false;
         }
         if (e.keyCode == 38) {
           // Up arrow
-          entity.up = true;
-          entity.down = false;
+          ent.up = true;
+          ent.down = false;
         }
         if (e.keyCode == 40) {
           // right arrow
-          entity.down = true;
-          entity.up = false;
+          ent.down = true;
+          ent.up = false;
         }
-        if (e.keyCode == 90) jump(entity);
-        if (e.keyCode == 88) hit(entity, weaponId);
+        if (e.keyCode == 90) jump(ent);
+        if (e.keyCode == 88) hit(ent, weaponId);
         // console.log("key: " + e.keyCode);
-        if (e.keyCode == 67) dash(entity);
+        if (e.keyCode == 67) dash(ent);
       });
       document.addEventListener("keyup", e => {
         e = e || window.event;
-        if (e.keyCode == 37) entity.left = false;
-        if (e.keyCode == 39) entity.right = false;
-        if (e.keyCode == 38) entity.up = false;
-        if (e.keyCode == 40) entity.down = false;
+        let ent = getEntityById(id);
+        if (e.keyCode == 37) ent.left = false;
+        if (e.keyCode == 39) ent.right = false;
+        if (e.keyCode == 38) ent.up = false;
+        if (e.keyCode == 40) ent.down = false;
       });
     }
   };
