@@ -59,6 +59,14 @@ function getEnemy(
   };
 }
 
+function getDoorEntity(enemyId, pos) {
+  return {
+    card: "platform",
+    translation: pos,
+    action: getDoorAction(enemyId)
+  };
+}
+
 function createHeartEntity(i) {
   return {
     card: "heart",
@@ -182,7 +190,7 @@ const scenes = {
     getPlayer([0.3, 0.5, -0.01], 0),
     getEnemy(
       "enemy",
-      [-0.7, 0.5, 0],
+      [-0.7, 0, 0],
       3,
       "character",
       "sword",
@@ -195,6 +203,7 @@ const scenes = {
       false,
       1
     ),
+    getDoorEntity("enemy", [-0.8, -0.2, 0]),
     {
       card: "platform",
       stick: false,

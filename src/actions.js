@@ -33,6 +33,7 @@ const hurtTimeLimit = 1;
 const enemyChangeTime = 1;
 const enemyChargeDuration = 0.3;
 const dieJump = 1;
+const doorOpenTime = 1;
 
 var spareMe = document.getElementById("p");
 
@@ -964,5 +965,30 @@ function getHeartAction(playerId, i) {
     },
     animationAction
     // stickAction
+  ]);
+}
+
+function getDoorAction(enemyId) {
+  return getCompoundAction([
+    getColliderAction(),
+    {
+      start: function(entity) {
+        // entity.doorStartPos = entity.getCardPosition();
+        // entity.doorTarget = addVec(entity.doorStartPos, new vec3(0, 0.5));
+        entity.doorTime = null;
+      },
+      update: function(entity, updateData) {
+        let e = getEntityById(enemyId);
+        if (e.dead) {
+          if (entity.doorTime == null) entity.doorTime = updateData.time;
+          if (entity.doorTime + doorOpenTime >= updateData.time) {
+            entity.transform = transformMatMat(
+              getTranslation(new vec3(0, (0.5 * updateData.dt) / doorOpenTime)),
+              entity.transform
+            );
+          }
+        }
+      }
+    }
   ]);
 }
