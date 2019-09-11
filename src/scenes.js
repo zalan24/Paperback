@@ -19,6 +19,7 @@ function getPlayer(pos, scenei) {
 function getEnemy(
   id,
   pos,
+  lives,
   card,
   weaponCard,
   moveScale = 1,
@@ -43,6 +44,7 @@ function getEnemy(
     ],
     translation: pos,
     action: getEnemyController(
+      lives,
       id + "sword",
       moveScale,
       canHit,
@@ -179,6 +181,7 @@ const scenes = {
     getEnemy(
       "enemy",
       [-0.7, 0.5, 0],
+      3,
       "character",
       "sword",
       0.1,

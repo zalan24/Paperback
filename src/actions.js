@@ -264,6 +264,7 @@ function hit(entity, weapon) {
           hitSomething = true;
           e.speed = removeComponent(e.speed, mulVecScalar(hitDir, -1));
           e.speed = addVec(e.speed, mulVecScalar(hitDir, hitPushEnemy));
+          hurt(e);
         }
       }
     });
@@ -677,10 +678,12 @@ function getLifeAction(ll, max) {
 }
 
 function hurt(entity, ignoreTime = false) {
-  if (entity.hurtTime + hurtTimeLimit > entity.time && !ignoreTime) return;
+  let pl = getEntityById("player") == entity;
+  if (entity.hurtTime + hurtTimeLimit > entity.time && !ignoreTime && pl)
+    return;
   entity.hurtTime = entity.time;
   if (--entity.l.lives == 0) {
-    if (getEntityById("player") == entity) {
+    if (pl) {
       if (checkPointId != sceneId) loadSceneById(checkPointId);
       entity.l.lives = getMaxLives(sceneId);
       entity.transform = transformMatMat(
@@ -689,6 +692,7 @@ function hurt(entity, ignoreTime = false) {
       );
     } else {
       // TODO destory
+      console.log("dead");
     }
   }
 }
@@ -757,6 +761,7 @@ function getPlayerController(weaponId, scene) {
 }
 
 function getEnemyController(
+  lives,
   weaponId,
   moveScale,
   canHit,
@@ -777,7 +782,14 @@ function getEnemyController(
     canDash,
     dashScale
   );
-  let l = [dashAction, moveAction, stickAction, ai, physicsController];
+  let l = [
+    getLifeAction({}, lives),
+    dashAction,
+    moveAction,
+    stickAction,
+    ai,
+    physicsController
+  ];
   return getCompoundAction(l);
 }
 
