@@ -153,7 +153,7 @@ const scenes = {
         getScaling(new vec3(6, 1, 1))
       ),
       scale: 0.3,
-      action: getPlatformController()
+      action: getPlatformController(true)
     },
     {
       id: "testBackground",

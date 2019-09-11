@@ -24,6 +24,10 @@ const enemyHitRange = 0.1;
 const enemyJumpHightLimit = 0.1;
 const enemyJumpSpeedLimit = 0.1;
 const enemyDashLimit = 0.3;
+const hitDistance = 0.1;
+const hitRadius = hitDistance;
+const hitDownPush = 1.5;
+const hitPushBack = 1.0;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -198,7 +202,7 @@ function canHit(entity) {
 function hit(entity, weapon) {
   if (canHit(entity)) {
     let animation = animations.hit;
-    let hitDir = new vec3(getFacing(entity));
+    let hitDir = new vec3(-getFacing(entity));
     if (entity.up) {
       animation = animations.hitUp;
       hitDir = new vec3(0, 1);
@@ -209,6 +213,59 @@ function hit(entity, weapon) {
     }
     addAnimation(getEntityById(weapon), animation);
     entity.hitTime = entity.time;
+    let hitPos = addVec(
+      entity.getCardPosition(),
+      mulVecScalar(hitDir, hitDistance)
+    );
+    let hitSomething = false;
+    broadcastForParents(e => {
+      if (e.collider) {
+        // collider
+        if (e.deadlyPlatform) {
+          let invMat = invert(e.getBoxTransform());
+          // let entityToCollider = transformMatMat(
+          //   invMat,
+          //   entity.getBoxTransform()
+          // );
+          let transformedHitPos = transformMatPosition(invMat, hitPos);
+          let x =
+            hitRadius /
+            lengthVec(transformMatDirection(e.getBoxTransform(), new vec3(1)));
+          let y =
+            hitRadius /
+            lengthVec(
+              transformMatDirection(e.getBoxTransform(), new vec3(0, 1))
+            );
+          let collBox = e.getBox();
+          // console.log(transformedHitPos.x + x > collBox.a.x);
+          // console.log(transformedHitPos.x - x < collBox.b.x);
+          // console.log(transformedHitPos.y + y > collBox.a.y);
+          // console.log(transformedHitPos.y - y < collBox.b.y);
+          if (
+            transformedHitPos.x + x > collBox.a.x &&
+            transformedHitPos.x - x < collBox.b.x &&
+            transformedHitPos.y + y > collBox.a.y &&
+            transformedHitPos.y - y < collBox.b.y
+          ) {
+            hitSomething = true;
+          }
+        }
+      } else if (e.speed != null) {
+        // let p = e.getCardPosition();
+        // if (lengthVec(subVec(p, hitPos)) < hitRadius) {
+        //   // physics controller
+        //   hitSomething = true;
+        // }
+      }
+    });
+    if (hitSomething) {
+      if (hitDir.y < 0) {
+        entity.grounded = entity.time;
+        entity.speed.y = hitDownPush;
+      } else if (hitDir.x != 0) {
+        entity.speed.x = hitPushBack * getFacing(entity);
+      }
+    }
   }
 }
 

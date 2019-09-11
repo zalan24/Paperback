@@ -188,3 +188,6 @@ function getEntityById(id) {
 function broadcastEvent(f) {
   entities.forEach(r => traverseEntities(r, e => f(e)));
 }
+function broadcastForParents(f) {
+  entities.forEach(r => f(r));
+}
