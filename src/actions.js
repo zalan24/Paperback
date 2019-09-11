@@ -20,7 +20,7 @@ const maxHeartRotationSpeed = 2;
 const heartRotationTargetX = 0.1;
 const enemyFollowRange = 0.5;
 const enemyFollowTime = 9;
-const enemyHitRange = 0.1;
+const enemyHitRange = 0.2;
 const enemyJumpHightLimit = 0.1;
 const enemyJumpSpeedLimit = 0.1;
 const enemyDashLimit = 0.3;
@@ -32,6 +32,7 @@ const hitPushEnemy = 1;
 const hurtTimeLimit = 1;
 const enemyChangeTime = 1;
 const enemyChargeDuration = 0.3;
+const dieJump = 1;
 
 var sceneId = 0;
 var sceneCount = 0;
@@ -294,6 +295,7 @@ const physicsController = {
     entity.hitTime = 0;
     entity.platformSpeed = new vec3();
     entity.onCheckPoint = false;
+    entity.dead = false;
   },
   update: function(entity, updateData) {
     if (!entity.dashing)
@@ -301,105 +303,124 @@ const physicsController = {
     entity.platformSpeed = new vec3();
     entity.fallen = entity.getCardPosition().y < -1;
     entity.onCheckPoint = false;
-    broadcastEvent(e => {
-      if (e.collider == null /* || !e.collider */) return;
-      let colliderSpeed = new vec3();
-      if (e.speed != null) colliderSpeed = e.speed;
-      let invMat = invert(e.getBoxTransform());
-      // let localPos = transformMatPosition(
-      //   invMat,
-      //   transformMatPosition(entity.getTransform())
-      // );
-      let entityToCollider = transformMatMat(invMat, entity.getBoxTransform());
-      let entityBox = entity.getBox();
-      let transformedBox = [
-        transformMatPosition(entityToCollider, entityBox.a),
-        transformMatPosition(entityToCollider, entityBox.b),
-        transformMatPosition(
-          entityToCollider,
-          new vec3(entityBox.a.x, entityBox.b.y)
-        ),
-        transformMatPosition(
-          entityToCollider,
-          new vec3(entityBox.b.x, entityBox.a.y)
-        )
-      ];
-      let box = { a: transformedBox[0], b: transformedBox[0] };
-      // i < transformedBox.length
-      for (let i = 1; i < 4; ++i) {
-        // CAN_BE_REMOVED
-        box.a = minVec2D(box.a, transformedBox[i]);
-        box.b = maxVec2D(box.b, transformedBox[i]);
-      }
-      let entitySpeed = subVec(entity.speed, colliderSpeed);
-      let transformedSpeed = transformMatDirection(invMat, entity.speed);
-      let speedTranslation = mulVecScalar(transformedSpeed, updateData.dt);
-      let relativeSpeed = transformMatDirection(invMat, entitySpeed);
-      let translatedBox = {
-        a: addVec(box.a, speedTranslation),
-        b: addVec(box.b, speedTranslation)
-      };
-      let collBox = e.getBox();
-      let worldUp = transformMatDirection(e.getBoxTransform(), new vec3(0, 1));
-      let worldSide = transformMatDirection(e.getBoxTransform(), new vec3(1));
-      let translation = new vec3();
-      // if (e.parent != null && e.parent.id == "plat")
-      //   console.log({ box: box, collBox: collBox });
-      let correctedSpeed = entitySpeed;
-      let score = -Infinity;
-      let coll = function(dir, tr) {
-        if (e.deadlyPlatform) entity.fallen = true;
-        if (e.checkPointPlatform) entity.onCheckPoint = true;
-        let ltr = lengthVec(tr);
-        let sc =
-          ltr > 0
-            ? dot(normalize(tr), relativeSpeed) * updateData.dt - ltr
-            : -Infinity;
-        // console.log({
-        //   score: score,
-        //   sc: sc
-        // });
-        if (sc < score) return;
-        score = sc;
-        correctedSpeed = removeComponent(entitySpeed, dir);
-        dir = normalize(dir);
-        let threshold = Math.cos(Math.PI / 4);
-        let threshold2 = Math.cos(Math.PI / 16);
-        if (dir.y <= threshold2) {
-          entity.grounded = updateData.time;
-          if (Math.abs(dir.x) > threshold) {
-            entity.walled = updateData.time;
-            correctedSpeed.y = Math.max(-maxWalledFallSpeed, correctedSpeed.y);
-          }
+    if (entity.getCardPosition().y < -99) return;
+    if (!entity.dead)
+      broadcastEvent(e => {
+        if (e.collider == null /* || !e.collider */) return;
+        let colliderSpeed = new vec3();
+        if (e.speed != null) colliderSpeed = e.speed;
+        let invMat = invert(e.getBoxTransform());
+        // let localPos = transformMatPosition(
+        //   invMat,
+        //   transformMatPosition(entity.getTransform())
+        // );
+        let entityToCollider = transformMatMat(
+          invMat,
+          entity.getBoxTransform()
+        );
+        let entityBox = entity.getBox();
+        let transformedBox = [
+          transformMatPosition(entityToCollider, entityBox.a),
+          transformMatPosition(entityToCollider, entityBox.b),
+          transformMatPosition(
+            entityToCollider,
+            new vec3(entityBox.a.x, entityBox.b.y)
+          ),
+          transformMatPosition(
+            entityToCollider,
+            new vec3(entityBox.b.x, entityBox.a.y)
+          )
+        ];
+        let box = { a: transformedBox[0], b: transformedBox[0] };
+        // i < transformedBox.length
+        for (let i = 1; i < 4; ++i) {
+          // CAN_BE_REMOVED
+          box.a = minVec2D(box.a, transformedBox[i]);
+          box.b = maxVec2D(box.b, transformedBox[i]);
         }
-        entity.platformSpeed = colliderSpeed;
-        translation = tr;
-      };
-      // CAN_BE_REMOVED
-      // this can be shortened with functions
-      if (translatedBox.a.y < collBox.b.y && translatedBox.b.y > collBox.a.y) {
-        if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x)
-          coll(mulVecScalar(worldSide, -1), new vec3(collBox.b.x - box.a.x));
-        if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x)
-          coll(worldSide, new vec3(collBox.a.x - box.b.x));
-      }
+        let entitySpeed = subVec(entity.speed, colliderSpeed);
+        let transformedSpeed = transformMatDirection(invMat, entity.speed);
+        let speedTranslation = mulVecScalar(transformedSpeed, updateData.dt);
+        let relativeSpeed = transformMatDirection(invMat, entitySpeed);
+        let translatedBox = {
+          a: addVec(box.a, speedTranslation),
+          b: addVec(box.b, speedTranslation)
+        };
+        let collBox = e.getBox();
+        let worldUp = transformMatDirection(
+          e.getBoxTransform(),
+          new vec3(0, 1)
+        );
+        let worldSide = transformMatDirection(e.getBoxTransform(), new vec3(1));
+        let translation = new vec3();
+        // if (e.parent != null && e.parent.id == "plat")
+        //   console.log({ box: box, collBox: collBox });
+        let correctedSpeed = entitySpeed;
+        let score = -Infinity;
+        let coll = function(dir, tr) {
+          if (e.deadlyPlatform) entity.fallen = true;
+          if (e.checkPointPlatform) entity.onCheckPoint = true;
+          let ltr = lengthVec(tr);
+          let sc =
+            ltr > 0
+              ? dot(normalize(tr), relativeSpeed) * updateData.dt - ltr
+              : -Infinity;
+          // console.log({
+          //   score: score,
+          //   sc: sc
+          // });
+          if (sc < score) return;
+          score = sc;
+          correctedSpeed = removeComponent(entitySpeed, dir);
+          dir = normalize(dir);
+          let threshold = Math.cos(Math.PI / 4);
+          let threshold2 = Math.cos(Math.PI / 16);
+          if (dir.y <= threshold2) {
+            entity.grounded = updateData.time;
+            if (Math.abs(dir.x) > threshold) {
+              entity.walled = updateData.time;
+              correctedSpeed.y = Math.max(
+                -maxWalledFallSpeed,
+                correctedSpeed.y
+              );
+            }
+          }
+          entity.platformSpeed = colliderSpeed;
+          translation = tr;
+        };
+        // CAN_BE_REMOVED
+        // this can be shortened with functions
+        if (
+          translatedBox.a.y < collBox.b.y &&
+          translatedBox.b.y > collBox.a.y
+        ) {
+          if (translatedBox.a.x <= collBox.b.x && box.b.x > collBox.b.x)
+            coll(mulVecScalar(worldSide, -1), new vec3(collBox.b.x - box.a.x));
+          if (translatedBox.b.x >= collBox.a.x && box.a.x < collBox.a.x)
+            coll(worldSide, new vec3(collBox.a.x - box.b.x));
+        }
 
-      if (translatedBox.a.x < collBox.b.x && translatedBox.b.x > collBox.a.x) {
-        if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y)
-          // on top
-          coll(mulVecScalar(worldUp, -1), new vec3(0, collBox.b.y - box.a.y));
-        if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y)
-          // below
-          coll(worldUp, new vec3(0, collBox.a.y - box.b.y));
-      }
-      // console.log(transformMatMat(e.getTransform(), invMat));
+        if (
+          translatedBox.a.x < collBox.b.x &&
+          translatedBox.b.x > collBox.a.x
+        ) {
+          if (translatedBox.a.y <= collBox.b.y && box.b.y > collBox.b.y)
+            // on top
+            coll(mulVecScalar(worldUp, -1), new vec3(0, collBox.b.y - box.a.y));
+          if (translatedBox.b.y >= collBox.a.y && box.a.y < collBox.a.y)
+            // below
+            coll(worldUp, new vec3(0, collBox.a.y - box.b.y));
+        }
+        // console.log(transformMatMat(e.getTransform(), invMat));
 
-      entity.transform = transformMatMat(
-        getTranslation(transformMatDirection(e.getBoxTransform(), translation)),
-        entity.transform
-      );
-      entity.speed = addVec(correctedSpeed, colliderSpeed);
-    });
+        entity.transform = transformMatMat(
+          getTranslation(
+            transformMatDirection(e.getBoxTransform(), translation)
+          ),
+          entity.transform
+        );
+        entity.speed = addVec(correctedSpeed, colliderSpeed);
+      });
     entity.speed.z = 0; // just to make sure, the objects do not move on Z axis by accident
     entity.transform = transformMatMat(
       getTranslation(mulVecScalar(entity.speed, updateData.dt)),
@@ -480,7 +501,9 @@ function getAiController(
       if (lengthVec(diff) < enemyFollowRange) entity.followTime = entity.time;
       if (
         entity.time - entity.followTime < enemyFollowTime &&
-        entity.chargeStart + enemyChangeTime * entity.chargeScale < entity.time
+        entity.chargeStart + enemyChangeTime * entity.chargeScale <
+          entity.time &&
+        !entity.dead
       ) {
         // Following the player
         let f = getFacing(entity);
@@ -540,6 +563,10 @@ function getKeyboardController(weaponId) {
       document.addEventListener("keydown", e => {
         e = e || window.event;
         let ent = getEntityById(id);
+        if (entity.dead) {
+          ent.left = ent.right = ent.up = ent.down = false;
+          return;
+        }
         if (e.keyCode == 37) {
           // left arrow
           ent.left = true;
@@ -568,6 +595,10 @@ function getKeyboardController(weaponId) {
       document.addEventListener("keyup", e => {
         e = e || window.event;
         let ent = getEntityById(id);
+        if (entity.dead) {
+          ent.left = ent.right = ent.up = ent.down = false;
+          return;
+        }
         if (e.keyCode == 37) ent.left = false;
         if (e.keyCode == 39) ent.right = false;
         if (e.keyCode == 38) ent.up = false;
@@ -712,8 +743,8 @@ function hurt(entity, ignoreTime = false) {
         entity.transform
       );
     } else {
-      // TODO destory
-      console.log("dead");
+      entity.dead = true;
+      entity.speed.y = dieJump;
     }
   }
 }

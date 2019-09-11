@@ -598,6 +598,7 @@ const var_replace = {
   hurtTime: "_hte",
   chargeScale: "_cc",
   chargeStart: "_cst",
+  dead: "_dd",
   areaUnder: "_au"
 };
 

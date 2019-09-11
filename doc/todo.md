@@ -11,7 +11,6 @@
 
 ## optional
 
-- add hit logic
 - create boss rooms with bosses
 - sound
 - /-rip-/ dof
