@@ -4,7 +4,7 @@
 //   return getCompoundAction(a, b);
 // }
 
-function loadObject(obj, defaultScale = 0.2, defaultStick = true) {
+function loadObject(obj, defaultScale = 0.2, defaultStick = false) {
   let entity = new CardEntity(resources.textures[obj.card].paperTexture);
 
   let scale = defaultScale;

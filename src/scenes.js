@@ -2,6 +2,7 @@ function getPlayer(pos, scenei) {
   return {
     id: "player",
     card: "character",
+    stick: true,
     children: [
       {
         id: "sword",
@@ -11,6 +12,7 @@ function getPlayer(pos, scenei) {
         action: animationAction
       }
     ],
+    scale: 0.15,
     translation: pos,
     action: getPlayerController("sword", scenei)
   };
@@ -34,6 +36,7 @@ function getEnemy(
   return {
     id: id,
     card: card,
+    stick: true,
     children: [
       {
         id: id + "sword",
@@ -44,6 +47,7 @@ function getEnemy(
       }
     ],
     translation: pos,
+    scale: 0.15,
     action: getEnemyController(
       lives,
       id + "sword",
@@ -65,6 +69,35 @@ function getDoorEntity(enemyId, pos) {
     translation: pos,
     action: getDoorAction(enemyId)
   };
+}
+
+function getBossRoom(enemy) {
+  return [
+    getPlayer([0.3, 0.5, 0.5], 0),
+    enemy,
+    getDoorEntity(enemy.id, [-0.8, 0, 0.55]),
+    {
+      card: "platform",
+      translation: [-0.3, 0, 0.55],
+      cardTransform: getScaling(new vec3(4, 1, 1)),
+      action: getPlatformController()
+    },
+    {
+      card: "platform",
+      translation: [0.3, 0, 0.55],
+      cardTransform: getScaling(new vec3(4, 1, 1)),
+      action: getPlatformController()
+    },
+    {
+      card: "platform",
+      translation: [-0.7, 0.7, 0.55],
+      cardTransform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), Math.PI / 2),
+        getScaling(new vec3(4, 1, 1))
+      ),
+      action: getPlatformController()
+    }
+  ];
 }
 
 function createHeartEntity(i) {
@@ -279,5 +312,25 @@ const scenes = {
   ]
 };
 
-const sceneList = [scenes.bladeScene, scenes.testScene];
+const sceneList = [
+  scenes.bladeScene,
+  getBossRoom(
+    getEnemy(
+      "enemy",
+      [0, 0.5, 0.5],
+      3,
+      "character",
+      "sword",
+      1,
+      1,
+      true,
+      1,
+      true,
+      1,
+      true,
+      1
+    )
+  )
+  // scenes.testScene
+];
 sceneCount = sceneList.length;

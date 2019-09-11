@@ -12,8 +12,8 @@ function renderEntity(e, renderData) {
 var followEntity = null;
 var cameraTranslation = new vec3();
 
-// var camera = null; // lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
-var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
+var camera = null; // lookAt(new vec3(2, 3, -5), new vec3(0, 0, 0), new vec3(0, 1, 0));
+// var camera = lookAt(new vec3(5, 5, 0), new vec3(0, 0, 0), new vec3(0, 1, 0));
 // var nextCameraPos = null;
 var startTime;
 var t = 0;
@@ -22,7 +22,8 @@ const writeFpsCount = 60;
 // CAN_BE_REMOVED
 var writeFps = 0;
 var fpsTime = 0;
-const targetFps = 300;
+// const targetFps = 300;
+const targetFps = 60;
 const maxDt = 0.1;
 
 var graphicsFps = 0;
@@ -30,7 +31,7 @@ var graphicsFpsTime = 0;
 const minResFps = 24;
 const maxResFps = 40;
 const minAAFps = 40;
-const maxAAFps = 70;
+const maxAAFps = 59;
 // const minResFps = 220;
 // const maxResFps = 250;
 // const minAAFps = 250;
@@ -38,7 +39,7 @@ const maxAAFps = 70;
 const minCanvasScale = 1 / 8;
 const maxAA = 2;
 const scaleStep = 0.8;
-const cameraZ = -2;
+const cameraZ = -0.75;
 
 function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;

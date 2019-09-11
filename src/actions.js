@@ -1,7 +1,7 @@
-const jumpSpeed = 1.5;
-const jumpSideSpeed = 1;
+const jumpSpeed = 1;
+const jumpSideSpeed = 0.7;
 const gravity = new vec3(0, -3, 0);
-const dashSpeed = 2;
+const dashSpeed = 1.5;
 const dashTime = 0.2;
 const handAcceleration = 0.2;
 const handDrag = 10;
@@ -558,7 +558,7 @@ function getAiController(
           diff.x * f < 0 &&
           Math.abs(diff.y) < enemyJumpHightLimit &&
           Math.abs(diff.x) > enemyDashLimit &&
-          pl.speed.x * f <= 0
+          pe.speed.x * f <= 0
         )
           dash(entity);
         entity.down = diff.y < -Math.abs(diff.x);
