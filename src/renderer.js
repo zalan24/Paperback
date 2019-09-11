@@ -310,7 +310,9 @@ function resize() {
     glCanvas.height = Math.floor(window.innerHeight * canvasSizeScale);
   } else {
     glCanvas.width = 320;
-    glCanvas.height = 200;
+    glCanvas.height = Math.floor(
+      (320 * window.innerHeight) / window.innerWidth
+    );
     aa = 1;
   }
 
