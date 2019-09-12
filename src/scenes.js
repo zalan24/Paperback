@@ -7,8 +7,8 @@ function getPlayer(pos, scenei) {
       {
         id: "sword",
         card: "sword",
-        scale: 0.3,
-        translation: [0.3, 0.2, 0],
+        scale: 0.3 + scenei * 0.03,
+        translation: [0.3, 0.2, -0.01],
         action: animationAction
       }
     ],
@@ -71,9 +71,9 @@ function getDoorEntity(enemyId, pos) {
   };
 }
 
-function getBossRoom(enemy) {
+function getBossRoom(enemy, level) {
   return [
-    getPlayer([0.3, 0.5, 0.5], 0),
+    getPlayer([0.3, 0.5, 0.5], level),
     enemy,
     getDoorEntity(enemy.id, [-0.8, 0, 0.55]),
     {
@@ -104,6 +104,7 @@ function createHeartEntity(i) {
   return {
     card: "heart",
     scale: 0.3,
+    stick: true,
     transform: getScaling(new vec3(0.02, 0.02, 0.02)),
     action: getHeartAction("player", i)
   };
@@ -329,7 +330,8 @@ const sceneList = [
       1,
       true,
       1
-    )
+    ),
+    13
   )
   // scenes.testScene
 ];

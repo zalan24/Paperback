@@ -4,7 +4,6 @@
 - compress html
 - restore credits screen
 - add favicon.ico
-- fix heart getting smaller
 
 * create assets
 * create scenes

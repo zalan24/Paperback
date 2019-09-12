@@ -38,7 +38,7 @@ const doorOpenTime = 1;
 var spareMe = document.getElementById("p");
 
 function getMaxLives(si) {
-  return 3 + si;
+  return 3 + Math.floor(si / 2);
 }
 
 function invlerp(v, a, b) {
@@ -731,10 +731,10 @@ function getLifeAction(ll, max) {
   return {
     start: function(entity) {
       if (entity.l == null) entity.l = ll;
-      if (entity.l.lives == null) entity.l.lives = max;
-      else entity.l.lives = Math.min(entity.l.lives, max);
       entity.l.max = max;
       entity.hurtTime = 0;
+      if (entity.l.lives == null) entity.l.lives = max;
+      else entity.l.lives = Math.min(entity.l.lives, max);
     }
     // ,
     // update: function(entity, updateData) {}
@@ -749,7 +749,7 @@ function hurt(entity, ignoreTime = false) {
   if (--entity.l.lives == 0) {
     if (pl) {
       if (checkPointId != sceneId) loadSceneById(checkPointId);
-      entity.l.lives = getMaxLives(sceneId);
+      entity.l.lives = entity.l.max;
       entity.transform = transformMatMat(
         getTranslation(subVec(checkPointPlace, entity.getCardPosition())),
         entity.transform
@@ -916,9 +916,19 @@ function getPlatformController(
 function getHeartAction(playerId, i) {
   return getCompoundAction([
     {
-      // start: function(entity) {
-      //   entity.heartOn = true;
-      // },
+      start: function(entity) {
+        // entity.heartOn = true;
+        entity.startTransform = entity.transform;
+        // let side = normalize(
+        //   transformMatDirection(entity.transform, new vec3(1))
+        // );
+        // let target = normalize(
+        //   on ? new vec3(1) : new vec3(heartRotationTargetX, 0, 1)
+        // );
+        // let cr = cross(side, target);
+        // entity.angleDiff = Math.asin(lengthVec(cr));
+        entity.angle = 0;
+      },
       update: function(entity, updateData) {
         let p = getEntityById(playerId);
         if (p.l == null) return;
@@ -927,36 +937,36 @@ function getHeartAction(playerId, i) {
         let pos = transformMatPosition(
           invMat,
           new vec3(
-            i * 0.003 - 0.065,
+            i * 0.005 - 0.065,
             (-0.065 * glCanvas.height) / glCanvas.width,
             p.l.max > i ? 0.1 : -2
           )
+        );
+
+        let target = on ? 0 : -Math.PI / 2;
+        let move = Math.max(
+          -maxHeartRotationSpeed * updateData.dt,
+          Math.min(target - entity.angle, maxHeartRotationSpeed * updateData.dt)
+        );
+        entity.angle = entity.angle + move;
+        entity.transform = transformMatMat(
+          entity.startTransform,
+          getRotation(new vec3(0, 1), entity.angle)
         );
         entity.transform = transformMatMat(
           getTranslation(subVec(pos, entity.getCardPosition())),
           entity.transform
         );
+
+        // let move = Math.max(
+        //   -maxHeartRotationSpeed * updateData.dt,
+        //   Math.min(entity.angleDiff, maxHeartRotationSpeed * updateData.dt)
+        // );
         // if (!on && entity.heartOn) addAnimation(entity, animations.loseHeart);
         // entity.heartOn = on;
-        let side = normalize(
-          transformMatDirection(entity.transform, new vec3(1))
-        );
-        let target = normalize(
-          on ? new vec3(1) : new vec3(heartRotationTargetX, 0, 1)
-        );
-        let cr = cross(side, target);
-        let angleDiff = Math.asin(lengthVec(cr));
-        let move = Math.max(
-          -maxHeartRotationSpeed * updateData.dt,
-          Math.min(angleDiff, maxHeartRotationSpeed * updateData.dt)
-        );
         // move = maxHeartRotationSpeed * updateData.dt;
         // cr = new vec3(0, 1, 0);
         // if (i == 4) console.log({ move: move, angle: angleDiff, cr: cr });
-        entity.transform = transformMatMat(
-          entity.transform,
-          getRotation(cr, move)
-        );
       }
     },
     animationAction
