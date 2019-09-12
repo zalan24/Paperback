@@ -8,26 +8,26 @@ var defaultPaperData = {
 };
 
 var textureProps = {
-  test_atlas: {
-    resource: "res/32x8_grayscale.png",
+  atlas: {
+    resource: "res/atlas.png",
     textures: {
       character: {
         rect: {
           x: 0,
           y: 0,
           w: 8,
-          h: 8
+          h: 16
         },
-        middle: { x: 25 / 64, y: 32 / 64 },
+        // middle: { x: 25 / 64, y: 32 / 64 },
         paper: defaultPaperData,
         color: { r: 1, g: 0, b: 0, a: 1 }
       },
       sword: {
         rect: {
           x: 8,
-          y: 0,
-          w: 8,
-          h: 8
+          y: 4,
+          w: 4,
+          h: 4
         },
         paper: defaultPaperData,
         color: { r: 0, g: 1, b: 0, a: 1 }
@@ -35,29 +35,49 @@ var textureProps = {
       heart: {
         rect: {
           x: 8,
-          y: 0,
-          w: 8,
-          h: 8
+          y: 8,
+          w: 4,
+          h: 4
         },
         paper: defaultPaperData,
         color: { r: 1, g: 0, b: 0, a: 1 }
+      },
+      door: {
+        rect: {
+          x: 12,
+          y: 0,
+          w: 4,
+          h: 16
+        },
+        paper: defaultPaperData,
+        color: { r: 0, g: 0, b: 1, a: 1 }
       },
       platform: {
         rect: {
           x: 16,
           y: 0,
-          w: 8,
-          h: 8
+          w: 4,
+          h: 16
         },
         paper: defaultPaperData,
         color: { r: 0, g: 0, b: 1, a: 1 }
       },
+      tree: {
+        rect: {
+          x: 21,
+          y: 0,
+          w: 7,
+          h: 16
+        },
+        paper: defaultPaperData,
+        color: { r: 0, g: 1, b: 0, a: 1 }
+      },
       mountain: {
         rect: {
-          x: 24,
+          x: 28,
           y: 0,
-          w: 8,
-          h: 8
+          w: 16,
+          h: 16
         },
         paper: defaultPaperData,
         color: { r: 1, g: 1, b: 1, a: 1 }

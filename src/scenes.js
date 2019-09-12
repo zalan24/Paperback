@@ -65,7 +65,7 @@ function getEnemy(
 
 function getDoorEntity(enemyId, pos) {
   return {
-    card: "platform",
+    card: "door",
     translation: pos,
     action: getDoorAction(enemyId)
   };
@@ -79,13 +79,13 @@ function getBossRoom(enemy) {
     {
       card: "platform",
       translation: [-0.3, 0, 0.55],
-      cardTransform: getScaling(new vec3(4, 1, 1)),
+      // cardTransform: getScaling(new vec3(4, 1, 1)),
       action: getPlatformController()
     },
     {
       card: "platform",
       translation: [0.3, 0, 0.55],
-      cardTransform: getScaling(new vec3(4, 1, 1)),
+      // cardTransform: getScaling(new vec3(4, 1, 1)),
       action: getPlatformController()
     },
     {

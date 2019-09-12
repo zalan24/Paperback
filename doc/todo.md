@@ -5,6 +5,8 @@
 - restore credits screen
 - add favicon.ico
 - fix heart getting smaller
+- only switch map after updating stuff
+- enemy should die when falling
 
 * create assets
 * create scenes
