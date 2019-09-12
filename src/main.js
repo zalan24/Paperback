@@ -2,5 +2,5 @@
 const loadingTime = 0;
 
 setTimeout(function() {
-  loadSceneById(sceneList.length - 1);
+  loadSceneById(sceneList.length - 1, true);
 }, loadingTime * 1000);

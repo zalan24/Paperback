@@ -37,13 +37,6 @@ const doorOpenTime = 1;
 
 var spareMe = document.getElementById("p");
 
-var sceneId = 0;
-var sceneCount = 0;
-function loadSceneById(id) {
-  sceneId = id;
-  loadScene(sceneList[id].concat(hearts));
-}
-
 function getMaxLives(si) {
   return 3 + si;
 }

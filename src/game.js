@@ -45,6 +45,17 @@ function getFacing(entity) {
   return transformMatDirection(entity.getTransform(), new vec3(-1)).x;
 }
 
+var sceneId = 0;
+var sceneCount = 0;
+var sceneToLoad = sceneId;
+function loadSceneById(id, d = false) {
+  if (d) {
+    sceneId = id;
+    loadScene(sceneList[sceneId].concat(hearts));
+  }
+  sceneToLoad = id;
+}
+
 var camTime = 0;
 
 function getCamera(time) {
@@ -148,7 +159,8 @@ function update() {
 
   let timeOut = Math.max(0, 1000 / targetFps - (new Date() - startTime));
 
-  setTimeout(update, timeOut);
+  if (sceneToLoad != sceneId) loadSceneById(sceneToLoad, true);
+  else setTimeout(update, timeOut);
 }
 
 function startGame() {
