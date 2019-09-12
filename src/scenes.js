@@ -102,7 +102,7 @@ function getBackGround() {
     },
     {
       card: "tree",
-      translation: [0.5, -0.05, 0.6],
+      translation: [0.5, 0.05, 0.6],
       stick: true,
       scale: 0.4
     },

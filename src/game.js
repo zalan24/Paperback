@@ -85,7 +85,7 @@ function getCamera(time) {
   let limit = 0.9;
   let camPos = new vec3(
     Math.max(-limit, Math.min(pos.x, limit)),
-    Math.max(-limit, Math.min(pos.y, limit)),
+    Math.max(-0.5, Math.min(pos.y, limit)),
     cameraZ
   );
   return lookAt(camPos, pos, new vec3(0, 1, 0));
@@ -170,6 +170,9 @@ function startGame() {
 
   addEntity(
     hackWallCardEntity(new vec3(-1, 1, -1), new vec3(2), new vec3(0, 0, 2))
+  );
+  addEntity(
+    hackWallCardEntity(new vec3(-1, -1, -1), new vec3(0, 0, 2), new vec3(2))
   );
   addEntity(
     hackWallCardEntity(new vec3(-1, -1, -1), new vec3(0, 2), new vec3(0, 0, 2))

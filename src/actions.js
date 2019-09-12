@@ -297,10 +297,13 @@ const physicsController = {
   update: function(entity, updateData) {
     if (!entity.dashing)
       entity.speed = addVec(entity.speed, mulVecScalar(gravity, updateData.dt));
+    let cardPos = entity.getCardPosition();
+    if (Math.abs(cardPos.x) > 0.95) entity.speed.x = -cardPos.x;
+    if (cardPos.y > 0.95) entity.speed.y = -cardPos.y;
     entity.platformSpeed = new vec3();
-    entity.fallen = entity.getCardPosition().y < -1;
+    entity.fallen = cardPos.y < -0.5;
     entity.onCheckPoint = false;
-    if (entity.getCardPosition().y < -5) {
+    if (cardPos.y < -5) {
       entity.dead = true;
       return;
     }
