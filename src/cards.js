@@ -63,6 +63,16 @@ var textureProps = {
         paper: defaultPaperData,
         color: { r: 1, g: 0, b: 0, a: 1 }
       },
+      sun: {
+        rect: {
+          x: 8,
+          y: 12,
+          w: 4,
+          h: 4
+        },
+        paper: defaultPaperData,
+        color: { r: 1, g: 1, b: 0, a: 1 }
+      },
       door: {
         rect: {
           x: 12,
@@ -91,7 +101,7 @@ var textureProps = {
           h: 16
         },
         paper: defaultPaperData,
-        color: { r: 0, g: 1, b: 0, a: 1 }
+        color: { r: 0, g: 0.7, b: 0, a: 1 }
       },
       mountain: {
         rect: {

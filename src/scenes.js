@@ -74,6 +74,47 @@ function getDoorEntity(enemyId, pos) {
   };
 }
 
+function getBackGround() {
+  return [
+    {
+      card: "mountain",
+      translation: [0.3, 0.2, 0.75],
+      stick: true,
+      scale: 0.5
+    },
+    {
+      card: "mountain",
+      translation: [0.13, 0.4, 0.8],
+      stick: true,
+      scale: 0.3
+    },
+    {
+      card: "mountain",
+      translation: [-0.7, 0.3, 0.85],
+      stick: true,
+      scale: 0.5
+    },
+    {
+      card: "tree",
+      translation: [-0.3, 0.15, 0.65],
+      stick: true,
+      scale: 0.4
+    },
+    {
+      card: "tree",
+      translation: [0.5, -0.05, 0.6],
+      stick: true,
+      scale: 0.4
+    },
+    {
+      card: "sun",
+      translation: [0.6, 0.75, 0.7],
+      stick: true,
+      scale: 0.4
+    }
+  ];
+}
+
 function getBossRoom(enemy, level) {
   return [
     getPlayer([0.3, 0.5, 0.5], level),
@@ -106,7 +147,7 @@ function getBossRoom(enemy, level) {
       ),
       action: getPlatformController()
     }
-  ];
+  ].concat(getBackGround());
 }
 
 function createHeartEntity(i) {
