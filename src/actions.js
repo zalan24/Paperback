@@ -299,7 +299,10 @@ const physicsController = {
     entity.platformSpeed = new vec3();
     entity.fallen = entity.getCardPosition().y < -1;
     entity.onCheckPoint = false;
-    if (entity.getCardPosition().y < -99) return;
+    if (entity.getCardPosition().y < -5) {
+      entity.dead = true;
+      return;
+    }
     if (!entity.dead)
       broadcastEvent(e => {
         if (e.collider == null /* || !e.collider */) return;
