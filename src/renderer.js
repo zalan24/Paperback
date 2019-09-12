@@ -2,7 +2,7 @@ var glCanvas = document.getElementById("c");
 var gl = glCanvas.getContext("webgl2", { antialias: false });
 var fullWindow = document.getElementById("w");
 
-const circleAreaD = 20;
+const circleAreaD = 10;
 const maxOccluderCount = 32;
 const occluderSize = 9;
 var occlusionBuffer = gl.createBuffer();
@@ -33,14 +33,14 @@ function createProgram(vertCode, fragCode) {
   gl.attachShader(shaderProgram, fragShader);
   gl.linkProgram(shaderProgram);
   // TODO remove error checking
-  if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS))
-    console.log("Error in fragment shader: " + gl.getShaderInfoLog(fragShader));
-  if (!gl.getShaderParameter(vertShader, gl.COMPILE_STATUS))
-    console.log("Error in vertex shader: " + gl.getShaderInfoLog(vertShader));
+  // if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS))
+  //   console.log("Error in fragment shader: " + gl.getShaderInfoLog(fragShader));
+  // if (!gl.getShaderParameter(vertShader, gl.COMPILE_STATUS))
+  //   console.log("Error in vertex shader: " + gl.getShaderInfoLog(vertShader));
   return shaderProgram;
 }
 
-const lightColor = "vec3(1, 1, 1)*5.0";
+const lightColor = "vec3(1,1,1)*5.0";
 
 // TODO compress shader codes better
 
@@ -65,40 +65,40 @@ function makeVecPow(vec, name, count = 4, type = "float") {
 let shaderPi = "float pi=3.1415926535897932384626433832795;";
 
 let getAmbientLightIntegrandAt =
-  "float getAmbientLightIntegrand(vec2 xy, vec3 wpos, vec3 norm) {" +
+  "float getAmbientLightIntegrand(vec2 xy,vec3 wpos,vec3 norm){" +
   shaderPi +
   makeVecPow("norm", "n") +
   makeVecPow("wpos", "w") +
   makePow("x", "xy.x") +
   makePow("y", "xy.y") +
-  "  return max(" +
+  " return max(" +
   ambientLightIntegrand +
-  ", 0.0);" +
+  ",0.0);" +
   "}";
 
 function getAmbientIntegral(w = 2, h = 2) {
   return (
-    "  float windowRad = " +
+    "float windowRad=" +
     windowRad +
     ";" +
-    "  float sum = 0.0;" +
-    "  const int Width = " +
+    "float sum=0.0;" +
+    "const int Width=" +
     w +
     ";" +
-    "  const int Height = " +
+    "const int Height=" +
     h +
     ";" +
-    "  for (int i = 0; i < Width; ++i) for (int j = 0; j < Height; ++j)" +
-    "    sum += getAmbientLightIntegrand(vec2(mix(-windowRad, windowRad, (float(i) + 0.5)/float(Width)), mix(-windowRad, windowRad, (float(j) + 0.5)/float(Height))), pos, normal);" +
-    "  sum *= 4.0*windowRad*windowRad/float(Width*Height);"
+    "for(int i=0;i<Width;++i)for(int j=0;j<Height;++j)" +
+    "sum+=getAmbientLightIntegrand(vec2(mix(-windowRad,windowRad,(float(i)+0.5)/float(Width)),mix(-windowRad,windowRad,(float(j)+0.5)/float(Height))),pos,normal);" +
+    "sum*=4.0*windowRad*windowRad/float(Width*Height);"
   ); // (2*windowRadZ)^2
 }
 
 let ambientLightShaderCode =
-  "float getAmbientLight(vec3 pos, vec3 normal) {" +
+  "float getAmbientLight(vec3 pos, vec3 normal){" +
   // shaderPi +
   getAmbientIntegral() +
-  "  return sum;" +
+  "return sum;" +
   "}";
 
 function readOcclusionVec(index, offset, name) {
@@ -121,89 +121,89 @@ function circleArea(rad) {
 }
 
 let ambientOcclusionCode =
-  "float circleArea(float r, vec2 a, vec2 b) {" +
-  " float sum = 0.0;" +
-  " for (int i=0;i<" +
+  "float circleArea(float r,vec2 a,vec2 b){" +
+  "float sum=0.0;" +
+  "for(int i=0;i<" +
   circleAreaD +
-  ";++i)for (int j=0;j<" +
+  ";++i)for(int j=0;j<" +
   circleAreaD +
   ";++j){" +
-  "  float x=mix(a.x,b.x,float(i)/float(" +
+  "float x=mix(a.x,b.x,float(i)/float(" +
   circleAreaD +
   "));" +
-  "  float y=mix(a.y,b.y,float(j)/float(" +
+  "float y=mix(a.y,b.y,float(j)/float(" +
   circleAreaD +
   "));" +
-  "   sum+=x*x+y*y<r*r?1.0:0.0;" +
-  " }" +
-  " return (b.x-a.x)*(b.y-a.y)*sum/float(" +
+  "sum+=x*x+y*y<r*r?1.0:0.0;" +
+  "}" +
+  "return(b.x-a.x)*(b.y-a.y)*sum/float(" +
   circleAreaD +
   "*" +
   circleAreaD +
   ");" +
   "}" +
-  "float ambientOcclusion(vec3 wpos, vec3 normal) {" +
+  "float ambientOcclusion(vec3 wpos,vec3 normal){" +
   shaderPi +
-  " int occluderSize =" +
+  "int occluderSize=" +
   occluderSize +
   ";" +
-  " float sum = 0.0;" +
-  " for (int i = 0; i < " +
+  "float sum=0.0;" +
+  "for(int i=0;i<" +
   maxOccluderCount +
-  "; ++i) {" +
-  "  if(i>=occluderCount)break;" + // uggghhhh
+  ";++i){" +
+  "if(i>=occluderCount)break;" + // uggghhhh
   readOcclusionVec("i", "0", "pos") +
   readOcclusionVec("i", "3", "radius") +
   readOcclusionVec("i", "6", "norm") +
-  "  float xyr = length(vec3(radius.xy, 0));" +
-  "  vec3 d =  pos - wpos;" +
-  "  float dist = length(d);" +
-  "  if (dist < 0.01) continue;" + // TODO smooth fadeout
+  "float xyr=length(vec3(radius.xy,0));" +
+  "vec3 d=pos-wpos;" +
+  "float dist=length(d);" +
+  "if(dist<0.01)continue;" + // TODO smooth fadeout
   // "  sum += dist;" +
-  "  vec3 dn = d/dist;" +
+  "vec3 dn=d/dist;" +
   // "  if (i == 0) sum += dn.z;" +
-  "  if (-dn.z < 0.01) continue;" + // TODO smooth fadeout; = dot(dn, vec3(0, 0, -1))
+  "if(-dn.z<0.01)continue;" + // TODO smooth fadeout; = dot(dn, vec3(0, 0, -1))
   // "  sum += 10000.0;" +
-  "  float dt = dot(dn, norm);" +
-  "  float r = length(vec2((1.0-dt)*xyr,dt*radius.z));" +
-  "  float scale = -(wpos.z+1.0)/d.z;" +
-  "  vec2 xyproj = vec2(wpos.x+d.x*scale, wpos.y+d.y*scale);" +
-  "  vec2 rectb = vec2(" +
+  "float dt=dot(dn,norm);" +
+  "float r=length(vec2((1.0-dt)*xyr,dt*radius.z));" +
+  "float scale=-(wpos.z+1.0)/d.z;" +
+  "vec2 xyproj=vec2(wpos.x+d.x*scale,wpos.y+d.y*scale);" +
+  "vec2 rectb=vec2(" +
   windowRad +
   ");" +
-  "  vec2 recta = -rectb;" +
-  "  vec2 xyclamp = vec2(clamp(xyproj.x, recta.x, rectb.x), clamp(xyproj.y, recta.y, rectb.y));" +
-  "  float sample = getAmbientLightIntegrand(xyclamp, wpos, normal);" +
+  "vec2 recta=-rectb;" +
+  "vec2 xyclamp=vec2(clamp(xyproj.x,recta.x,rectb.x),clamp(xyproj.y,recta.y,rectb.y));" +
+  "float sample=getAmbientLightIntegrand(xyclamp,wpos,normal);" +
   // "  float sample = 0.01;" +
   // fails on math finals, but is easy and simple
-  "  vec2 scale2d = vec2(length(cross(vec3(-1, 0, 0), dn)), length(cross(vec3(0, 1, 0), dn)));" +
-  "  float resScale = length(rectb-recta);" +
-  "  recta -= xyproj; recta /= scale2d;" +
-  "  rectb -= xyproj; rectb /= scale2d;" +
-  "  resScale /= length(rectb-recta);" +
-  "  float intersectionR = r*scale;" +
-  "  float projA = circleArea(intersectionR, recta, rectb)*resScale;" +
+  "vec2 scale2d=vec2(length(cross(vec3(-1,0,0),dn)),length(cross(vec3(0,1,0),dn)));" +
+  "float resScale=length(rectb-recta);" +
+  "recta-=xyproj;recta/=scale2d;" +
+  "rectb-=xyproj;rectb/=scale2d;" +
+  "resScale/=length(rectb-recta);" +
+  "float intersectionR=r*scale;" +
+  "float projA=circleArea(intersectionR,recta,rectb)*resScale;" +
   // "  float projA = r;" +
   // "  float projA = " +
   // circleArea("r") +
   // "*scale/(-dn.z);" + // TODO scale inside ^2??? what about -dn.z
   // only use intersection af the projected circle with the window rect
-  "  sum += max(projA*sample, 0.0);" +
+  "sum+=max(projA*sample,0.0);" +
   // "  sum += 10000.0;" +
   // "  sum += projA*0.01;" +
   // "  sum += 1.0/length(scale2d)*0.01;" +
   // "  sum += length(rectb-recta)*0.01;" +
-  " }" +
-  " return sum;" +
+  "}" +
+  "return sum;" +
   "}";
 
 let softmaxScale = "0.02";
 let softmax =
-  "float softmax(float x, float y) {" +
+  "float softmax(float x,float y){" +
   // " return light;" +
-  "  return log(exp(x/" +
+  "return log(exp(x/" +
   softmaxScale +
-  ") + exp(y/" +
+  ")+exp(y/" +
   softmaxScale +
   "))*" +
   softmaxScale +
@@ -213,9 +213,9 @@ let softmax =
 
 let occlusionSubtraction =
   softmax +
-  "float getLight(float light, float occlusion) {" +
+  "float getLight(float light,float occlusion){" +
   // " return light;" +
-  " return softmax(light - occlusion, light*0.05);" +
+  "return softmax(light-occlusion,light*0.05);" +
   // " return occlusion*10.0;" +
   "}";
 
@@ -237,12 +237,12 @@ let cardVertCode =
   getAmbientLightIntegrandAt +
   ambientOcclusionCode +
   "void main(void) {" +
-  " vec4 pos = vec4(position, 1);" +
-  " gl_Position = proj * view * model * pos;" +
-  " fragPos = (model * pos).xyz;" +
-  " norm = (model * vec4(normal, 0)).xyz;" +
-  " texc = texcoord;" +
-  " o = ambientOcclusion(fragPos, norm);" +
+  "vec4 pos=vec4(position,1);" +
+  "gl_Position=proj*view*model*pos;" +
+  "fragPos=(model*pos).xyz;" +
+  "norm=(model*vec4(normal,0)).xyz;" +
+  "texc=texcoord;" +
+  "o=ambientOcclusion(fragPos,norm);" +
   // " l = vec2(1, 1);" +
   "}";
 var cardFragCode =
@@ -256,16 +256,16 @@ var cardFragCode =
   ambientLightShaderCode +
   " " +
   occlusionSubtraction +
-  "void main(void) {" +
-  "  vec4 albedo = texture2D(texture, texc);" +
-  "  if (albedo.a < 1.0) discard;" +
-  "  albedo.a = 1.0;" +
-  "  vec3 normal = normalize(norm);" +
-  "  float ambientLight = getAmbientLight(fragPos, normal);" +
-  "  vec3 diffuse = " +
+  "void main(void){" +
+  "vec4 albedo=texture2D(texture,texc);" +
+  "if(albedo.a<1.0)discard;" +
+  "albedo.a=1.0;" +
+  "vec3 normal=normalize(norm);" +
+  "float ambientLight=getAmbientLight(fragPos,normal);" +
+  "vec3 diffuse=" +
   lightColor +
-  " * getLight(ambientLight, o);" +
-  "  gl_FragColor = albedo * vec4(pow(diffuse, vec3(1.0/2.2)), 1);" +
+  "*getLight(ambientLight,o);" +
+  "gl_FragColor=albedo*vec4(pow(diffuse,vec3(1.0/2.2)),1);" +
   "}";
 
 // console.log(cardFragCode);

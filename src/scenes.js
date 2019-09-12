@@ -207,6 +207,10 @@ const enemyPos = [-0.4, 0.1, 0.5];
 
 const sceneList = [
   getBossRoom(
+    getEnemy("enemy", enemyPos, 12, 1, 0.1, true, 0.1, true, 1, true, 1),
+    12
+  ),
+  getBossRoom(
     getEnemy("enemy", enemyPos, 13, 1, 0.1, true, 0.1, true, 1, true, 1),
     13
   )
