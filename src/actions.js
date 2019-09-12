@@ -25,8 +25,8 @@ const enemyJumpHightLimit = 0.1;
 const enemyJumpSpeedLimit = 0.1;
 const enemyDashLimit = 0.3;
 const hitDistance = 0.1;
-const hitRadius = hitDistance;
-const hitDownPush = 1.5;
+const hitRadius = hitDistance * 2;
+const hitDownPush = 0.7;
 const hitPushBack = 1;
 const hitPushEnemy = 1;
 const hurtTimeLimit = 1;
@@ -77,27 +77,28 @@ const animations = {
   hit: {
     duration: 0.5,
     transitions: [
-      getTranslationAnimation(new vec3(1, 0, 0), 0, 0.25),
-      getTranslationAnimation(new vec3(-1, 0, 0), 0.25, 0.5)
+      getRotationAnimation(
+        new vec3(0, 0, 1),
+        -Math.PI / 3,
+        0,
+        0.25,
+        Math.PI / 3
+      )
     ]
   },
   hitUp: {
     duration: 0.5,
-    transitions: [
-      getTranslationAnimation(new vec3(0, 1, 0), 0, 0.25),
-      getTranslationAnimation(new vec3(0, -1, 0), 0.25, 0.5)
-    ]
+    transitions: [getRotationAnimation(new vec3(0, 0, 1), Math.PI / 2, 0, 0.25)]
   },
   hitDown: {
     duration: 0.5,
     transitions: [
-      getTranslationAnimation(new vec3(0, -1, 0), 0, 0.25),
-      getTranslationAnimation(new vec3(0, 1, 0), 0.25, 0.5)
+      getRotationAnimation(new vec3(0, 0, 1), -Math.PI / 2, 0, 0.25)
     ]
   },
   hitPrepare: {
     duration: 9,
-    transitions: [getTranslationAnimation(new vec3(1, -1, 0), 0, 0.25)]
+    transitions: [getRotationAnimation(new vec3(0, 0, 1), Math.PI / 3, 0, 0.25)]
   }
 };
 

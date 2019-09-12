@@ -20,6 +20,27 @@ var textureProps = {
         },
         // middle: { x: 25 / 64, y: 32 / 64 },
         paper: defaultPaperData,
+        color: { r: 0.3, g: 0.35, b: 1, a: 1 }
+      },
+      enemy: {
+        rect: {
+          x: 0,
+          y: 0,
+          w: 8,
+          h: 16
+        },
+        // middle: { x: 25 / 64, y: 32 / 64 },
+        paper: defaultPaperData,
+        color: { r: 1, g: 0.35, b: 0.1, a: 1 }
+      },
+      horn: {
+        rect: {
+          x: 8,
+          y: 0,
+          w: 4,
+          h: 4
+        },
+        paper: defaultPaperData,
         color: { r: 1, g: 0, b: 0, a: 1 }
       },
       sword: {
