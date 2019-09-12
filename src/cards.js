@@ -81,7 +81,7 @@ var textureProps = {
           h: 16
         },
         paper: defaultPaperData,
-        color: { r: 0, g: 0, b: 1, a: 1 }
+        color: { r: 0.6, g: 0.3, b: 0, a: 1 }
       },
       platform: {
         rect: {
@@ -91,7 +91,17 @@ var textureProps = {
           h: 16
         },
         paper: defaultPaperData,
-        color: { r: 0, g: 0, b: 1, a: 1 }
+        color: { r: 0.5, g: 0.5, b: 0.5, a: 1 }
+      },
+      checkpoint: {
+        rect: {
+          x: 16,
+          y: 0,
+          w: 4,
+          h: 16
+        },
+        paper: defaultPaperData,
+        color: { r: 1, g: 0.8, b: 0, a: 1 }
       },
       tree: {
         rect: {
@@ -108,6 +118,16 @@ var textureProps = {
           x: 28,
           y: 0,
           w: 16,
+          h: 16
+        },
+        paper: defaultPaperData,
+        color: { r: 1, g: 1, b: 1, a: 1 }
+      },
+      cloud: {
+        rect: {
+          x: 45,
+          y: 0,
+          w: 7,
           h: 16
         },
         paper: defaultPaperData,

@@ -993,7 +993,7 @@ function getDoorAction(enemyId) {
           if (entity.doorTime == null) entity.doorTime = updateData.time;
           if (entity.doorTime + doorOpenTime >= updateData.time) {
             entity.transform = transformMatMat(
-              getTranslation(new vec3(0, (0.5 * updateData.dt) / doorOpenTime)),
+              getTranslation(new vec3(0, (0.2 * updateData.dt) / doorOpenTime)),
               entity.transform
             );
           }

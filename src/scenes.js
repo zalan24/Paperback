@@ -107,6 +107,12 @@ function getBackGround() {
       scale: 0.4
     },
     {
+      card: "cloud",
+      translation: [-0.1, 0.8, 0.6],
+      scale: 0.4,
+      cardTransform: getRotation(new vec3(0, 0, 1), -Math.PI / 2)
+    },
+    {
       card: "sun",
       translation: [0.6, 0.75, 0.7],
       stick: true,
@@ -117,35 +123,68 @@ function getBackGround() {
 
 function getBossRoom(enemy, level) {
   return [
-    getPlayer([0.3, 0.5, 0.5], level),
+    getPlayer([0.7, 0.55, 0.55], level),
     enemy,
-    getDoorEntity(enemy.id, [-0.8, 0, 0.55]),
+    getDoorEntity(enemy.id, [-0.7, 0.1, 0.55]),
     {
       card: "platform",
-      translation: [-0.3, 0, 0.55],
+      translation: [-0.35, 0, 0.55],
       cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), Math.PI / 2),
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
         getScaling(new vec3(1, 4, 1))
       ),
       action: getPlatformController()
     },
     {
       card: "platform",
-      translation: [0.3, 0, 0.55],
+      translation: [-0.8, 0, 0.55],
       cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), Math.PI / 2),
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+        getScaling(new vec3(1, 1, 1))
+      ),
+      action: getPlatformController()
+    },
+    {
+      card: "platform",
+      translation: [0.35, 0, 0.55],
+      cardTransform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
         getScaling(new vec3(1, 4, 1))
       ),
       action: getPlatformController()
     },
     {
       card: "platform",
-      translation: [-0.7, 0.7, 0.55],
+      translation: [0, 0.5, 0.55],
       cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), Math.PI / 2),
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
         getScaling(new vec3(1, 4, 1))
       ),
       action: getPlatformController()
+    },
+    {
+      card: "platform",
+      translation: [-0.5, 0.75, 0.55],
+      cardTransform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), -Math.PI / 4),
+        getScaling(new vec3(1, 4, 1))
+      ),
+      action: getPlatformController()
+    },
+    {
+      card: "platform",
+      translation: [-0.7, 0.4, 0.55],
+      cardTransform: getScaling(new vec3(1, 2, 1)),
+      action: getPlatformController()
+    },
+    {
+      card: "checkpoint",
+      translation: [0.7, 0.5, 0.55],
+      cardTransform: transformMatMat(
+        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+        getScaling(new vec3(1, 1, 1))
+      ),
+      action: getPlatformController(false, true)
     }
   ].concat(getBackGround());
 }
@@ -164,9 +203,11 @@ const maxHeartNum = 10;
 var hearts = [];
 for (let i = 0; i < maxHeartNum; ++i) hearts.push(createHeartEntity(i));
 
+const enemyPos = [-0.4, 0.1, 0.5];
+
 const sceneList = [
   getBossRoom(
-    getEnemy("enemy", [0, 0.5, 0.5], 13, 1, 0.1, true, 0.1, true, 1, true, 1),
+    getEnemy("enemy", enemyPos, 13, 1, 0.1, true, 0.1, true, 1, true, 1),
     13
   )
   // scenes.testScene
