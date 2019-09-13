@@ -29,22 +29,25 @@ function getEnemy(
   canJump = false,
   jumpScale = 1,
   canDash = false,
-  dashScale = 1
+  dashScale = 1,
+  card = "enemy",
+  horn = "horn",
+  sword = "sword"
 ) {
   return {
     id: id,
-    card: "enemy",
+    card: card,
     stick: true,
     children: [
       {
         id: id + "sword",
-        card: "sword",
+        card: sword,
         scale: 0.3,
         translation: [0.3, 0.2, -0.01],
         action: animationAction
       },
       {
-        card: "horn",
+        card: horn,
         scale: 0.5,
         translation: [0, 0.4, 0.01]
       }
@@ -121,37 +124,102 @@ function getBackGround() {
   ];
 }
 
+const interior = [
+  {
+    card: "platform",
+    translation: [-0.35, 0, 0.55],
+    cardTransform: transformMatMat(
+      getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+      getScaling(new vec3(1, 4, 1))
+    ),
+    action: getPlatformController()
+  },
+  {
+    card: "platform",
+    translation: [-0.8, 0, 0.55],
+    cardTransform: transformMatMat(
+      getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+      getScaling(new vec3(1, 1, 1))
+    ),
+    action: getPlatformController()
+  },
+  {
+    card: "platform",
+    translation: [0.35, 0, 0.55],
+    cardTransform: transformMatMat(
+      getRotation(new vec3(0, 0, 1), -Math.PI / 2),
+      getScaling(new vec3(1, 4, 1))
+    ),
+    action: getPlatformController()
+  },
+  {
+    card: "platform",
+    translation: [-0.5, 0.75, 0.55],
+    cardTransform: transformMatMat(
+      getRotation(new vec3(0, 0, 1), -Math.PI / 4),
+      getScaling(new vec3(1, 4, 1))
+    ),
+    action: getPlatformController()
+  },
+  {
+    card: "platform",
+    translation: [-0.7, 0.4, 0.55],
+    cardTransform: getScaling(new vec3(1, 2, 1)),
+    action: getPlatformController()
+  }
+].concat(getBackGround());
+
+const startRoom = [
+  getPlayer([0, 0.55, 0.55], 13),
+  {
+    card: "stand",
+    translation: [0, 0.15, 0.55],
+    cardTransform: getScaling(new vec3(2, 1, 1)),
+    action: getPlatformController()
+  },
+  {
+    card: "stand",
+    translation: [-0.1, 0.12, 0.55],
+    cardTransform: getScaling(new vec3(2, 0.7, 1)),
+    action: getPlatformController()
+  },
+  {
+    card: "stand",
+    translation: [0.1, 0.09, 0.55],
+    cardTransform: getScaling(new vec3(2, 0.3, 1)),
+    action: getPlatformController()
+  },
+  getEnemy(
+    "princess",
+    [0.5, 0.1, 0.55],
+    1,
+    1,
+    0,
+    false,
+    1,
+    false,
+    1,
+    false,
+    1,
+    "princess",
+    "sun",
+    "heart"
+  )
+].concat(interior);
+
 function getBossRoom(enemy, level) {
   return [
     getPlayer([0.7, 0.55, 0.55], level),
     enemy,
     getDoorEntity(enemy.id, [-0.7, 0.1, 0.55]),
     {
-      card: "platform",
-      translation: [-0.35, 0, 0.55],
-      cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
-        getScaling(new vec3(1, 4, 1))
-      ),
-      action: getPlatformController()
-    },
-    {
-      card: "platform",
-      translation: [-0.8, 0, 0.55],
+      card: "checkpoint",
+      translation: [0.7, 0.5, 0.55],
       cardTransform: transformMatMat(
         getRotation(new vec3(0, 0, 1), -Math.PI / 2),
         getScaling(new vec3(1, 1, 1))
       ),
-      action: getPlatformController()
-    },
-    {
-      card: "platform",
-      translation: [0.35, 0, 0.55],
-      cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
-        getScaling(new vec3(1, 4, 1))
-      ),
-      action: getPlatformController()
+      action: getPlatformController(false, true)
     },
     {
       card: "platform",
@@ -161,32 +229,8 @@ function getBossRoom(enemy, level) {
         getScaling(new vec3(1, 4, 1))
       ),
       action: getPlatformController()
-    },
-    {
-      card: "platform",
-      translation: [-0.5, 0.75, 0.55],
-      cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), -Math.PI / 4),
-        getScaling(new vec3(1, 4, 1))
-      ),
-      action: getPlatformController()
-    },
-    {
-      card: "platform",
-      translation: [-0.7, 0.4, 0.55],
-      cardTransform: getScaling(new vec3(1, 2, 1)),
-      action: getPlatformController()
-    },
-    {
-      card: "checkpoint",
-      translation: [0.7, 0.5, 0.55],
-      cardTransform: transformMatMat(
-        getRotation(new vec3(0, 0, 1), -Math.PI / 2),
-        getScaling(new vec3(1, 1, 1))
-      ),
-      action: getPlatformController(false, true)
     }
-  ].concat(getBackGround());
+  ].concat(interior);
 }
 
 function createHeartEntity(i) {
@@ -213,7 +257,8 @@ const sceneList = [
   getBossRoom(
     getEnemy("enemy", enemyPos, 13, 1, 0.1, true, 0.1, true, 1, true, 1),
     13
-  )
+  ),
+  startRoom
   // scenes.testScene
 ];
 sceneCount = sceneList.length;

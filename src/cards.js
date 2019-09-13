@@ -33,6 +33,17 @@ var textureProps = {
         paper: defaultPaperData,
         color: { r: 1, g: 0.35, b: 0.1, a: 1 }
       },
+      princess: {
+        rect: {
+          x: 0,
+          y: 0,
+          w: 8,
+          h: 16
+        },
+        // middle: { x: 25 / 64, y: 32 / 64 },
+        paper: defaultPaperData,
+        color: { r: 1, g: 0.3, b: 1, a: 1 }
+      },
       horn: {
         rect: {
           x: 8,
@@ -53,6 +64,16 @@ var textureProps = {
         paper: defaultPaperData,
         color: { r: 0, g: 1, b: 0, a: 1 }
       },
+      // flower: {
+      //   rect: {
+      //     x: 8,
+      //     y: 12,
+      //     w: 4,
+      //     h: 4
+      //   },
+      //   paper: defaultPaperData,
+      //   color: { r: 1, g: 1, b: 1, a: 1 }
+      // },
       heart: {
         rect: {
           x: 8,
@@ -92,6 +113,16 @@ var textureProps = {
         },
         paper: defaultPaperData,
         color: { r: 0.5, g: 0.5, b: 0.5, a: 1 }
+      },
+      stand: {
+        rect: {
+          x: 16,
+          y: 0,
+          w: 4,
+          h: 16
+        },
+        paper: defaultPaperData,
+        color: { r: 1, g: 0, b: 0, a: 1 }
       },
       checkpoint: {
         rect: {
