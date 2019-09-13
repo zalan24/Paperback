@@ -250,12 +250,47 @@ for (let i = 0; i < maxHeartNum; ++i) hearts.push(createHeartEntity(i));
 const enemyPos = [-0.4, 0.1, 0.5];
 
 const sceneList = [
+  getBossRoom(getEnemy("enemy", enemyPos, 1, 0.1, 0.2), 1),
+  getBossRoom(getEnemy("enemy", enemyPos, 3, 0.1, 0.4, true, 10, true), 2),
+  getBossRoom(getEnemy("enemy", enemyPos, 4, 0.1, 0.4, true, 10, true), 3),
   getBossRoom(
-    getEnemy("enemy", enemyPos, 12, 1, 0.1, true, 0.1, true, 1, true, 1),
+    getEnemy("enemy", enemyPos, 4, 0.1, 0.6, true, 1, true, 10, true, 100),
+    4
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 6, 0.1, 0.4, true, 1, false, 10, true, 100),
+    5
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 7, 0.1, 0.4, true, 1, true, 10, true, 100),
+    6
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 9, 0.1, 0.4, true, 1, true, 10, true, 30),
+    7
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 12, 0.1, 0.4, true, 1, true, 10, true, 10),
+    8
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 15, 0.1, 2, false, 1, false, 10, false, 10),
+    9
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 20, 0.1, 0.4, true, 1, true, 2, true, 10),
+    10
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 25, 2, 3, true, 1, true, 2, true, 10),
+    11
+  ),
+  getBossRoom(
+    getEnemy("enemy", enemyPos, 30, 0.1, 0.01, true, 1, false, 1, true, 0.1),
     12
   ),
   getBossRoom(
-    getEnemy("enemy", enemyPos, 13, 1, 0.1, true, 0.1, true, 1, true, 1),
+    getEnemy("enemy", enemyPos, 35, 0.1, 0.1, true, 1, true, 1, true, 1),
     13
   ),
   startRoom
